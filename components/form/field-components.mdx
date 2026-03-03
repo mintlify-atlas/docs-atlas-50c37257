@@ -1,0 +1,989 @@
+---
+title: Field Component Reference
+description: Detailed API reference for individual form field components
+---
+
+Complete reference for all form field components with their props, usage patterns, and source code locations.
+
+## Text Input Components
+
+### ProFormText
+
+Location: `src/form/components/Text/index.tsx`
+
+Basic text input with password variant support.
+
+<CodeGroup>
+```tsx Basic Usage
+import { ProFormText } from '@ant-design/pro-components';
+
+<ProFormText
+  name="username"
+  label="Username"
+  placeholder="Enter username"
+  rules={[{ required: true }]}
+/>
+```
+
+```tsx With Field Props
+<ProFormText
+  name="search"
+  label="Search"
+  fieldProps={{
+    prefix: <SearchOutlined />,
+    allowClear: true,
+    maxLength: 50,
+  }}
+/>
+```
+</CodeGroup>
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fieldProps` | `InputProps` | - | Ant Design Input props |
+| `proFieldProps` | `ProFieldProps` | - | ProField configuration |
+
+All [common field props](#common-props) are supported.
+
+### ProFormText.Password
+
+Password input with optional strength indicator.
+
+<CodeGroup>
+```tsx Basic Password
+<ProFormText.Password
+  name="password"
+  label="Password"
+  placeholder="Enter password"
+/>
+```
+
+```tsx With Strength Indicator
+<ProFormText.Password
+  name="password"
+  label="Password"
+  fieldProps={{
+    statusRender: (value) => {
+      if (!value) return null;
+      const strength = value.length < 6 ? 'poor' : 
+                      value.length < 10 ? 'pass' : 'ok';
+      return (
+        <div>
+          <Progress
+            percent={strength === 'poor' ? 33 : strength === 'pass' ? 66 : 100}
+            status={strength === 'ok' ? 'success' : 'active'}
+          />
+          <div>Strength: {strength}</div>
+        </div>
+      );
+    },
+    strengthText: 'Use at least 8 characters with letters and numbers',
+    popoverProps: {
+      placement: 'right',
+    },
+  }}
+/>
+```
+</CodeGroup>
+
+#### Password-Specific Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `statusRender` | `(value?: string) => React.ReactNode` | Custom strength indicator renderer |
+| `strengthText` | `React.ReactNode` | Help text shown in popover |
+| `popoverProps` | `PopoverProps` | Popover configuration |
+
+### ProFormTextArea
+
+Location: `src/form/components/TextArea/index.tsx`
+
+Multi-line text input.
+
+```tsx
+<ProFormTextArea
+  name="description"
+  label="Description"
+  placeholder="Enter detailed description"
+  fieldProps={{
+    rows: 4,
+    maxLength: 500,
+    showCount: true,
+    autoSize: { minRows: 3, maxRows: 6 },
+  }}
+/>
+```
+
+## Numeric Input Components
+
+### ProFormDigit
+
+Location: `src/form/components/Digit/index.tsx`
+
+Numeric input with formatting.
+
+```tsx
+<ProFormDigit
+  name="quantity"
+  label="Quantity"
+  min={0}
+  max={999}
+  fieldProps={{
+    precision: 0,
+    step: 1,
+    controls: true,
+  }}
+/>
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `min` | `number` | - | Minimum value |
+| `max` | `number` | - | Maximum value |
+| `precision` | `number` | 0 | Decimal places |
+| `step` | `number` | 1 | Increment step |
+
+### ProFormDigitRange
+
+Location: `src/form/components/Digit/DigitRange.tsx`
+
+Range input for two numeric values.
+
+```tsx
+<ProFormDigitRange
+  name="ageRange"
+  label="Age Range"
+  separatorText="to"
+  fieldProps={{
+    precision: 0,
+  }}
+/>
+```
+
+### ProFormMoney
+
+Location: `src/form/components/Money/index.tsx`
+
+Currency input with automatic formatting.
+
+```tsx
+<ProFormMoney
+  name="price"
+  label="Price"
+  locale="en-US"
+  customSymbol="$"
+  fieldProps={{
+    precision: 2,
+    min: 0,
+  }}
+/>
+```
+
+## Selection Components
+
+### ProFormSelect
+
+Location: `src/form/components/Select/index.tsx`
+
+Dropdown selection with search and remote data support.
+
+<Tabs>
+  <Tab title="Static Options">
+    ```tsx
+    <ProFormSelect
+      name="category"
+      label="Category"
+      options={[
+        { label: 'Electronics', value: 'electronics' },
+        { label: 'Books', value: 'books' },
+        { label: 'Clothing', value: 'clothing' },
+      ]}
+      showSearch
+      allowClear
+    />
+    ```
+  </Tab>
+  <Tab title="Remote Data">
+    ```tsx
+    <ProFormSelect
+      name="user"
+      label="User"
+      request={async ({ keyWords }) => {
+        const response = await fetch(
+          `/api/users?search=${keyWords}`
+        );
+        const users = await response.json();
+        return users.map(u => ({
+          label: u.name,
+          value: u.id,
+        }));
+      }}
+      debounceTime={300}
+      showSearch
+      fieldProps={{
+        searchOnFocus: true,
+        fetchDataOnSearch: true,
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Multiple Select">
+    ```tsx
+    <ProFormSelect
+      name="tags"
+      label="Tags"
+      mode="multiple"
+      options={tags}
+      fieldProps={{
+        maxTagCount: 3,
+        maxTagPlaceholder: (omitted) => `+${omitted.length} more`,
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+#### Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `options` | `Array<{label, value}> \| string[]` | Static options |
+| `request` | `(params) => Promise<options>` | Async data loader |
+| `params` | `object` | Parameters for request |
+| `debounceTime` | `number` | Search debounce (ms) |
+| `mode` | `'multiple' \| 'tags' \| 'single'` | Selection mode |
+| `showSearch` | `boolean` | Enable search |
+| `searchOnFocus` | `boolean` | Trigger search on focus |
+| `resetAfterSelect` | `boolean` | Clear search after selection |
+| `fetchDataOnSearch` | `boolean` | Request data on search |
+
+### ProFormSelect.SearchSelect
+
+Enhanced select optimized for searching.
+
+```tsx
+<ProFormSelect.SearchSelect
+  name="assignee"
+  label="Assignee"
+  mode="multiple"
+  request={async ({ keyWords }) => {
+    return await searchUsers(keyWords);
+  }}
+  fieldProps={{
+    searchOnFocus: true,
+    resetAfterSelect: true,
+  }}
+/>
+```
+
+### ProFormCheckbox
+
+Location: `src/form/components/Checkbox/index.tsx`
+
+<CodeGroup>
+```tsx Single Checkbox
+<ProFormCheckbox
+  name="agreed"
+  label="I agree to the terms and conditions"
+  valuePropName="checked"
+/>
+```
+
+```tsx Checkbox Group
+<ProFormCheckbox.Group
+  name="permissions"
+  label="Permissions"
+  options={[
+    { label: 'Read', value: 'read' },
+    { label: 'Write', value: 'write' },
+    { label: 'Delete', value: 'delete' },
+  ]}
+  layout="vertical"
+/>
+```
+</CodeGroup>
+
+### ProFormRadio
+
+Location: `src/form/components/Radio/index.tsx`
+
+```tsx
+<ProFormRadio.Group
+  name="status"
+  label="Status"
+  options={[
+    { label: 'Draft', value: 'draft' },
+    { label: 'Published', value: 'published' },
+    { label: 'Archived', value: 'archived' },
+  ]}
+  radioType="button"
+  fieldProps={{
+    buttonStyle: 'solid',
+  }}
+/>
+```
+
+### ProFormSwitch
+
+Location: `src/form/components/Switch/index.tsx`
+
+Toggle switch for boolean values.
+
+```tsx
+<ProFormSwitch
+  name="enabled"
+  label="Status"
+  checkedChildren="Active"
+  unCheckedChildren="Inactive"
+  fieldProps={{
+    size: 'default',
+  }}
+/>
+```
+
+<Note>
+  ProFormSwitch uses `valuePropName="checked"` by default. The value is a boolean.
+</Note>
+
+### ProFormTreeSelect
+
+Location: `src/form/components/TreeSelect/index.tsx`
+
+Tree-structured selection for hierarchical data.
+
+```tsx
+<ProFormTreeSelect
+  name="department"
+  label="Department"
+  fieldProps={{
+    treeData: [
+      {
+        title: 'Company',
+        value: 'company',
+        children: [
+          {
+            title: 'Engineering',
+            value: 'eng',
+            children: [
+              { title: 'Frontend', value: 'fe' },
+              { title: 'Backend', value: 'be' },
+            ],
+          },
+          {
+            title: 'Sales',
+            value: 'sales',
+          },
+        ],
+      },
+    ],
+    showSearch: true,
+    treeDefaultExpandAll: true,
+    treeCheckable: false,
+    placeholder: 'Select department',
+  }}
+/>
+```
+
+### ProFormCascader
+
+Location: `src/form/components/Cascader/index.tsx`
+
+Cascading dropdown for hierarchical selection.
+
+```tsx
+<ProFormCascader
+  name="location"
+  label="Location"
+  fieldProps={{
+    options: [
+      {
+        value: 'us',
+        label: 'United States',
+        children: [
+          {
+            value: 'ny',
+            label: 'New York',
+            children: [
+              { value: 'nyc', label: 'New York City' },
+              { value: 'buffalo', label: 'Buffalo' },
+            ],
+          },
+        ],
+      },
+    ],
+    changeOnSelect: true,
+    showSearch: true,
+  }}
+/>
+```
+
+### ProFormSegmented
+
+Location: `src/form/components/Segmented/index.tsx`
+
+Segmented control for mutually exclusive options.
+
+```tsx
+<ProFormSegmented
+  name="viewMode"
+  label="View Mode"
+  fieldProps={{
+    options: [
+      { label: 'List', value: 'list', icon: <UnorderedListOutlined /> },
+      { label: 'Grid', value: 'grid', icon: <AppstoreOutlined /> },
+    ],
+    block: true,
+  }}
+/>
+```
+
+## Date & Time Components
+
+### ProFormDatePicker
+
+Location: `src/form/components/DatePicker/index.tsx`
+
+Date selection with various granularities.
+
+<Tabs>
+  <Tab title="Date">
+    ```tsx
+    <ProFormDatePicker
+      name="date"
+      label="Date"
+      fieldProps={{
+        format: 'YYYY-MM-DD',
+        disabledDate: (current) => {
+          return current && current < dayjs().startOf('day');
+        },
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Week">
+    ```tsx
+    <ProFormDatePicker.Week
+      name="week"
+      label="Week"
+      fieldProps={{
+        format: 'YYYY-wo',
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Month">
+    ```tsx
+    <ProFormDatePicker.Month
+      name="month"
+      label="Month"
+      fieldProps={{
+        format: 'YYYY-MM',
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Quarter">
+    ```tsx
+    <ProFormDatePicker.Quarter
+      name="quarter"
+      label="Quarter"
+      fieldProps={{
+        format: 'YYYY-[Q]Q',
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Year">
+    ```tsx
+    <ProFormDatePicker.Year
+      name="year"
+      label="Year"
+      fieldProps={{
+        format: 'YYYY',
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### ProFormDateTimePicker
+
+Location: `src/form/components/DatePicker/DateTimePicker.tsx`
+
+```tsx
+<ProFormDateTimePicker
+  name="schedule"
+  label="Schedule Time"
+  fieldProps={{
+    format: 'YYYY-MM-DD HH:mm:ss',
+    showTime: {
+      format: 'HH:mm:ss',
+      defaultValue: dayjs('00:00:00', 'HH:mm:ss'),
+    },
+  }}
+/>
+```
+
+### ProFormTimePicker
+
+Location: `src/form/components/DatePicker/TimePicker.tsx`
+
+```tsx
+<ProFormTimePicker
+  name="time"
+  label="Time"
+  fieldProps={{
+    format: 'HH:mm',
+    minuteStep: 15,
+  }}
+/>
+```
+
+### ProFormDateRangePicker
+
+Location: `src/form/components/DateRangePicker/index.tsx`
+
+Date range selection.
+
+```tsx
+<ProFormDateRangePicker
+  name="dateRange"
+  label="Date Range"
+  fieldProps={{
+    format: 'YYYY-MM-DD',
+    presets: [
+      { label: 'Last 7 Days', value: [dayjs().add(-7, 'd'), dayjs()] },
+      { label: 'Last 30 Days', value: [dayjs().add(-30, 'd'), dayjs()] },
+    ],
+  }}
+/>
+```
+
+#### Range Picker Variants
+
+All located in `src/form/components/DateRangePicker/`:
+
+- `ProFormDateTimeRangePicker` - DateTime ranges
+- `ProFormTimeRangePicker` - Time ranges
+- `ProFormDateMonthRangePicker` - Month ranges
+- `ProFormDateWeekRangePicker` - Week ranges
+- `ProFormDateQuarterRangePicker` - Quarter ranges
+- `ProFormDateYearRangePicker` - Year ranges
+
+## Advanced Components
+
+### ProFormSlider
+
+Location: `src/form/components/Slider/index.tsx`
+
+```tsx
+<ProFormSlider
+  name="priority"
+  label="Priority"
+  min={0}
+  max={10}
+  fieldProps={{
+    marks: {
+      0: 'Low',
+      5: 'Medium',
+      10: 'High',
+    },
+    step: 1,
+    tooltip: {
+      formatter: (value) => `${value}/10`,
+    },
+  }}
+/>
+```
+
+### ProFormRate
+
+Location: `src/form/components/Rate/index.tsx`
+
+```tsx
+<ProFormRate
+  name="rating"
+  label="Rating"
+  fieldProps={{
+    count: 5,
+    allowHalf: true,
+    character: <StarFilled />,
+    tooltips: ['Terrible', 'Bad', 'OK', 'Good', 'Excellent'],
+  }}
+/>
+```
+
+### ProFormColorPicker
+
+Location: `src/form/components/ColorPicker/index.tsx`
+
+```tsx
+<ProFormColorPicker
+  name="themeColor"
+  label="Theme Color"
+  fieldProps={{
+    showText: true,
+    presets: [
+      {
+        label: 'Primary Colors',
+        colors: ['#1890ff', '#52c41a', '#faad14', '#f5222d'],
+      },
+    ],
+  }}
+/>
+```
+
+### ProFormUploadButton
+
+Location: `src/form/components/UploadButton/index.tsx`
+
+```tsx
+<ProFormUploadButton
+  name="documents"
+  label="Documents"
+  max={5}
+  title="Upload"
+  icon={<UploadOutlined />}
+  fieldProps={{
+    name: 'file',
+    action: '/api/upload',
+    listType: 'text',
+    accept: '.pdf,.doc,.docx',
+    beforeUpload: (file) => {
+      const isLt10M = file.size / 1024 / 1024 < 10;
+      if (!isLt10M) {
+        message.error('File must be smaller than 10MB');
+      }
+      return isLt10M;
+    },
+  }}
+  extra="Support: PDF, DOC, DOCX (max 10MB each)"
+/>
+```
+
+### ProFormUploadDragger
+
+Location: `src/form/components/UploadDragger/index.tsx`
+
+```tsx
+<ProFormUploadDragger
+  name="images"
+  label="Product Images"
+  max={3}
+  title="Drag files here"
+  description="or click to upload"
+  icon={<InboxOutlined />}
+  fieldProps={{
+    name: 'file',
+    action: '/api/upload',
+    listType: 'picture-card',
+    accept: 'image/*',
+    multiple: true,
+  }}
+/>
+```
+
+### ProFormCaptcha
+
+Location: `src/form/components/Captcha/index.tsx`
+
+Captcha input with countdown timer.
+
+```tsx
+import { message } from 'antd';
+
+<ProFormText name="phone" label="Phone Number" required />
+<ProFormCaptcha
+  name="captcha"
+  label="Verification Code"
+  phoneName="phone"
+  fieldProps={{
+    maxLength: 6,
+    placeholder: 'Enter code',
+  }}
+  captchaProps={{
+    type: 'primary',
+    getText: (timing) => (timing ? `${timing}s` : 'Get Code'),
+  }}
+  captchaTextRender={(timing, count) => {
+    return timing ? `${count}s` : 'Get Code';
+  }}
+  onGetCaptcha={async (phone) => {
+    await sendVerificationCode(phone);
+    message.success(`Code sent to ${phone}`);
+  }}
+/>
+```
+
+## Container Components
+
+### ProForm.Group
+
+Location: `src/form/components/FormItem/Group/index.tsx`
+
+Group related fields visually.
+
+```tsx
+import { ProForm, ProFormText } from '@ant-design/pro-components';
+
+<ProForm.Group
+  title="Contact Information"
+  tooltip="Primary contact details"
+  collapsible
+  defaultCollapsed={false}
+>
+  <ProFormText name="email" label="Email" />
+  <ProFormText name="phone" label="Phone" />
+</ProForm.Group>
+```
+
+### ProFormList
+
+Location: `src/form/components/List/index.tsx`
+
+Dynamic list of repeating form items.
+
+```tsx
+import { ProFormList, ProFormText } from '@ant-design/pro-components';
+
+<ProFormList
+  name="contacts"
+  label="Contacts"
+  initialValue={[{ name: '', email: '' }]}
+  min={1}
+  max={5}
+  copyIconProps={{ tooltipText: 'Copy' }}
+  deleteIconProps={{ tooltipText: 'Delete' }}
+  creatorButtonProps={{
+    position: 'bottom',
+    creatorButtonText: 'Add Contact',
+  }}
+  itemRender={({ listDom, action }, { index }) => (
+    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+      <span style={{ width: 30 }}>#{index + 1}</span>
+      {listDom}
+      {action}
+    </div>
+  )}
+>
+  <ProFormText name="name" label="Name" required />
+  <ProFormText name="email" label="Email" required />
+</ProFormList>
+```
+
+#### ProFormList API
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `actionRef` | `React.Ref<FormListActionType>` | List actions ref |
+| `min` | `number` | Minimum items |
+| `max` | `number` | Maximum items |
+| `creatorButtonProps` | `ButtonProps` | Add button config |
+| `itemRender` | `(data, meta) => React.ReactNode` | Custom item renderer |
+| `copyIconProps` | `IconProps` | Copy icon config |
+| `deleteIconProps` | `IconProps` | Delete icon config |
+
+#### Action Methods
+
+```tsx
+const actionRef = useRef<FormListActionType>();
+
+// Available actions:
+actionRef.current?.add(defaultValue, insertIndex);
+actionRef.current?.remove(index);
+actionRef.current?.move(from, to);
+actionRef.current?.get(index);
+actionRef.current?.getList();
+```
+
+### ProFormFieldSet
+
+Location: `src/form/components/FieldSet/index.tsx`
+
+Group fields under a single name path.
+
+```tsx
+<ProFormFieldSet
+  name="location"
+  label="Location"
+  type="group"
+  transform={(value) => ({
+    location: value.join(','),
+  })}
+  convertValue={(value) => value?.split(',')}
+>
+  <ProFormText placeholder="Latitude" />
+  <ProFormText placeholder="Longitude" />
+</ProFormFieldSet>
+```
+
+### ProFormDependency
+
+Location: `src/form/components/Dependency/index.tsx`
+
+Render fields conditionally based on other fields.
+
+```tsx
+import { ProFormDependency, ProFormSelect, ProFormText } from '@ant-design/pro-components';
+
+<ProFormSelect
+  name="paymentMethod"
+  label="Payment Method"
+  options={[
+    { label: 'Credit Card', value: 'card' },
+    { label: 'Bank Transfer', value: 'bank' },
+  ]}
+/>
+
+<ProFormDependency name={['paymentMethod']}>
+  {({ paymentMethod }) => {
+    if (paymentMethod === 'card') {
+      return (
+        <>
+          <ProFormText name="cardNumber" label="Card Number" />
+          <ProFormText name="cvv" label="CVV" />
+        </>
+      );
+    }
+    if (paymentMethod === 'bank') {
+      return (
+        <ProFormText name="accountNumber" label="Account Number" />
+      );
+    }
+    return null;
+  }}
+</ProFormDependency>
+```
+
+## Common Props
+
+All field components inherit these props:
+
+### Basic Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `name` | `string \| string[]` | Field name (supports nested: `['user', 'name']`) |
+| `label` | `React.ReactNode` | Field label |
+| `placeholder` | `string` | Placeholder text |
+| `tooltip` | `string \| { title, icon }` | Help tooltip |
+| `disabled` | `boolean` | Disable the field |
+| `readonly` | `boolean` | Read-only mode |
+| `hidden` | `boolean` | Hide the field |
+
+### Validation Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `required` | `boolean` | Mark as required |
+| `rules` | `Rule[]` | Validation rules |
+| `validateTrigger` | `string \| string[]` | When to validate |
+| `validateFirst` | `boolean` | Stop on first error |
+
+### Style & Layout Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `width` | `'xs'\|'sm'\|'md'\|'lg'\|'xl'\|number` | Field width |
+| `colProps` | `ColProps` | Grid column props |
+| `colSize` | `number` | Column size (1-3) |
+| `formItemProps` | `FormItemProps` | Form.Item wrapper props |
+
+### Advanced Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `fieldProps` | `object` | Props for underlying input |
+| `proFieldProps` | `ProFieldProps` | ProField configuration |
+| `transform` | `(value) => any` | Transform before submit |
+| `convertValue` | `(value) => any` | Convert to field value |
+| `dependencies` | `NamePath[]` | Fields to watch |
+
+## Field Widths
+
+ProComponents defines standard field widths:
+
+```tsx
+// Predefined sizes
+<ProFormText width="xs" /> // 104px - short numbers/codes
+<ProFormText width="sm" /> // 216px - names, phones
+<ProFormText width="md" /> // 328px - default, most fields
+<ProFormText width="lg" /> // 440px - long fields
+<ProFormText width="xl" /> // 552px - very long text
+
+// Custom width
+<ProFormText width={400} />
+```
+
+Defined in: `src/form/BaseForm/BaseForm.tsx:723-762`
+
+## Value Types
+
+ProForm automatically handles value conversion based on `valueType`:
+
+- **text**: String values
+- **digit**: Numeric values
+- **money**: Currency formatting
+- **date**: Date objects
+- **dateTime**: DateTime objects
+- **time**: Time objects
+- **select**: Selection values
+- **checkbox**: Boolean or array
+- **radio**: Single selection
+- **switch**: Boolean
+
+## Best Practices
+
+### Use Appropriate Components
+
+```tsx
+// Good: Use ProFormDigit for numbers
+<ProFormDigit name="quantity" min={0} />
+
+// Bad: Using text input for numbers
+<ProFormText name="quantity" />
+```
+
+### Leverage Remote Data
+
+```tsx
+// Good: Load options asynchronously
+<ProFormSelect
+  request={async () => await fetchOptions()}
+  debounceTime={300}
+/>
+
+// Less optimal: Loading all data upfront
+const [options, setOptions] = useState([]);
+useEffect(() => {
+  fetchAllOptions().then(setOptions);
+}, []);
+```
+
+### Group Related Fields
+
+```tsx
+<ProForm.Group title="Address">
+  <ProFormText name="street" />
+  <ProFormText name="city" />
+  <ProFormText name="zip" />
+</ProForm.Group>
+```
+
+### Use Dependencies Wisely
+
+```tsx
+// Good: Only depend on necessary fields
+<ProFormDependency name={['type']}>
+  {({ type }) => type === 'custom' && <CustomFields />}
+</ProFormDependency>
+
+// Bad: Depending on entire form
+<ProFormDependency name={[]}>
+  {(values) => /* re-renders on any change */}
+</ProFormDependency>
+```

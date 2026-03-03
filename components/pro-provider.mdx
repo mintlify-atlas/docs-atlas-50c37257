@@ -1,0 +1,483 @@
+---
+title: ProProvider
+description: Global configuration provider for themes, internationalization, and tokens
+---
+
+ProProvider (also known as ProConfigProvider) is the global configuration provider that manages themes, tokens, internationalization, and custom value types across all ProComponents.
+
+## Features
+
+- **Theme Configuration**: Customize colors, tokens, and theme mode
+- **Internationalization**: Built-in i18n support for 15+ languages
+- **Token System**: Design token customization
+- **Value Type Extension**: Register custom value types
+- **Auto Cache Clearing**: SWR cache management
+- **Dark Mode**: Built-in dark theme support
+
+## Basic Usage
+
+```tsx
+import { ProProvider } from '@ant-design/pro-components';
+
+export default () => {
+  return (
+    <ProProvider>
+      <YourApp />
+    </ProProvider>
+  );
+};
+```
+
+## Theme Configuration
+
+### Primary Color
+
+```tsx
+<ProProvider
+  token={{
+    colorPrimary: '#1890ff',
+  }}
+>
+  <YourApp />
+</ProProvider>
+```
+
+### Dark Mode
+
+```tsx
+import { ProProvider } from '@ant-design/pro-components';
+import { useState } from 'react';
+
+export default () => {
+  const [dark, setDark] = useState(false);
+  
+  return (
+    <>
+      <Button onClick={() => setDark(!dark)}>
+        {dark ? '切换为亮色' : '切换为暗色'}
+      </Button>
+      
+      <ProProvider dark={dark}>
+        <YourApp />
+      </ProProvider>
+    </>
+  );
+};
+```
+
+## Token Customization
+
+```tsx
+<ProProvider
+  token={{
+    // Component tokens
+    colorPrimary: '#00b96b',
+    borderRadius: 8,
+    
+    // Layout tokens
+    layout: {
+      header: {
+        colorBgHeader: '#001529',
+        colorHeaderTitle: '#fff',
+        colorTextMenu: '#dfdfdf',
+        colorTextMenuSelected: '#fff',
+        colorBgMenuItemSelected: '#1890ff',
+      },
+      sider: {
+        colorMenuBackground: '#fff',
+        colorTextMenu: '#595959',
+        colorTextMenuSelected: '#1890ff',
+        colorBgMenuItemSelected: '#e6f7ff',
+      },
+    },
+  }}
+>
+  <YourApp />
+</ProProvider>
+```
+
+## Internationalization
+
+### Built-in Languages
+
+ProComponents supports 15+ languages out of the box:
+
+```tsx
+import {
+  ProProvider,
+  zhCNIntl,
+  enUSIntl,
+  jaJPIntl,
+  esESIntl,
+  frFRIntl,
+  ptBRIntl,
+  ruRUIntl,
+  // ... and more
+} from '@ant-design/pro-components';
+import { ConfigProvider } from 'antd';
+import zhCN from 'antd/locale/zh_CN';
+
+export default () => {
+  return (
+    <ConfigProvider locale={zhCN}>
+      <ProProvider intl={zhCNIntl}>
+        <YourApp />
+      </ProProvider>
+    </ConfigProvider>
+  );
+};
+```
+
+### Available Locales
+
+- `zhCNIntl` - 简体中文
+- `zhTWIntl` - 繁體中文
+- `enUSIntl` - English
+- `jaJPIntl` - 日本語
+- `esESIntl` - Español
+- `frFRIntl` - Français
+- `ptBRIntl` - Português (Brasil)
+- `ruRUIntl` - Русский
+- `msMYIntl` - Bahasa Melayu
+- `viVNIntl` - Tiếng Việt
+- `itITIntl` - Italiano
+- `thTHIntl` - ภาษาไทย
+- `arEGIntl` - العربية
+- `caESIntl` - Català
+
+### Custom Locale
+
+```tsx
+import { createIntl } from '@ant-design/pro-components';
+
+const myLocale = {
+  locale: 'my-locale',
+  common: {
+    search: 'Search',
+    reset: 'Reset',
+    submit: 'Submit',
+    // ... other translations
+  },
+  tableForm: {
+    search: 'Search',
+    reset: 'Reset',
+    // ...
+  },
+  // ... other sections
+};
+
+const myIntl = createIntl(myLocale);
+
+<ProProvider intl={myIntl}>
+  <YourApp />
+</ProProvider>
+```
+
+### useIntl Hook
+
+Access internationalization in components:
+
+```tsx
+import { useIntl } from '@ant-design/pro-components';
+
+const MyComponent = () => {
+  const intl = useIntl();
+  
+  return (
+    <div>
+      <Button>{intl.getMessage('tableForm.search', '查询')}</Button>
+      <Button>{intl.getMessage('tableForm.reset', '重置')}</Button>
+    </div>
+  );
+};
+```
+
+## Custom Value Types
+
+Register custom value types for ProField:
+
+```tsx
+import { ProProvider } from '@ant-design/pro-components';
+
+const PhoneField = ({ text, mode, fieldProps }) => {
+  if (mode === 'read') {
+    return <span>{text?.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')}</span>;
+  }
+  return (
+    <Input
+      {...fieldProps}
+      placeholder="请输入手机号"
+      maxLength={11}
+    />
+  );
+};
+
+export default () => {
+  return (
+    <ProProvider
+      valueTypeMap={{
+        phone: {
+          render: (text, props) => (
+            <PhoneField text={text} {...props} />
+          ),
+        },
+      }}
+    >
+      {/* Now you can use valueType="phone" in ProField, ProTable, etc */}
+      <ProTable
+        columns={[
+          {
+            title: '手机号',
+            dataIndex: 'phone',
+            valueType: 'phone',
+          },
+        ]}
+      />
+    </ProProvider>
+  );
+};
+```
+
+## Auto Cache Clearing
+
+Automatically clear SWR cache when component unmounts:
+
+```tsx
+<ProProvider autoClearCache>
+  <YourApp />
+</ProProvider>
+```
+
+<Info>
+  This is useful when you have multiple instances of the same component and want to prevent cache conflicts.
+</Info>
+
+## Hash ID
+
+Control CSS class name hashing:
+
+```tsx
+<ProProvider
+  hashed={false} // Disable hash for easier debugging
+>
+  <YourApp />
+</ProProvider>
+```
+
+## Custom Prefix
+
+Customize component class name prefix:
+
+```tsx
+<ProProvider prefixCls="my-pro">
+  <YourApp />
+</ProProvider>
+```
+
+## needDeps Optimization
+
+Optimize nested providers:
+
+```tsx
+// In nested scenarios, use needDeps to avoid unnecessary re-renders
+<ProProvider needDeps>
+  <ProTable />
+</ProProvider>
+```
+
+## Full Configuration Example
+
+```tsx
+import {
+  ProProvider,
+  zhCNIntl,
+} from '@ant-design/pro-components';
+import { ConfigProvider } from 'antd';
+import zhCN from 'antd/locale/zh_CN';
+import { useState } from 'react';
+
+export default () => {
+  const [dark, setDark] = useState(false);
+  
+  return (
+    <ConfigProvider locale={zhCN}>
+      <ProProvider
+        // Theme
+        dark={dark}
+        token={{
+          colorPrimary: '#1890ff',
+          borderRadius: 8,
+          layout: {
+            header: {
+              colorBgHeader: dark ? '#141414' : '#001529',
+            },
+          },
+        }}
+        
+        // Internationalization
+        intl={zhCNIntl}
+        
+        // Custom value types
+        valueTypeMap={{
+          phone: {
+            render: (text) => formatPhone(text),
+          },
+        }}
+        
+        // Performance
+        autoClearCache
+        hashed
+      >
+        <YourApp onThemeChange={setDark} />
+      </ProProvider>
+    </ConfigProvider>
+  );
+};
+```
+
+## Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `token` | `DeepPartial<ProAliasToken>` | Design tokens |
+| `dark` | `boolean` | Enable dark mode |
+| `intl` | `IntlType` | Internationalization config |
+| `valueTypeMap` | `Record<string, ProRenderFieldPropsType>` | Custom value types |
+| `autoClearCache` | `boolean` | Auto clear SWR cache |
+| `hashed` | `boolean` | Enable CSS hash |
+| `prefixCls` | `string` | Component class prefix |
+| `needDeps` | `boolean` | Optimization for nested providers |
+
+## Token Reference
+
+### Common Tokens
+
+```tsx
+token={{
+  // Colors
+  colorPrimary: string,
+  colorSuccess: string,
+  colorWarning: string,
+  colorError: string,
+  colorInfo: string,
+  
+  // Border
+  borderRadius: number,
+  
+  // Spacing
+  margin: number,
+  marginXS: number,
+  marginSM: number,
+  marginLG: number,
+  marginXL: number,
+  
+  // Font
+  fontSize: number,
+  fontSizeHeading1: number,
+  fontSizeHeading2: number,
+  // ...
+}}
+```
+
+### Layout Tokens
+
+```tsx
+token={{
+  layout: {
+    header: {
+      colorBgHeader: string,
+      colorHeaderTitle: string,
+      colorTextMenu: string,
+      colorTextMenuSecondary: string,
+      colorTextMenuSelected: string,
+      colorBgMenuItemSelected: string,
+      colorTextMenuActive: string,
+      colorBgMenuItemActive: string,
+      colorBgMenuItemHover: string,
+      heightLayoutHeader: number,
+    },
+    sider: {
+      colorMenuBackground: string,
+      colorBgCollapsedButton: string,
+      colorTextCollapsedButton: string,
+      colorMenuItemDivider: string,
+      colorTextMenu: string,
+      colorTextMenuSecondary: string,
+      colorTextMenuTitle: string,
+      colorTextMenuSelected: string,
+      colorBgMenuItemSelected: string,
+      colorBgMenuItemHover: string,
+      colorBgMenuItemCollapsedHover: string,
+      colorTextMenuItemHover: string,
+      colorTextMenuActive: string,
+      colorBgMenuItemActive: string,
+    },
+    pageContainer: {
+      colorBgPageContainer: string,
+      paddingBlockPageContainerContent: number,
+      paddingInlinePageContainerContent: number,
+    },
+  },
+}}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Place ProProvider at the root">
+    Wrap your entire app with ProProvider at the root level:
+    ```tsx
+    ReactDOM.render(
+      <ProProvider>
+        <App />
+      </ProProvider>,
+      document.getElementById('root')
+    );
+    ```
+  </Accordion>
+  
+  <Accordion title="Use with ConfigProvider">
+    Combine ProProvider with Ant Design's ConfigProvider for full customization:
+    ```tsx
+    <ConfigProvider locale={zhCN} theme={{ token: { colorPrimary: '#00b96b' } }}>
+      <ProProvider intl={zhCNIntl}>
+        <App />
+      </ProProvider>
+    </ConfigProvider>
+    ```
+  </Accordion>
+  
+  <Accordion title="Persist theme preferences">
+    Save user's theme choice to localStorage:
+    ```tsx
+    const [dark, setDark] = useState(
+      () => localStorage.getItem('theme') === 'dark'
+    );
+    
+    useEffect(() => {
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }, [dark]);
+    ```
+  </Accordion>
+  
+  <Accordion title="Use needDeps in nested scenarios">
+    When using ProProvider in nested components, add needDeps to avoid duplicate renders:
+    ```tsx
+    <ProProvider needDeps>
+      <ProTable />
+    </ProProvider>
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Concepts
+
+- **ProTheme**: Use `proTheme.useToken()` hook to access theme tokens in components
+- **ProConfigContext**: Access provider context with `useContext(ProConfigContext)`
+- **ConfigConsumer**: Legacy context consumer for backward compatibility
+
+## Related Components
+
+- [ProLayout](/components/pro-layout) - Layout theme customization
+- [ProField](/components/pro-field) - Custom value types
+- [All Components](/components/overview) - All components use ProProvider context

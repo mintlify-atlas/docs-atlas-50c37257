@@ -1,0 +1,472 @@
+---
+title: ProList
+description: Structured list component for displaying collection data with rich interactions
+---
+
+ProList is a powerful list component that combines ProTable's data handling capabilities with Ant Design's List layout. It's ideal for displaying card-based or item-based data with search, pagination, and actions.
+
+## Features
+
+- **Column-based Configuration**: Define list items using ProTable's column API
+- **Multiple Layouts**: Horizontal, vertical, and grid layouts
+- **Search & Filter**: Integrated search and filter capabilities
+- **Pagination**: Built-in pagination support
+- **Row Selection**: Multi-select with batch operations
+- **Request Integration**: Async data fetching
+- **Item Customization**: Flexible item rendering
+
+## Basic Usage
+
+```tsx
+import { ProList } from '@ant-design/pro-components';
+import type { ProColumns } from '@ant-design/pro-components';
+
+type ProjectItem = {
+  id: string;
+  name: string;
+  description: string;
+  status: 'active' | 'archived';
+  owner: {
+    name: string;
+    avatar: string;
+  };
+  tags: string[];
+};
+
+const columns: ProColumns<ProjectItem>[] = [
+  {
+    title: '项目名称',
+    dataIndex: 'name',
+    listSlot: 'title',
+  },
+  {
+    title: '描述',
+    dataIndex: 'description',
+    listSlot: 'description',
+  },
+  {
+    title: '负责人',
+    dataIndex: ['owner', 'avatar'],
+    listSlot: 'avatar',
+    render: (_, record) => (
+      <Avatar src={record.owner.avatar} />
+    ),
+  },
+  {
+    title: '状态',
+    dataIndex: 'status',
+    listSlot: 'subTitle',
+    render: (_, record) => (
+      <Tag color={record.status === 'active' ? 'success' : 'default'}>
+        {record.status === 'active' ? '进行中' : '已归档'}
+      </Tag>
+    ),
+  },
+  {
+    title: '操作',
+    listSlot: 'actions',
+    render: () => [
+      <a key="view">查看</a>,
+      <a key="edit">编辑</a>,
+    ],
+  },
+];
+
+export default () => {
+  return (
+    <ProList<ProjectItem>
+      columns={columns}
+      dataSource={dataSource}
+      rowKey="id"
+      headerTitle="项目列表"
+      tooltip="这是一个基础的列表示例"
+    />
+  );
+};
+```
+
+## List Slots
+
+ProList uses `listSlot` to map column data to list item parts:
+
+- `title` - Main title of the list item
+- `subTitle` - Subtitle or tags
+- `description` - Description text
+- `avatar` - Avatar or thumbnail image
+- `content` - Main content area
+- `actions` - Action buttons
+
+```tsx
+const columns: ProColumns<DataItem>[] = [
+  {
+    dataIndex: 'name',
+    listSlot: 'title', // Maps to List.Item.Meta.title
+  },
+  {
+    dataIndex: 'tags',
+    listSlot: 'subTitle', // Maps to tags area
+  },
+  {
+    dataIndex: 'description',
+    listSlot: 'description', // Maps to List.Item.Meta.description
+  },
+  {
+    dataIndex: 'avatar',
+    listSlot: 'avatar', // Maps to List.Item.Meta.avatar
+  },
+  {
+    dataIndex: 'detail',
+    listSlot: 'content', // Maps to main content
+  },
+  {
+    dataIndex: 'actions',
+    listSlot: 'actions', // Maps to action buttons
+  },
+];
+```
+
+## Grid Layout
+
+Display items in a grid:
+
+```tsx
+<ProList
+  grid={{
+    gutter: 16,
+    xs: 1,
+    sm: 2,
+    md: 3,
+    lg: 3,
+    xl: 4,
+    xxl: 4,
+  }}
+  columns={columns}
+  dataSource={dataSource}
+/>
+```
+
+## Card List
+
+Wrap items in cards:
+
+```tsx
+import { ProList, CheckCard } from '@ant-design/pro-components';
+
+<ProList
+  grid={{ gutter: 16, column: 3 }}
+  itemCardProps={{
+    title: '', // Use column data for title
+  }}
+  columns={[
+    {
+      dataIndex: 'title',
+      listSlot: 'title',
+    },
+    {
+      dataIndex: 'description',
+      listSlot: 'content',
+    },
+  ]}
+  dataSource={dataSource}
+/>
+```
+
+## Request Integration
+
+```tsx
+<ProList
+  columns={columns}
+  request={async (params) => {
+    const response = await fetch('/api/list', {
+      method: 'POST',
+      body: JSON.stringify({
+        page: params.current,
+        pageSize: params.pageSize,
+        ...params,
+      }),
+    });
+    const data = await response.json();
+    return {
+      data: data.list,
+      success: true,
+      total: data.total,
+    };
+  }}
+  pagination={{
+    pageSize: 10,
+  }}
+/>
+```
+
+## Search & Filter
+
+Enable search functionality:
+
+```tsx
+const columns: ProColumns<DataItem>[] = [
+  {
+    title: '名称',
+    dataIndex: 'name',
+    listSlot: 'title',
+    search: true, // Enable search for this field
+  },
+  {
+    title: '状态',
+    dataIndex: 'status',
+    listSlot: 'subTitle',
+    valueType: 'select',
+    valueEnum: {
+      all: '全部',
+      active: '进行中',
+      archived: '已归档',
+    },
+    search: true,
+  },
+];
+
+<ProList
+  columns={columns}
+  search={{
+    filterType: 'light', // Use light filter
+  }}
+  request={request}
+/>
+```
+
+## Row Selection
+
+```tsx
+import { useState } from 'react';
+
+const Demo = () => {
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  
+  return (
+    <ProList
+      columns={columns}
+      rowSelection={{
+        selectedRowKeys,
+        onChange: (keys) => setSelectedRowKeys(keys),
+      }}
+      tableAlertRender={({ selectedRowKeys }) => (
+        <span>已选择 {selectedRowKeys.length} 项</span>
+      )}
+      tableAlertOptionRender={() => [
+        <a key="batch-delete">批量删除</a>,
+      ]}
+      dataSource={dataSource}
+    />
+  );
+};
+```
+
+## Custom Item Render
+
+```tsx
+<ProList
+  itemRender={(item, index, defaultDom) => (
+    <div style={{ padding: 16, border: '1px solid #f0f0f0' }}>
+      {defaultDom}
+      <div style={{ marginTop: 8, color: '#999' }}>
+        创建于: {item.createdAt}
+      </div>
+    </div>
+  )}
+  columns={columns}
+  dataSource={dataSource}
+/>
+```
+
+## Item Header & Title Render
+
+```tsx
+<ProList
+  itemHeaderRender={(item) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <span>{item.category}</span>
+      <Tag>{item.status}</Tag>
+    </div>
+  )}
+  itemTitleRender={(item) => (
+    <a href={`/detail/${item.id}`}>{item.title}</a>
+  )}
+  columns={columns}
+  dataSource={dataSource}
+/>
+```
+
+## Expandable Items
+
+```tsx
+<ProList
+  expandable={{
+    expandedRowRender: (record) => (
+      <div style={{ padding: 16 }}>
+        <Descriptions>
+          <Descriptions.Item label="ID">{record.id}</Descriptions.Item>
+          <Descriptions.Item label="创建时间">
+            {record.createdAt}
+          </Descriptions.Item>
+        </Descriptions>
+      </div>
+    ),
+  }}
+  columns={columns}
+  dataSource={dataSource}
+/>
+```
+
+## Toolbar
+
+```tsx
+<ProList
+  headerTitle="项目列表"
+  tooltip="显示所有项目"
+  toolBarRender={() => [
+    <Button key="export" icon={<DownloadOutlined />}>
+      导出
+    </Button>,
+    <Button key="add" icon={<PlusOutlined />} type="primary">
+      新建
+    </Button>,
+  ]}
+  columns={columns}
+  dataSource={dataSource}
+/>
+```
+
+## ActionRef
+
+```tsx
+import { useRef } from 'react';
+import type { ActionType } from '@ant-design/pro-components';
+
+const Demo = () => {
+  const actionRef = useRef<ActionType>();
+  
+  return (
+    <>
+      <Button onClick={() => actionRef.current?.reload()}>
+        刷新
+      </Button>
+      
+      <ProList
+        actionRef={actionRef}
+        columns={columns}
+        request={request}
+      />
+    </>
+  );
+};
+```
+
+## Split & Variant
+
+```tsx
+<ProList
+  split={false} // Remove divider between items
+  variant="outlined" // 'outlined' | 'filled' | 'borderless'
+  columns={columns}
+  dataSource={dataSource}
+/>
+```
+
+## Loading State
+
+```tsx
+<ProList
+  loading={loading}
+  columns={columns}
+  dataSource={dataSource}
+/>
+```
+
+## Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `columns` | `ProColumns[]` | Column configuration with listSlot |
+| `dataSource` | `T[]` | Static data source |
+| `request` | `(params) => Promise<RequestData>` | Async data fetching |
+| `rowKey` | `string \| (row) => string` | Row key field |
+| `grid` | `GridConfig` | Grid layout configuration |
+| `split` | `boolean` | Show divider between items |
+| `itemLayout` | `'horizontal' \| 'vertical'` | Item layout |
+| `pagination` | `false \| PaginationConfig` | Pagination config |
+| `search` | `false \| SearchConfig` | Search configuration |
+| `rowSelection` | `RowSelectionConfig` | Row selection config |
+| `actionRef` | `React.MutableRefObject<ActionType>` | Action reference |
+| `itemRender` | `(item, index, dom) => ReactNode` | Custom item render |
+| `expandable` | `ExpandableConfig` | Expandable configuration |
+
+## Migration from Metas (Deprecated)
+
+<Warning>
+  The `metas` prop is deprecated. Use `columns` with `listSlot` instead.
+</Warning>
+
+Old API (deprecated):
+```tsx
+<ProList
+  metas={{
+    title: { dataIndex: 'name' },
+    avatar: { dataIndex: 'avatar' },
+    description: { dataIndex: 'description' },
+  }}
+/>
+```
+
+New API (recommended):
+```tsx
+<ProList
+  columns={[
+    { title: '名称', dataIndex: 'name', listSlot: 'title' },
+    { dataIndex: 'avatar', listSlot: 'avatar' },
+    { title: '描述', dataIndex: 'description', listSlot: 'description' },
+  ]}
+/>
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use appropriate list slots">
+    Map your data to the correct list slots for optimal layout:
+    - Use `title` for primary identifier
+    - Use `description` for secondary text
+    - Use `avatar` for images/icons
+    - Use `actions` for interactive buttons
+  </Accordion>
+  
+  <Accordion title="Optimize grid layouts for mobile">
+    Define responsive grid columns:
+    ```tsx
+    grid={{ xs: 1, sm: 2, md: 3, lg: 4 }}
+    ```
+  </Accordion>
+  
+  <Accordion title="Combine with ProCard for rich items">
+    Use ProCard for complex list items:
+    ```tsx
+    itemRender={(item, index, defaultDom) => (
+      <ProCard hoverable>
+        {defaultDom}
+      </ProCard>
+    )}
+    ```
+  </Accordion>
+  
+  <Accordion title="Use BaseProList for simple lists">
+    If you don't need search, toolbar, or card wrapper, use BaseProList:
+    ```tsx
+    import { BaseProList } from '@ant-design/pro-components';
+    <BaseProList columns={columns} dataSource={dataSource} />
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Components
+
+- [ProTable](/components/pro-table) - Table view alternative
+- [ProCard](/components/pro-card) - Use for list item cards
+- [ProDescriptions](/components/pro-descriptions) - Detail display

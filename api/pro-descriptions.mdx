@@ -1,0 +1,454 @@
+---
+title: ProDescriptions
+description: Complete API reference for ProDescriptions component
+---
+
+# ProDescriptions API
+
+ProDescriptions is an enhanced descriptions component that supports data fetching, editable fields, and automatic value type rendering.
+
+## ProDescriptionsProps
+
+Extends Ant Design Descriptions props.
+
+<ParamField path="columns" type="ProDescriptionsItemProps[]">
+  Column configuration for description items.
+</ParamField>
+
+<ParamField path="dataSource" type="T">
+  Data object to display.
+</ParamField>
+
+<ParamField path="request" type="function">
+  Fetch data from the server.
+  
+  ```typescript
+  (params?: Record<string, any>) => Promise<{ data: T; success?: boolean }>
+  ```
+</ParamField>
+
+<ParamField path="params" type="Record<string, any>">
+  Parameters for the request. Changes trigger reload.
+</ParamField>
+
+<ParamField path="actionRef" type="React.MutableRefObject<ActionType>">
+  Reference to control the descriptions programmatically.
+  
+  Methods:
+  - `reload()` - Reload data
+  - `startEditable(key)` - Start editing a field
+  - `cancelEditable(key)` - Cancel editing a field
+</ParamField>
+
+<ParamField path="loading" type="boolean">
+  Loading state.
+</ParamField>
+
+<ParamField path="onLoadingChange" type="function">
+  Callback when loading state changes.
+  
+  ```typescript
+  (loading?: boolean) => void
+  ```
+</ParamField>
+
+<ParamField path="onRequestError" type="function">
+  Callback when request fails.
+  
+  ```typescript
+  (e: Error) => void
+  ```
+</ParamField>
+
+<ParamField path="onDataSourceChange" type="function">
+  Callback when data source changes (for editable mode).
+  
+  ```typescript
+  (value: T) => void
+  ```
+</ParamField>
+
+## Layout
+
+<ParamField path="title" type="React.ReactNode">
+  Descriptions title.
+</ParamField>
+
+<ParamField path="tooltip" type="string | LabelTooltipType">
+  Tooltip for the title.
+</ParamField>
+
+<ParamField path="extra" type="React.ReactNode">
+  Extra content in the header.
+</ParamField>
+
+<ParamField path="column" type="number | Record<Breakpoint, number>" default="3">
+  Number of columns.
+  
+  Can be responsive:
+  ```tsx
+  column={{ xs: 1, sm: 2, md: 3 }}
+  ```
+</ParamField>
+
+<ParamField path="layout" type="'horizontal' | 'vertical'" default="horizontal">
+  Layout orientation.
+</ParamField>
+
+<ParamField path="bordered" type="boolean" default="false">
+  Whether to show border.
+</ParamField>
+
+<ParamField path="size" type="'default' | 'middle' | 'small'" default="default">
+  Size of the descriptions.
+</ParamField>
+
+<ParamField path="colon" type="boolean" default="true">
+  Whether to show colon after labels.
+</ParamField>
+
+<ParamField path="labelStyle" type="React.CSSProperties">
+  Style for labels.
+</ParamField>
+
+<ParamField path="contentStyle" type="React.CSSProperties">
+  Style for content.
+</ParamField>
+
+## Editable
+
+<ParamField path="editable" type="RowEditableConfig">
+  Configuration for editable fields.
+  
+  <Expandable title="RowEditableConfig Properties">
+    - `form?: FormInstance` - Form instance for editing
+    - `type?: 'single' | 'multiple'` - Edit mode (single or multiple fields)
+    - `editableKeys?: Key[]` - Controlled editable field keys
+    - `onChange?: (editableKeys: Key[], editableRows: T) => void`
+    - `onSave?: (key: Key, row: T) => Promise<void>` - Save callback
+    - `onCancel?: (key: Key, row: T) => void` - Cancel callback
+    - `onValuesChange?: (record: T, dataSource: T) => void` - Values change callback
+    - `actionRender?: (row: T, config: ActionRenderConfig) => React.ReactNode[]`
+  </Expandable>
+</ParamField>
+
+<ParamField path="formProps" type="FormProps">
+  Props for the form (when editable is enabled).
+</ParamField>
+
+<ParamField path="emptyText" type="React.ReactNode" default="-">
+  Text to display when value is empty.
+</ParamField>
+
+## ProDescriptionsItemProps
+
+Configuration for individual description items.
+
+<ParamField path="dataIndex" type="string | string[]" required>
+  Data index to read from dataSource.
+</ParamField>
+
+<ParamField path="title" type="React.ReactNode | function">
+  Item label.
+  
+  Can be a function:
+  ```typescript
+  (schema: ProSchema, type: string) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="label" type="React.ReactNode">
+  Alias for title (same as Ant Design Descriptions.Item).
+</ParamField>
+
+<ParamField path="tooltip" type="string | LabelTooltipType">
+  Tooltip for the label.
+</ParamField>
+
+<ParamField path="valueType" type="ProFieldValueType" default="text">
+  Type of the value for rendering.
+  
+  <Expandable title="Available Value Types">
+    `text`, `textarea`, `date`, `dateTime`, `dateWeek`, `dateMonth`, `dateQuarter`, `dateYear`, `time`, `select`, `money`, `percent`, `digit`, `progress`, `rate`, `switch`, `password`, `avatar`, `image`, `code`, `jsonCode`, `color`, `option`
+  </Expandable>
+</ParamField>
+
+<ParamField path="valueEnum" type="Record<string, any>">
+  Value enum for mapping values to display text.
+</ParamField>
+
+<ParamField path="render" type="function">
+  Custom render for the value.
+  
+  ```typescript
+  (text: any, record: T, index: number, action: ActionType, schema: ProSchema) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="renderText" type="function">
+  Transform the value before rendering.
+  
+  ```typescript
+  (text: any, record: T, index: number, action: ActionType) => any
+  ```
+</ParamField>
+
+<ParamField path="renderFormItem" type="function">
+  Custom render for the form field (in edit mode).
+</ParamField>
+
+<ParamField path="fieldProps" type="any">
+  Props passed to the field component.
+</ParamField>
+
+<ParamField path="formItemProps" type="FormItemProps">
+  Props for the Form.Item wrapper.
+</ParamField>
+
+<ParamField path="request" type="function">
+  Load remote data for select/cascader fields.
+  
+  ```typescript
+  (params?: any) => Promise<{ label: React.ReactNode; value: any }[]>
+  ```
+</ParamField>
+
+<ParamField path="params" type="any">
+  Parameters for the request.
+</ParamField>
+
+<ParamField path="span" type="number | 'filled' | object" default="1">
+  Number of columns to span.
+  
+  Can be responsive:
+  ```typescript
+  span={{ xs: 2, sm: 3, md: 4 }}
+  ```
+  
+  Use `'filled'` to fill remaining space.
+</ParamField>
+
+<ParamField path="ellipsis" type="boolean | { showTitle?: boolean }" default="false">
+  Whether to show ellipsis for long text.
+</ParamField>
+
+<ParamField path="copyable" type="boolean" default="false">
+  Whether the value is copyable.
+</ParamField>
+
+<ParamField path="mode" type="'read' | 'edit'">
+  Display mode for the field.
+</ParamField>
+
+<ParamField path="plain" type="boolean" default="false">
+  Plain text mode (no label).
+</ParamField>
+
+<ParamField path="hide" type="boolean" default="false">
+  Hide this item.
+</ParamField>
+
+<ParamField path="editable" type="boolean | function" default="true">
+  Whether the field is editable.
+  
+  ```typescript
+  boolean | ((text: any, record: T, index: number) => boolean)
+  ```
+</ParamField>
+
+<ParamField path="order" type="number">
+  Sort order (higher values appear first).
+</ParamField>
+
+<ParamField path="index" type="number">
+  Index of the item.
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class name.
+</ParamField>
+
+<ParamField path="style" type="React.CSSProperties">
+  Inline styles.
+</ParamField>
+
+<ParamField path="classNames" type="CellSemanticClassNames">
+  Semantic class names.
+  
+  ```typescript
+  type CellSemanticClassNames = {
+    label?: string;
+    content?: string;
+  }
+  ```
+</ParamField>
+
+<ParamField path="styles" type="CellSemanticStyles">
+  Semantic styles.
+  
+  ```typescript
+  type CellSemanticStyles = {
+    label?: React.CSSProperties;
+    content?: React.CSSProperties;
+  }
+  ```
+</ParamField>
+
+## ProDescriptions.Item
+
+Alternative JSX syntax for defining description items.
+
+```tsx
+<ProDescriptions>
+  <ProDescriptions.Item label="Name" dataIndex="name" />
+  <ProDescriptions.Item label="Age" dataIndex="age" valueType="digit" />
+</ProDescriptions>
+```
+
+## Usage Examples
+
+<Tabs>
+  <Tab title="Basic Usage">
+    ```tsx
+    import { ProDescriptions } from '@ant-design/pro-components';
+
+    export default () => (
+      <ProDescriptions
+        columns={[
+          {
+            title: 'Name',
+            dataIndex: 'name',
+          },
+          {
+            title: 'Email',
+            dataIndex: 'email',
+            copyable: true,
+          },
+          {
+            title: 'Status',
+            dataIndex: 'status',
+            valueType: 'select',
+            valueEnum: {
+              active: { text: 'Active', status: 'Success' },
+              inactive: { text: 'Inactive', status: 'Default' },
+            },
+          },
+        ]}
+        dataSource={{
+          name: 'John Doe',
+          email: 'john@example.com',
+          status: 'active',
+        }}
+      />
+    );
+    ```
+  </Tab>
+  <Tab title="With Request">
+    ```tsx
+    <ProDescriptions
+      columns={[
+        { title: 'ID', dataIndex: 'id' },
+        { title: 'Name', dataIndex: 'name' },
+        { title: 'Created', dataIndex: 'createdAt', valueType: 'dateTime' },
+      ]}
+      params={{ id: userId }}
+      request={async (params) => {
+        const response = await fetch(`/api/users/${params.id}`);
+        const data = await response.json();
+        return { data, success: true };
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Editable">
+    ```tsx
+    import { ProDescriptions } from '@ant-design/pro-components';
+    import { message } from 'antd';
+
+    export default () => {
+      const actionRef = useRef();
+
+      return (
+        <ProDescriptions
+          actionRef={actionRef}
+          columns={[
+            {
+              title: 'Name',
+              dataIndex: 'name',
+              editable: true,
+            },
+            {
+              title: 'Email',
+              dataIndex: 'email',
+              editable: true,
+            },
+            {
+              title: 'Actions',
+              valueType: 'option',
+              render: () => [
+                <a
+                  key="edit"
+                  onClick={() => {
+                    actionRef.current?.startEditable('name');
+                  }}
+                >
+                  Edit
+                </a>,
+              ],
+            },
+          ]}
+          editable={{
+            onSave: async (key, record) => {
+              await updateUser(record);
+              message.success('Saved successfully');
+            },
+          }}
+          dataSource={userData}
+        />
+      );
+    };
+    ```
+  </Tab>
+  <Tab title="Responsive Columns">
+    ```tsx
+    <ProDescriptions
+      column={{
+        xs: 1,
+        sm: 2,
+        md: 3,
+      }}
+      columns={[
+        { title: 'Name', dataIndex: 'name' },
+        { title: 'Age', dataIndex: 'age', valueType: 'digit' },
+        { title: 'Email', dataIndex: 'email' },
+        { title: 'Phone', dataIndex: 'phone' },
+        { title: 'Address', dataIndex: 'address', span: 2 },
+      ]}
+      dataSource={data}
+    />
+    ```
+  </Tab>
+  <Tab title="JSX Syntax">
+    ```tsx
+    <ProDescriptions dataSource={userData}>
+      <ProDescriptions.Item
+        label="Name"
+        dataIndex="name"
+      />
+      <ProDescriptions.Item
+        label="Money"
+        dataIndex="amount"
+        valueType="money"
+      />
+      <ProDescriptions.Item
+        label="Status"
+        dataIndex="status"
+        valueEnum={{
+          open: { text: 'Open', status: 'Processing' },
+          closed: { text: 'Closed', status: 'Success' },
+        }}
+      />
+    </ProDescriptions>
+    ```
+  </Tab>
+</Tabs>

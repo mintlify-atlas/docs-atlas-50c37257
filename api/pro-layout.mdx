@@ -1,0 +1,488 @@
+---
+title: ProLayout
+description: Complete API reference for ProLayout component
+---
+
+# ProLayout API
+
+ProLayout provides a standard layout for admin interfaces with sidebar navigation, header, and content areas.
+
+## ProLayoutProps
+
+<ParamField path="title" type="string | React.ReactNode" default="Ant Design Pro">
+  Site title displayed in the sidebar header.
+</ParamField>
+
+<ParamField path="logo" type="string | React.ReactNode">
+  Logo displayed in the sidebar header.
+</ParamField>
+
+<ParamField path="loading" type="boolean" default="false">
+  Loading state for the layout.
+</ParamField>
+
+<ParamField path="layout" type="'side' | 'top' | 'mix'" default="side">
+  Navigation layout type.
+  
+  - `side` - Sidebar navigation
+  - `top` - Top navigation
+  - `mix` - Mixed navigation (sidebar + top)
+</ParamField>
+
+<ParamField path="navTheme" type="'light' | 'dark' | 'realDark'" default="dark">
+  Navigation theme.
+  
+  - `light` - Light theme
+  - `dark` - Dark sidebar with light header
+  - `realDark` - Dark sidebar and header
+</ParamField>
+
+<ParamField path="contentWidth" type="'Fluid' | 'Fixed'" default="Fluid">
+  Content area width.
+  
+  - `Fluid` - Full width
+  - `Fixed` - Fixed width (1200px)
+</ParamField>
+
+<ParamField path="fixedHeader" type="boolean" default="false">
+  Fix header at the top when scrolling.
+</ParamField>
+
+<ParamField path="fixSiderbar" type="boolean" default="false">
+  Fix sidebar when scrolling.
+</ParamField>
+
+<ParamField path="collapsed" type="boolean">
+  Controlled sidebar collapsed state.
+</ParamField>
+
+<ParamField path="defaultCollapsed" type="boolean" default="false">
+  Default sidebar collapsed state.
+</ParamField>
+
+<ParamField path="onCollapse" type="function">
+  Callback when sidebar collapse state changes.
+  
+  ```typescript
+  (collapsed: boolean) => void
+  ```
+</ParamField>
+
+<ParamField path="collapsedButtonRender" type="function | false">
+  Custom render for collapse button.
+  
+  ```typescript
+  (collapsed: boolean) => React.ReactNode
+  ```
+  
+  Set to `false` to hide.
+</ParamField>
+
+<ParamField path="breakpoint" type="Breakpoint" default="lg">
+  Breakpoint for responsive behavior.
+  
+  ```typescript
+  type Breakpoint = 'xxl' | 'xl' | 'lg' | 'md' | 'sm' | 'xs'
+  ```
+</ParamField>
+
+<ParamField path="isMobile" type="boolean">
+  Whether the layout is in mobile mode.
+</ParamField>
+
+<ParamField path="menuHeaderRender" type="function | false">
+  Custom render for menu header (logo area).
+  
+  ```typescript
+  (logo: React.ReactNode, title: React.ReactNode, props: ProLayoutProps) => React.ReactNode
+  ```
+  
+  Set to `false` to hide.
+</ParamField>
+
+<ParamField path="menuFooterRender" type="function">
+  Custom render for menu footer.
+  
+  ```typescript
+  (props: ProLayoutProps) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="menuExtraRender" type="function">
+  Custom render for extra content above menu items.
+  
+  ```typescript
+  (props: ProLayoutProps) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="menuContentRender" type="function | false">
+  Custom render for entire menu content.
+  
+  ```typescript
+  (props: ProLayoutProps, defaultDom: React.ReactNode) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="menuItemRender" type="function">
+  Custom render for menu items.
+  
+  ```typescript
+  (itemProps: MenuDataItem, defaultDom: React.ReactNode, props: ProLayoutProps) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="subMenuItemRender" type="function">
+  Custom render for submenu items.
+  
+  ```typescript
+  (itemProps: MenuDataItem, defaultDom: React.ReactNode) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="headerRender" type="function | false">
+  Custom render for header.
+  
+  ```typescript
+  (props: ProLayoutProps, defaultDom: React.ReactNode) => React.ReactNode
+  ```
+  
+  Set to `false` to hide.
+</ParamField>
+
+<ParamField path="headerTitleRender" type="function | false">
+  Custom render for header title.
+  
+  ```typescript
+  (logo: React.ReactNode, title: React.ReactNode, props: ProLayoutProps) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="headerContentRender" type="function">
+  Custom render for header content area.
+  
+  ```typescript
+  (props: ProLayoutProps) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="rightContentRender" type="function">
+  Custom render for right side of header.
+  
+  ```typescript
+  (props: ProLayoutProps) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="footerRender" type="function | false">
+  Custom render for footer.
+  
+  ```typescript
+  (props: ProLayoutProps) => React.ReactNode
+  ```
+  
+  Set to `false` to hide.
+</ParamField>
+
+<ParamField path="breadcrumbRender" type="function">
+  Custom render for breadcrumb.
+  
+  ```typescript
+  (routers: Route[]) => Route[]
+  ```
+</ParamField>
+
+<ParamField path="pageTitleRender" type="function | false">
+  Custom render for page title (shown in browser tab).
+  
+  ```typescript
+  (props: ProLayoutProps, defaultPageTitle?: string, info?: { title: string; id: string; pageName: string }) => string
+  ```
+</ParamField>
+
+<ParamField path="onPageChange" type="function">
+  Callback when page route changes.
+  
+  ```typescript
+  (location?: Location) => void
+  ```
+</ParamField>
+
+## Menu Configuration
+
+<ParamField path="route" type="Route">
+  Route configuration for menu generation.
+  
+  ```typescript
+  type Route = {
+    path?: string;
+    name?: string;
+    icon?: React.ReactNode;
+    children?: Route[];
+    hideInMenu?: boolean;
+    hideChildrenInMenu?: boolean;
+    [key: string]: any;
+  }
+  ```
+</ParamField>
+
+<ParamField path="menu" type="MenuConfig">
+  Menu configuration.
+  
+  <Expandable title="MenuConfig Properties">
+    - `locale?: boolean` - Enable internationalization for menu
+    - `defaultOpenAll?: boolean` - Open all submenus by default
+    - `loading?: boolean` - Menu loading state
+    - `onLoadingChange?: (loading: boolean) => void` - Loading change callback
+    - `request?: (params: any, defaultMenuData: MenuDataItem[]) => Promise<MenuDataItem[]>` - Load menu from remote
+    - `type?: 'sub' | 'group'` - Submenu type
+    - `autoClose?: boolean` - Auto close other menus when opening one
+  </Expandable>
+</ParamField>
+
+<ParamField path="menuDataRender" type="function">
+  Transform menu data before rendering.
+  
+  ```typescript
+  (menuData: MenuDataItem[]) => MenuDataItem[]
+  ```
+</ParamField>
+
+<ParamField path="location" type="{ pathname?: string }">
+  Current location for menu selection.
+</ParamField>
+
+## MenuDataItem
+
+Configuration for individual menu items.
+
+<ParamField path="name" type="string">
+  Menu item name/label.
+</ParamField>
+
+<ParamField path="path" type="string">
+  Menu item path/route.
+</ParamField>
+
+<ParamField path="icon" type="React.ReactNode">
+  Menu item icon.
+</ParamField>
+
+<ParamField path="children" type="MenuDataItem[]">
+  Child menu items.
+</ParamField>
+
+<ParamField path="hideInMenu" type="boolean" default="false">
+  Hide this item in menu.
+</ParamField>
+
+<ParamField path="hideChildrenInMenu" type="boolean" default="false">
+  Hide child items in menu.
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  Disable menu item.
+</ParamField>
+
+<ParamField path="key" type="string">
+  Unique key for the menu item.
+</ParamField>
+
+<ParamField path="locale" type="string | false">
+  Internationalization key for the menu item.
+</ParamField>
+
+<ParamField path="target" type="string">
+  Link target (e.g., `_blank`).
+</ParamField>
+
+<ParamField path="parentKeys" type="string[]">
+  Parent keys to select when this item is active.
+</ParamField>
+
+<ParamField path="flatMenu" type="boolean">
+  Hide self and promote children to same level.
+</ParamField>
+
+<ParamField path="tooltip" type="string">
+  Tooltip for the menu item.
+</ParamField>
+
+## Styling
+
+<ParamField path="token" type="DeepPartial<ProTokenType>">
+  Custom design tokens for theming.
+</ParamField>
+
+<ParamField path="bgLayoutImgList" type="{ src: string; left?: number; bottom?: number; height?: string }[]">
+  Background images for the layout.
+</ParamField>
+
+<ParamField path="siderWidth" type="number" default="256">
+  Width of the sidebar when expanded.
+</ParamField>
+
+<ParamField path="suppressSiderWhenMenuEmpty" type="boolean" default="false">
+  Hide sidebar when menu is empty.
+</ParamField>
+
+<ParamField path="defaultOpenAll" type="boolean" default="false">
+  Open all submenus by default (deprecated, use `menu.defaultOpenAll`).
+</ParamField>
+
+<ParamField path="disableMobile" type="boolean" default="false">
+  Disable mobile responsive behavior.
+</ParamField>
+
+<ParamField path="prefixCls" type="string" default="ant-pro">
+  CSS class prefix.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS class.
+</ParamField>
+
+<ParamField path="style" type="React.CSSProperties">
+  Inline styles.
+</ParamField>
+
+<ParamField path="contentStyle" type="React.CSSProperties">
+  Inline styles for content area.
+</ParamField>
+
+<ParamField path="ErrorBoundary" type="React.ComponentType | false">
+  Error boundary component.
+</ParamField>
+
+## Page Container
+
+<ParamField path="waterMarkProps" type="WaterMarkProps">
+  Watermark configuration for the page.
+</ParamField>
+
+<ParamField path="openKeys" type="string[]" default="false">
+  Controlled open submenu keys.
+</ParamField>
+
+<ParamField path="selectedKeys" type="string[]">
+  Controlled selected menu keys.
+</ParamField>
+
+<ParamField path="onOpenChange" type="function">
+  Callback when submenu open state changes.
+  
+  ```typescript
+  (openKeys: string[]) => void
+  ```
+</ParamField>
+
+<ParamField path="onMenuHeaderClick" type="function">
+  Callback when menu header (logo area) is clicked.
+  
+  ```typescript
+  (e: React.MouseEvent) => void
+  ```
+</ParamField>
+
+<ParamField path="formatMessage" type="function">
+  Internationalization formatter.
+  
+  ```typescript
+  (message: { id: string; defaultMessage?: string }) => string
+  ```
+</ParamField>
+
+<ParamField path="links" type="React.ReactNode[]">
+  Links to display at the bottom of the sidebar.
+</ParamField>
+
+<ParamField path="splitMenus" type="boolean" default="false">
+  Split menus for mix layout.
+</ParamField>
+
+## Usage Examples
+
+<Tabs>
+  <Tab title="Basic Usage">
+    ```tsx
+    import { ProLayout } from '@ant-design/pro-components';
+    import { Link } from 'react-router-dom';
+
+    export default () => {
+      return (
+        <ProLayout
+          title="My App"
+          logo={<img src="/logo.svg" />}
+          route={{
+            routes: [
+              {
+                path: '/dashboard',
+                name: 'Dashboard',
+                icon: <DashboardOutlined />,
+              },
+              {
+                path: '/users',
+                name: 'Users',
+                icon: <UserOutlined />,
+              },
+            ],
+          }}
+          menuItemRender={(item, dom) => (
+            <Link to={item.path || '/'}>{dom}</Link>
+          )}
+        >
+          {/* Page content */}
+        </ProLayout>
+      );
+    };
+    ```
+  </Tab>
+  <Tab title="With Header Content">
+    ```tsx
+    <ProLayout
+      title="My App"
+      rightContentRender={() => (
+        <div>
+          <Dropdown menu={{ items: userMenuItems }}>
+            <Avatar icon={<UserOutlined />} />
+          </Dropdown>
+        </div>
+      )}
+    >
+      {children}
+    </ProLayout>
+    ```
+  </Tab>
+  <Tab title="Top Navigation">
+    ```tsx
+    <ProLayout
+      layout="top"
+      navTheme="light"
+      contentWidth="Fixed"
+      route={{
+        routes: menuData,
+      }}
+    >
+      {children}
+    </ProLayout>
+    ```
+  </Tab>
+  <Tab title="Dynamic Menu">
+    ```tsx
+    <ProLayout
+      menu={{
+        request: async () => {
+          const menuData = await fetchMenuData();
+          return menuData;
+        },
+      }}
+      menuDataRender={(menuData) => {
+        // Transform menu data
+        return menuData.filter(item => item.access);
+      }}
+    >
+      {children}
+    </ProLayout>
+    ```
+  </Tab>
+</Tabs>

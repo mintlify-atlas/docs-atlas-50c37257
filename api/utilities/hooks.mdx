@@ -1,0 +1,609 @@
+---
+title: Hooks
+description: Utility hooks for state management, data fetching, and side effects
+---
+
+ProComponents provides a comprehensive set of React hooks to handle common patterns like debouncing, deep comparison, data fetching, and reference management.
+
+## State Management Hooks
+
+### useDebounceFn
+
+A hook that debounces function execution, useful for optimizing expensive operations.
+
+```tsx
+import { useDebounceFn } from '@ant-design/pro-components';
+
+const MyComponent = () => {
+  const { run, cancel } = useDebounceFn(async (value: string) => {
+    await searchAPI(value);
+  }, 300);
+
+  return (
+    <input
+      onChange={(e) => run(e.target.value)}
+      onBlur={cancel}
+    />
+  );
+};
+```
+
+<ParamField path="fn" type="(...args: T) => Promise<any>" required>
+  The async function to debounce
+</ParamField>
+
+<ParamField path="wait" type="number">
+  Debounce delay in milliseconds. If 0 or undefined, executes immediately
+</ParamField>
+
+<ResponseField name="run" type="(...args: T) => Promise<U | undefined>">
+  Debounced function that returns a promise
+</ResponseField>
+
+<ResponseField name="cancel" type="() => void">
+  Cancels the pending debounced function execution
+</ResponseField>
+
+### useDebounceValue
+
+Debounces state updates to reduce re-render frequency.
+
+```tsx
+import { useDebounceValue } from '@ant-design/pro-components';
+
+const SearchInput = () => {
+  const [searchText, setSearchText] = useState('');
+  const debouncedSearchText = useDebounceValue(searchText, 300);
+
+  useEffect(() => {
+    // Only runs after 300ms of no changes
+    performSearch(debouncedSearchText);
+  }, [debouncedSearchText]);
+
+  return <input value={searchText} onChange={e => setSearchText(e.target.value)} />;
+};
+```
+
+<ParamField path="value" type="T" required>
+  The value to debounce
+</ParamField>
+
+<ParamField path="delay" type="number" default="100">
+  Debounce delay in milliseconds
+</ParamField>
+
+<ParamField path="deps" type="DependencyList">
+  Optional dependency list for custom control
+</ParamField>
+
+<ResponseField name="debouncedValue" type="T">
+  The debounced value
+</ResponseField>
+
+### useLatest
+
+Returns a ref that always contains the latest value, useful for callbacks.
+
+```tsx
+import { useLatest } from '@ant-design/pro-components';
+
+const MyComponent = ({ onSave }) => {
+  const onSaveRef = useLatest(onSave);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      // Always calls the latest onSave
+      onSaveRef.current();
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []); // Empty deps - no re-subscription needed
+};
+```
+
+<ParamField path="value" type="T" required>
+  The value to track
+</ParamField>
+
+<ResponseField name="ref" type="{ readonly current: T }">
+  A ref object containing the latest value
+</ResponseField>
+
+### usePrevious
+
+Returns the previous value of a state or prop.
+
+```tsx
+import { usePrevious } from '@ant-design/pro-components';
+
+const Counter = ({ count }) => {
+  const prevCount = usePrevious(count);
+
+  return (
+    <div>
+      <p>Current: {count}</p>
+      <p>Previous: {prevCount}</p>
+    </div>
+  );
+};
+```
+
+<ParamField path="state" type="T" required>
+  The current state value
+</ParamField>
+
+<ResponseField name="previousState" type="T | undefined">
+  The previous state value (undefined on first render)
+</ResponseField>
+
+### useRefFunction
+
+Creates a stable function reference that always calls the latest version.
+
+```tsx
+import { useRefFunction } from '@ant-design/pro-components';
+
+const MyComponent = ({ onClick }) => {
+  const handleClick = useRefFunction(onClick);
+
+  // handleClick identity never changes, but always calls latest onClick
+  useEffect(() => {
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, []); // Safe to use empty deps
+};
+```
+
+<ParamField path="fn" type="T extends (...args: any) => any" required>
+  The function to wrap
+</ParamField>
+
+<ResponseField name="stableFunction" type="(...args: Parameters<T>) => ReturnType<T>">
+  A stable function reference that always executes the latest version
+</ResponseField>
+
+### useReactiveRef
+
+A ref that triggers re-renders when its value changes.
+
+```tsx
+import { useReactiveRef } from '@ant-design/pro-components';
+
+const MyComponent = () => {
+  const countRef = useReactiveRef(0);
+
+  const increment = () => {
+    countRef.current += 1; // Triggers re-render
+  };
+
+  return (
+    <div>
+      <p>Count: {countRef.current}</p>
+      <button onClick={increment}>Increment</button>
+    </div>
+  );
+};
+```
+
+<ParamField path="initialValue" type="T" required>
+  Initial value for the ref
+</ParamField>
+
+<ResponseField name="reactiveRef" type="MutableRefObject<T>">
+  A ref that triggers re-renders when changed
+</ResponseField>
+
+### useRefCallback
+
+Creates a ref with a callback that fires when the ref value changes.
+
+<ParamField path="callback" type="(currentRef: MutableRefObject<T>) => void" required>
+  Callback function executed when ref changes
+</ParamField>
+
+<ParamField path="initialValue" type="T">
+  Initial value for the ref
+</ParamField>
+
+<ResponseField name="ref" type="MutableRefObject<T>">
+  A ref object that calls the callback on changes
+</ResponseField>
+
+## Deep Comparison Hooks
+
+### useDeepCompareEffect
+
+Like `useEffect`, but uses deep comparison for dependencies.
+
+```tsx
+import { useDeepCompareEffect } from '@ant-design/pro-components';
+
+const MyComponent = ({ filters }) => {
+  useDeepCompareEffect(() => {
+    fetchData(filters);
+  }, [filters]); // Deep compares filters object
+
+  return <DataTable />;
+};
+```
+
+<ParamField path="effect" type="React.EffectCallback" required>
+  Effect function to execute
+</ParamField>
+
+<ParamField path="dependencies" type="DependencyList" required>
+  Dependency array (compared deeply)
+</ParamField>
+
+<ParamField path="ignoreKeys" type="string[]">
+  Keys to ignore during deep comparison
+</ParamField>
+
+### useDeepCompareEffectDebounce
+
+Combines deep comparison with debouncing for effect execution.
+
+```tsx
+import { useDeepCompareEffectDebounce } from '@ant-design/pro-components';
+
+const SearchComponent = ({ filters }) => {
+  useDeepCompareEffectDebounce(
+    () => {
+      searchAPI(filters);
+    },
+    [filters],
+    undefined,
+    300 // 300ms debounce
+  );
+
+  return <Results />;
+};
+```
+
+<ParamField path="effect" type="React.EffectCallback" required>
+  Effect function to execute
+</ParamField>
+
+<ParamField path="dependencies" type="DependencyList" required>
+  Dependency array (compared deeply)
+</ParamField>
+
+<ParamField path="ignoreKeys" type="string[]">
+  Keys to ignore during comparison
+</ParamField>
+
+<ParamField path="waitTime" type="number" default="16">
+  Debounce delay in milliseconds
+</ParamField>
+
+### useDeepCompareMemo
+
+Like `useMemo`, but uses deep comparison for dependencies.
+
+```tsx
+import useDeepCompareMemo from '@ant-design/pro-components';
+
+const MyComponent = ({ items }) => {
+  const processedItems = useDeepCompareMemo(
+    () => expensiveProcessing(items),
+    [items]
+  );
+
+  return <List data={processedItems} />;
+};
+```
+
+<ParamField path="factory" type="() => T" required>
+  Function that computes the memoized value
+</ParamField>
+
+<ParamField path="dependencies" type="React.DependencyList" required>
+  Dependency array (compared deeply)
+</ParamField>
+
+<ResponseField name="memoizedValue" type="T">
+  The memoized value
+</ResponseField>
+
+## Data Fetching Hooks
+
+### useFetchData
+
+Manages data fetching with automatic caching and loading states.
+
+```tsx
+import { useFetchData } from '@ant-design/pro-components';
+
+const UserList = ({ userId }) => {
+  const [data, loading] = useFetchData({
+    proFieldKey: userId,
+    params: { id: userId },
+    request: async (params) => {
+      const response = await fetch(`/api/users/${params.id}`);
+      return response.json();
+    },
+  });
+
+  if (loading) return <Spin />;
+  return <div>{data?.name}</div>;
+};
+```
+
+<ParamField path="props" type="object" required>
+  Configuration object for data fetching
+</ParamField>
+
+<ParamField path="props.request" type="ProRequestData<T, U>">
+  Async function that fetches the data
+
+  ```tsx
+  type ProRequestData<T, U> = (params: U, signal: any) => Promise<T>
+  ```
+</ParamField>
+
+<ParamField path="props.params" type="U">
+  Parameters passed to the request function
+</ParamField>
+
+<ParamField path="props.proFieldKey" type="React.Key">
+  Cache key for the request
+</ParamField>
+
+<ResponseField name="data" type="T | undefined">
+  The fetched data
+</ResponseField>
+
+<ResponseField name="isValidating" type="boolean">
+  Whether the request is currently loading
+</ResponseField>
+
+## Editable Table Hooks
+
+### useEditableArray
+
+Manages editable state for table rows with array-based data sources.
+
+```tsx
+import { useEditableArray } from '@ant-design/pro-components';
+
+const EditableTable = () => {
+  const [dataSource, setDataSource] = useState([]);
+
+  const editable = useEditableArray({
+    dataSource,
+    setDataSource,
+    getRowKey: (row) => row.id,
+    childrenColumnName: 'children',
+    onSave: async (key, row, originRow) => {
+      await saveToAPI(row);
+    },
+    onDelete: async (key, row) => {
+      await deleteFromAPI(key);
+    },
+  });
+
+  return (
+    <ProTable
+      dataSource={dataSource}
+      editable={editable}
+    />
+  );
+};
+```
+
+<ParamField path="dataSource" type="RecordType[]" required>
+  Array of data records
+</ParamField>
+
+<ParamField path="setDataSource" type="(dataSource: RecordType[]) => void" required>
+  Function to update the data source
+</ParamField>
+
+<ParamField path="getRowKey" type="GetRowKey<RecordType>" required>
+  Function to get unique key for each row
+</ParamField>
+
+<ParamField path="childrenColumnName" type="string">
+  Name of the children property for nested data
+</ParamField>
+
+<ParamField path="type" type="'single' | 'multiple'" default="'single'">
+  Whether to allow editing single or multiple rows
+</ParamField>
+
+<ParamField path="editableKeys" type="React.Key[]">
+  Controlled editable row keys
+</ParamField>
+
+<ParamField path="onChange" type="(editableKeys: React.Key[], editableRows: RecordType[]) => void">
+  Callback when editable keys change
+</ParamField>
+
+<ParamField path="onSave" type="(key: RecordKey, record: RecordType, originRow: RecordType) => Promise<any>">
+  Callback when a row is saved
+</ParamField>
+
+<ParamField path="onCancel" type="(key: RecordKey, record: RecordType, originRow: RecordType) => Promise<any>">
+  Callback when editing is cancelled
+</ParamField>
+
+<ParamField path="onDelete" type="(key: RecordKey, row: RecordType) => Promise<any>">
+  Callback when a row is deleted
+</ParamField>
+
+<ResponseField name="editableKeys" type="React.Key[]">
+  Current editable row keys
+</ResponseField>
+
+<ResponseField name="setEditableRowKeys" type="(keys: React.Key[]) => void">
+  Function to update editable keys
+</ResponseField>
+
+<ResponseField name="isEditable" type="(row: RecordType) => { recordKey: string, isEditable: boolean }">
+  Function to check if a row is editable
+</ResponseField>
+
+<ResponseField name="startEditable" type="(recordKey: React.Key, record?: RecordType) => boolean">
+  Function to start editing a row
+</ResponseField>
+
+<ResponseField name="cancelEditable" type="(recordKey: RecordKey) => Promise<boolean>">
+  Function to cancel editing a row
+</ResponseField>
+
+<ResponseField name="saveEditable" type="(recordKey: RecordKey) => Promise<boolean>">
+  Function to save an edited row
+</ResponseField>
+
+<ResponseField name="addEditRecord" type="(row: RecordType, options?: AddLineOptions) => boolean">
+  Function to add a new editable row
+</ResponseField>
+
+<ResponseField name="actionRender" type="(row: RecordType) => React.ReactNode[]">
+  Function to render action buttons (save, delete, cancel)
+</ResponseField>
+
+### useEditableMap
+
+Manages editable state for map-based data sources.
+
+```tsx
+import { useEditableMap } from '@ant-design/pro-components';
+
+const EditableForm = () => {
+  const [dataSource, setDataSource] = useState({});
+
+  const editable = useEditableMap({
+    dataSource,
+    setDataSource,
+    onSave: async (key, row, originRow) => {
+      await saveToAPI(row);
+    },
+  });
+
+  return <ProDescriptions editable={editable} />;
+};
+```
+
+<ParamField path="dataSource" type="RecordType" required>
+  Object/map of data
+</ParamField>
+
+<ParamField path="setDataSource" type="(dataSource: RecordType) => void" required>
+  Function to update the data source
+</ParamField>
+
+<ParamField path="type" type="'single' | 'multiple'" default="'single'">
+  Whether to allow editing single or multiple fields
+</ParamField>
+
+<ParamField path="editableKeys" type="React.Key[]">
+  Controlled editable field keys
+</ParamField>
+
+<ParamField path="onSave" type="(key: RecordKey, record: RecordType, originRow: RecordType) => Promise<any>">
+  Callback when a field is saved
+</ParamField>
+
+<ParamField path="onCancel" type="(key: RecordKey, record: RecordType, originRow: RecordType) => Promise<any>">
+  Callback when editing is cancelled
+</ParamField>
+
+<ResponseField name="editableKeys" type="React.Key[]">
+  Current editable field keys
+</ResponseField>
+
+<ResponseField name="setEditableRowKeys" type="(keys: React.Key[]) => void">
+  Function to update editable keys
+</ResponseField>
+
+<ResponseField name="isEditable" type="(recordKey: RecordKey) => boolean">
+  Function to check if a field is editable
+</ResponseField>
+
+<ResponseField name="startEditable" type="(recordKey: RecordKey, recordValue?: any) => boolean">
+  Function to start editing a field
+</ResponseField>
+
+<ResponseField name="cancelEditable" type="(recordKey: RecordKey) => boolean">
+  Function to cancel editing a field
+</ResponseField>
+
+<ResponseField name="actionRender" type="(key: RecordKey, config?: ActionTypeText) => React.ReactNode[]">
+  Function to render action buttons
+</ResponseField>
+
+## Responsive Hooks
+
+### useBreakpoint
+
+Returns the current responsive breakpoint based on screen size.
+
+```tsx
+import { useBreakpoint } from '@ant-design/pro-components';
+
+const ResponsiveComponent = () => {
+  const breakpoint = useBreakpoint();
+
+  return (
+    <div>
+      <p>Current breakpoint: {breakpoint}</p>
+      {breakpoint === 'xs' && <MobileView />}
+      {breakpoint === 'lg' && <DesktopView />}
+    </div>
+  );
+};
+```
+
+<ResponseField name="breakpoint" type="'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | undefined">
+  Current screen breakpoint
+
+  - `xs`: < 576px
+  - `sm`: 576px - 768px
+  - `md`: 768px - 992px
+  - `lg`: 992px - 1200px
+  - `xl`: 1200px - 1600px
+  - `xxl`: > 1600px
+</ResponseField>
+
+## Other Hooks
+
+### useDocumentTitle
+
+Sets the document title based on page info.
+
+```tsx
+import { useDocumentTitle } from '@ant-design/pro-components';
+
+const MyPage = () => {
+  useDocumentTitle(
+    {
+      title: 'User Profile',
+      id: 'user-profile',
+      pageName: 'Profile',
+    },
+    'My App'
+  );
+
+  return <div>Page Content</div>;
+};
+```
+
+<ParamField path="titleInfo" type="object" required>
+  Object containing title information
+</ParamField>
+
+<ParamField path="titleInfo.title" type="string" required>
+  The page title
+</ParamField>
+
+<ParamField path="titleInfo.id" type="string" required>
+  Page identifier
+</ParamField>
+
+<ParamField path="titleInfo.pageName" type="string" required>
+  Page name
+</ParamField>
+
+<ParamField path="appDefaultTitle" type="string | false" required>
+  Default application title
+</ParamField>

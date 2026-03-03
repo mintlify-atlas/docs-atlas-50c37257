@@ -1,0 +1,508 @@
+---
+title: ProCard
+description: Flexible card container with tabs, collapse, split layouts, and statistics
+---
+
+ProCard is a versatile card component that extends Ant Design's Card with advanced layout capabilities, including tabs, collapsible sections, split layouts, and statistical displays.
+
+## Features
+
+- **Split Layouts**: Divide card into multiple sections horizontally or vertically
+- **Tabs Integration**: Built-in tab support
+- **Collapsible**: Expandable/collapsible card sections
+- **Ghost Mode**: Transparent background for nested cards
+- **Grid Layout**: Responsive grid system
+- **Statistical Cards**: Display metrics and statistics
+- **Check Cards**: Selectable card options
+
+## Basic Usage
+
+```tsx
+import { ProCard } from '@ant-design/pro-components';
+
+export default () => {
+  return (
+    <ProCard
+      title="用户认证服务"
+      variant="outlined"
+      extra={<a>更多</a>}
+      tooltip="管理用户认证与授权的核心服务"
+      style={{ maxWidth: 300 }}
+    >
+      <div>实例数量：3</div>
+      <div>CPU 占用：45%</div>
+      <div>内存占用：1.2 GB</div>
+    </ProCard>
+  );
+};
+```
+
+## Card Variants
+
+<Tabs>
+  <Tab title="Outlined">
+    ```tsx
+    <ProCard variant="outlined">
+      边框卡片
+    </ProCard>
+    ```
+  </Tab>
+  
+  <Tab title="Filled">
+    ```tsx
+    <ProCard variant="filled">
+      填充卡片
+    </ProCard>
+    ```
+  </Tab>
+  
+  <Tab title="Borderless">
+    ```tsx
+    <ProCard variant="borderless">
+      无边框卡片
+    </ProCard>
+    ```
+  </Tab>
+</Tabs>
+
+## Split Layouts
+
+Divide a card into multiple sections:
+
+### Horizontal Split
+
+```tsx
+<ProCard split="horizontal">
+  <ProCard title="上方卡片">
+    内容
+  </ProCard>
+  <ProCard title="下方卡片">
+    内容
+  </ProCard>
+</ProCard>
+```
+
+### Vertical Split
+
+```tsx
+<ProCard split="vertical">
+  <ProCard title="左侧卡片" colSpan="50%">
+    内容
+  </ProCard>
+  <ProCard title="右侧卡片">
+    内容
+  </ProCard>
+</ProCard>
+```
+
+### Complex Split
+
+```tsx
+<ProCard split="vertical">
+  <ProCard title="左侧" colSpan="30%">
+    左侧内容
+  </ProCard>
+  
+  <ProCard split="horizontal">
+    <ProCard title="上方">
+      上方内容
+    </ProCard>
+    <ProCard title="下方">
+      下方内容
+    </ProCard>
+  </ProCard>
+  
+  <ProCard title="右侧" colSpan="30%">
+    右侧内容
+  </ProCard>
+</ProCard>
+```
+
+## Tabs Card
+
+```tsx
+export default () => {
+  const [activeKey, setActiveKey] = useState('tab1');
+  
+  return (
+    <ProCard
+      tabs={{
+        activeKey,
+        onChange: setActiveKey,
+        items: [
+          {
+            label: '基本信息',
+            key: 'tab1',
+            children: <div>基本信息内容</div>,
+          },
+          {
+            label: '详细信息',
+            key: 'tab2',
+            children: <div>详细信息内容</div>,
+          },
+          {
+            label: '设置',
+            key: 'tab3',
+            children: <div>设置内容</div>,
+          },
+        ],
+      }}
+    />
+  );
+};
+```
+
+## Collapsible Card
+
+```tsx
+export default () => {
+  return (
+    <ProCard
+      title="可折叠卡片"
+      collapsible
+      defaultCollapsed={false}
+      onCollapse={(collapsed) => console.log(collapsed)}
+    >
+      <div>可折叠的内容</div>
+    </ProCard>
+  );
+};
+```
+
+### Collapsible Mode
+
+```tsx
+<ProCard
+  collapsible
+  // 'header' - Click header to toggle (default)
+  // 'icon' - Only click icon to toggle
+  collapsibleIconRender={({ collapsed }) => 
+    collapsed ? <DownOutlined /> : <UpOutlined />
+  }
+>
+  内容
+</ProCard>
+```
+
+## Ghost Mode
+
+Transparent card for nested layouts:
+
+```tsx
+<ProCard>
+  <ProCard ghost title="透明卡片 1">
+    内容 1
+  </ProCard>
+  <ProCard ghost title="透明卡片 2">
+    内容 2
+  </ProCard>
+</ProCard>
+```
+
+## StatisticCard
+
+Display statistical data:
+
+```tsx
+import { StatisticCard } from '@ant-design/pro-components';
+const { Statistic } = StatisticCard;
+
+export default () => {
+  return (
+    <StatisticCard.Group>
+      <StatisticCard
+        statistic={{
+          title: '总销售额',
+          value: 1234567,
+          prefix: '¥',
+          precision: 2,
+          suffix: '元',
+        }}
+        chart={
+          <img
+            src="https://example.com/chart.png"
+            alt="chart"
+            width="100%"
+          />
+        }
+      />
+      
+      <StatisticCard
+        statistic={{
+          title: '访问量',
+          value: 8846,
+          trend: 'up',
+          description: (
+            <Statistic
+              value="12.5%"
+              trend="up"
+              layout="horizontal"
+            />
+          ),
+        }}
+      />
+    </StatisticCard.Group>
+  );
+};
+```
+
+### Statistic Types
+
+```tsx
+<StatisticCard.Group>
+  <StatisticCard
+    statistic={{
+      title: '总销售额',
+      value: 1234.56,
+      precision: 2,
+      prefix: '¥',
+      // Show trend
+      trend: 'up', // 'up' | 'down'
+      description: '+12.5%',
+    }}
+  />
+  
+  <StatisticCard
+    statistic={{
+      title: '访问量',
+      value: 88460,
+      // Custom value style
+      valueStyle: { color: '#3f8600' },
+      // Custom render
+      valueRender: () => <span>8.8万</span>,
+    }}
+  />
+</StatisticCard.Group>
+```
+
+## CheckCard
+
+Selectable card options:
+
+```tsx
+import { CheckCard } from '@ant-design/pro-components';
+
+export default () => {
+  const [checked, setChecked] = useState('A');
+  
+  return (
+    <CheckCard.Group
+      value={checked}
+      onChange={setChecked}
+    >
+      <CheckCard
+        title="选项 A"
+        description="选项 A 的描述"
+        value="A"
+      />
+      <CheckCard
+        title="选项 B"
+        description="选项 B 的描述"
+        value="B"
+      />
+      <CheckCard
+        title="选项 C"
+        description="选项 C 的描述"
+        value="C"
+      />
+    </CheckCard.Group>
+  );
+};
+```
+
+### Multiple Selection
+
+```tsx
+const [checkedValues, setCheckedValues] = useState<string[]>(['A']);
+
+<CheckCard.Group
+  multiple
+  value={checkedValues}
+  onChange={setCheckedValues}
+>
+  <CheckCard title="选项 A" value="A" />
+  <CheckCard title="选项 B" value="B" />
+  <CheckCard title="选项 C" value="C" />
+</CheckCard.Group>
+```
+
+## Grid Layout
+
+```tsx
+<ProCard gutter={[16, 16]} wrap>
+  <ProCard colSpan={8} layout="center" bordered>
+    colSpan - 8
+  </ProCard>
+  <ProCard colSpan={8} layout="center" bordered>
+    colSpan - 8
+  </ProCard>
+  <ProCard colSpan={8} layout="center" bordered>
+    colSpan - 8
+  </ProCard>
+  
+  <ProCard colSpan={12} layout="center" bordered>
+    colSpan - 12
+  </ProCard>
+  <ProCard colSpan={12} layout="center" bordered>
+    colSpan - 12
+  </ProCard>
+</ProCard>
+```
+
+### Responsive Grid
+
+```tsx
+<ProCard gutter={8} ghost wrap>
+  <ProCard
+    colSpan={{ xs: 24, sm: 12, md: 8, lg: 6 }}
+    layout="center"
+    bordered
+  >
+    响应式卡片 1
+  </ProCard>
+  <ProCard
+    colSpan={{ xs: 24, sm: 12, md: 8, lg: 6 }}
+    layout="center"
+    bordered
+  >
+    响应式卡片 2
+  </ProCard>
+</ProCard>
+```
+
+## Loading State
+
+```tsx
+<ProCard loading title="加载中">
+  内容将在加载完成后显示
+</ProCard>
+```
+
+## Card Actions
+
+```tsx
+<ProCard
+  title="卡片标题"
+  extra={<a key="more">更多</a>}
+  actions={[
+    <span key="like">
+      <LikeOutlined /> 喜欢
+    </span>,
+    <span key="share">
+      <ShareAltOutlined /> 分享
+    </span>,
+    <span key="comment">
+      <MessageOutlined /> 评论
+    </span>,
+  ]}
+>
+  卡片内容
+</ProCard>
+```
+
+## Card Sizes
+
+```tsx
+<ProCard title="小卡片" size="small">
+  小尺寸卡片
+</ProCard>
+
+<ProCard title="默认卡片" size="default">
+  默认尺寸卡片
+</ProCard>
+```
+
+## Hoverable
+
+```tsx
+<ProCard title="可悬停卡片" hoverable>
+  鼠标悬停时会有阴影效果
+</ProCard>
+```
+
+## Box Shadow
+
+```tsx
+<ProCard boxShadow>
+  带阴影的卡片
+</ProCard>
+```
+
+## Key Props
+
+### ProCard Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `title` | `ReactNode` | Card title |
+| `extra` | `ReactNode` | Extra content in header |
+| `variant` | `'outlined' \| 'filled' \| 'borderless'` | Card variant |
+| `split` | `'vertical' \| 'horizontal'` | Split direction |
+| `colSpan` | `number \| string` | Column span (grid) |
+| `gutter` | `number \| [number, number]` | Grid gutter |
+| `ghost` | `boolean` | Ghost mode (transparent) |
+| `collapsible` | `boolean` | Enable collapse |
+| `collapsed` | `boolean` | Collapsed state |
+| `tabs` | `TabsProps` | Tabs configuration |
+| `loading` | `boolean` | Loading state |
+| `hoverable` | `boolean` | Hover effect |
+| `boxShadow` | `boolean` | Box shadow |
+
+### StatisticCard Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `statistic` | `StatisticProps` | Statistic configuration |
+| `chart` | `ReactNode` | Chart element |
+| `chartPlacement` | `'left' \| 'right' \| 'bottom'` | Chart placement |
+
+### CheckCard Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `checked` | `boolean` | Checked state |
+| `value` | `any` | Card value |
+| `onChange` | `(checked) => void` | Change handler |
+| `disabled` | `boolean` | Disabled state |
+| `title` | `ReactNode` | Card title |
+| `description` | `ReactNode` | Card description |
+| `avatar` | `ReactNode` | Avatar element |
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use split layouts for dashboards">
+    Organize dashboard metrics using split layouts:
+    ```tsx
+    <ProCard split="vertical">
+      <ProCard title="左侧指标" colSpan="50%">
+        <StatisticCard statistic={{ title: 'Metric 1', value: 100 }} />
+      </ProCard>
+      <ProCard title="右侧指标">
+        <StatisticCard statistic={{ title: 'Metric 2', value: 200 }} />
+      </ProCard>
+    </ProCard>
+    ```
+  </Accordion>
+  
+  <Accordion title="Use ghost cards for nested content">
+    When nesting cards, use ghost mode to avoid excessive borders and backgrounds.
+  </Accordion>
+  
+  <Accordion title="Leverage StatisticCard for metrics">
+    Use StatisticCard instead of custom layouts for displaying numerical data - it's optimized for readability and includes trend indicators.
+  </Accordion>
+  
+  <Accordion title="Optimize responsive layouts">
+    Use colSpan with breakpoint objects for responsive card layouts:
+    ```tsx
+    <ProCard colSpan={{ xs: 24, sm: 12, lg: 8 }}>
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Components
+
+- [ProTable](/components/pro-table) - Use ProCard as table container
+- [ProDescriptions](/components/pro-descriptions) - Display details in cards
+- [ProForm](/components/pro-form) - Form layout with cards

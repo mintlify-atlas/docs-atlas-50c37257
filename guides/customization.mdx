@@ -1,0 +1,692 @@
+---
+title: Customization Guide
+description: Learn how to customize ProComponents styling, theming, and behavior
+icon: "palette"
+---
+
+## Overview
+
+ProComponents is built on Ant Design's Design Token system, providing powerful customization capabilities while maintaining design consistency. This guide covers styling, theming, and extending components.
+
+## Theme Customization
+
+### Using ProConfigProvider
+
+The `ProConfigProvider` wraps your application and provides theme configuration to all ProComponents.
+
+```tsx
+import { ProConfigProvider } from '@ant-design/pro-components';
+import { ConfigProvider } from 'antd';
+
+function App() {
+  return (
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#00b96b',
+        },
+      }}
+    >
+      <ProConfigProvider
+        token={{
+          layout: {
+            sider: {
+              colorMenuBackground: '#001529',
+              colorTextMenu: '#fff',
+            },
+          },
+        }}
+      >
+        <YourApp />
+      </ProConfigProvider>
+    </ConfigProvider>
+  );
+}
+```
+
+<Tip>
+  Always wrap `ProConfigProvider` inside Ant Design's `ConfigProvider` to ensure proper theme inheritance.
+</Tip>
+
+### Design Tokens
+
+#### Brand Colors
+
+Customize your application's primary colors:
+
+```tsx
+import { ConfigProvider } from 'antd';
+
+const theme = {
+  token: {
+    colorPrimary: '#1890ff',      // Primary brand color
+    colorSuccess: '#52c41a',      // Success state
+    colorWarning: '#faad14',      // Warning state
+    colorError: '#f5222d',        // Error state
+    colorInfo: '#1890ff',         // Info state
+  },
+};
+
+<ConfigProvider theme={theme}>
+  <App />
+</ConfigProvider>
+```
+
+#### Layout Tokens
+
+ProComponents provides specific tokens for layout customization:
+
+```tsx
+import { ProConfigProvider } from '@ant-design/pro-components';
+
+const layoutToken = {
+  layout: {
+    // Sider (sidebar) customization
+    sider: {
+      colorMenuBackground: '#001529',           // Sidebar background
+      colorTextMenu: 'rgba(255, 255, 255, 0.65)',  // Menu text color
+      colorTextMenuSelected: '#fff',            // Selected menu text
+      colorBgMenuItemSelected: '#1890ff',       // Selected menu background
+      colorBgMenuItemHover: 'rgba(255, 255, 255, 0.08)',  // Hover background
+      paddingInlineLayoutMenu: 8,               // Menu horizontal padding
+      paddingBlockLayoutMenu: 0,                // Menu vertical padding
+    },
+    
+    // Header customization
+    header: {
+      colorBgHeader: '#001529',                 // Header background
+      colorHeaderTitle: '#fff',                 // Header title color
+      colorTextMenu: 'rgba(255, 255, 255, 0.65)',  // Header menu text
+      heightLayoutHeader: 56,                   // Header height
+    },
+    
+    // Page container customization
+    pageContainer: {
+      colorBgPageContainer: 'transparent',      // Container background
+      paddingInlinePageContainerContent: 40,    // Horizontal padding
+      paddingBlockPageContainerContent: 32,     // Vertical padding
+    },
+  },
+};
+
+<ProConfigProvider token={layoutToken}>
+  <App />
+</ProConfigProvider>
+```
+
+### Dark Mode
+
+Enable dark mode using the `dark` prop:
+
+```tsx
+import { ProConfigProvider } from '@ant-design/pro-components';
+import { useState } from 'react';
+
+function App() {
+  const [isDark, setIsDark] = useState(false);
+  
+  return (
+    <ProConfigProvider dark={isDark}>
+      <Switch 
+        checked={isDark} 
+        onChange={setIsDark}
+        checkedChildren="🌙"
+        unCheckedChildren="☀️"
+      />
+      <YourApp />
+    </ProConfigProvider>
+  );
+}
+```
+
+<Note>
+  Dark mode automatically adjusts all ProComponents colors using Ant Design's dark algorithm.
+</Note>
+
+## Component Customization
+
+### ProTable Customization
+
+#### Custom Column Rendering
+
+```tsx
+import { ProTable } from '@ant-design/pro-components';
+import { Tag, Avatar, Space } from 'antd';
+
+const columns = [
+  {
+    title: 'User',
+    dataIndex: 'name',
+    render: (text, record) => (
+      <Space>
+        <Avatar src={record.avatar} />
+        <span>{text}</span>
+      </Space>
+    ),
+  },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    render: (status) => {
+      const color = status === 'active' ? 'green' : 'red';
+      return <Tag color={color}>{status.toUpperCase()}</Tag>;
+    },
+  },
+];
+
+<ProTable columns={columns} {...otherProps} />
+```
+
+#### Custom Toolbar
+
+```tsx
+import { ProTable } from '@ant-design/pro-components';
+import { Button, Dropdown } from 'antd';
+import { PlusOutlined, DownloadOutlined } from '@ant-design/icons';
+
+<ProTable
+  headerTitle="User List"
+  toolBarRender={() => [
+    <Button key="create" type="primary" icon={<PlusOutlined />}>
+      Create New
+    </Button>,
+    <Dropdown
+      key="export"
+      menu={{
+        items: [
+          { key: 'csv', label: 'Export as CSV' },
+          { key: 'excel', label: 'Export as Excel' },
+        ],
+      }}
+    >
+      <Button icon={<DownloadOutlined />}>Export</Button>
+    </Dropdown>,
+  ]}
+/>
+```
+
+#### Custom Search Form
+
+```tsx
+import { ProTable } from '@ant-design/pro-components';
+
+<ProTable
+  search={{
+    labelWidth: 'auto',
+    span: 8,                    // Grid column span
+    defaultCollapsed: false,    // Show expanded by default
+    optionRender: (searchConfig, formProps, dom) => [
+      ...dom.reverse(),         // Reverse button order
+      <Button key="custom">Custom Action</Button>,
+    ],
+  }}
+/>
+```
+
+### ProForm Customization
+
+#### Custom Form Layout
+
+```tsx
+import { ProForm, ProFormText, ProFormSelect } from '@ant-design/pro-components';
+
+<ProForm
+  layout="horizontal"
+  grid={true}
+  colProps={{
+    xs: 24,
+    sm: 12,
+    md: 8,
+  }}
+  submitter={{
+    render: (props, doms) => {
+      return [
+        <Button key="reset" onClick={() => props.form?.resetFields()}>
+          Reset
+        </Button>,
+        <Button key="submit" type="primary" onClick={() => props.form?.submit()}>
+          Submit
+        </Button>,
+      ];
+    },
+  }}
+>
+  <ProFormText name="name" label="Name" />
+  <ProFormSelect name="type" label="Type" />
+</ProForm>
+```
+
+#### Custom Field Components
+
+Create reusable custom field components:
+
+```tsx
+import { ProForm, ProFormField } from '@ant-design/pro-components';
+import { Input, Space, Button } from 'antd';
+import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
+
+const QuantityField = ({ value, onChange }) => {
+  return (
+    <Space>
+      <Button
+        icon={<MinusOutlined />}
+        onClick={() => onChange(Math.max(0, (value || 0) - 1))}
+      />
+      <Input
+        value={value}
+        onChange={(e) => onChange(parseInt(e.target.value) || 0)}
+        style={{ width: 60, textAlign: 'center' }}
+      />
+      <Button
+        icon={<PlusOutlined />}
+        onClick={() => onChange((value || 0) + 1)}
+      />
+    </Space>
+  );
+};
+
+<ProForm>
+  <ProFormField
+    name="quantity"
+    label="Quantity"
+  >
+    <QuantityField />
+  </ProFormField>
+</ProForm>
+```
+
+### ProLayout Customization
+
+#### Custom Menu Items
+
+```tsx
+import { ProLayout } from '@ant-design/pro-components';
+import { DashboardOutlined, UserOutlined } from '@ant-design/icons';
+
+const routes = [
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    icon: <DashboardOutlined />,
+  },
+  {
+    path: '/users',
+    name: 'Users',
+    icon: <UserOutlined />,
+    routes: [
+      {
+        path: '/users/list',
+        name: 'User List',
+      },
+      {
+        path: '/users/groups',
+        name: 'User Groups',
+      },
+    ],
+  },
+];
+
+<ProLayout
+  route={{ routes }}
+  menuItemRender={(item, dom) => (
+    <a onClick={() => navigate(item.path)}>{dom}</a>
+  )}
+/>
+```
+
+#### Custom Header Content
+
+```tsx
+import { ProLayout } from '@ant-design/pro-components';
+import { Input, Badge, Avatar, Dropdown } from 'antd';
+import { SearchOutlined, BellOutlined, SettingOutlined } from '@ant-design/icons';
+
+<ProLayout
+  headerContentRender={() => (
+    <Input
+      prefix={<SearchOutlined />}
+      placeholder="Search..."
+      style={{ width: 300 }}
+    />
+  )}
+  actionsRender={() => [
+    <Badge key="notifications" count={5}>
+      <BellOutlined style={{ fontSize: 18 }} />
+    </Badge>,
+    <SettingOutlined key="settings" style={{ fontSize: 18 }} />,
+  ]}
+  avatarProps={{
+    src: 'https://avatars.githubusercontent.com/u/8186664?v=4',
+    title: 'John Doe',
+    render: (props, dom) => (
+      <Dropdown
+        menu={{
+          items: [
+            { key: 'profile', label: 'Profile' },
+            { key: 'settings', label: 'Settings' },
+            { type: 'divider' },
+            { key: 'logout', label: 'Logout' },
+          ],
+        }}
+      >
+        {dom}
+      </Dropdown>
+    ),
+  }}
+/>
+```
+
+## Styling with CSS-in-JS
+
+### Using useToken Hook
+
+Access design tokens in your custom components:
+
+```tsx
+import { theme } from 'antd';
+import { useToken } from '@ant-design/pro-components';
+
+const CustomCard = () => {
+  const { token } = theme.useToken();
+  
+  return (
+    <div
+      style={{
+        backgroundColor: token.colorBgContainer,
+        border: `1px solid ${token.colorBorder}`,
+        borderRadius: token.borderRadius,
+        padding: token.padding,
+        boxShadow: token.boxShadow,
+      }}
+    >
+      Custom Card Content
+    </div>
+  );
+};
+```
+
+### Emotion CSS
+
+ProComponents uses Emotion for CSS-in-JS:
+
+```tsx
+import { css } from '@emotion/css';
+import { theme } from 'antd';
+
+const useStyles = () => {
+  const { token } = theme.useToken();
+  
+  return {
+    container: css`
+      background-color: ${token.colorBgContainer};
+      padding: ${token.paddingLG}px;
+      border-radius: ${token.borderRadius}px;
+      
+      &:hover {
+        box-shadow: ${token.boxShadowSecondary};
+      }
+    `,
+    title: css`
+      color: ${token.colorText};
+      font-size: ${token.fontSizeLG}px;
+      font-weight: ${token.fontWeightStrong};
+      margin-bottom: ${token.marginMD}px;
+    `,
+  };
+};
+
+const MyComponent = () => {
+  const styles = useStyles();
+  
+  return (
+    <div className={styles.container}>
+      <h2 className={styles.title}>Title</h2>
+      <p>Content</p>
+    </div>
+  );
+};
+```
+
+## CSS Variables
+
+ProComponents supports CSS variables for dynamic theming:
+
+```tsx
+import { ProConfigProvider } from '@ant-design/pro-components';
+
+<ProConfigProvider
+  token={{
+    layout: {
+      sider: {
+        colorMenuBackground: 'var(--sidebar-bg)',
+        colorTextMenu: 'var(--sidebar-text)',
+      },
+    },
+  }}
+>
+  <App />
+</ProConfigProvider>
+```
+
+```css
+/* Your CSS file */
+:root {
+  --sidebar-bg: #001529;
+  --sidebar-text: rgba(255, 255, 255, 0.65);
+}
+
+[data-theme='light'] {
+  --sidebar-bg: #ffffff;
+  --sidebar-text: rgba(0, 0, 0, 0.65);
+}
+```
+
+## Internationalization (i18n)
+
+### Configure Locale
+
+```tsx
+import { ProConfigProvider } from '@ant-design/pro-components';
+import { ConfigProvider } from 'antd';
+import enUS from 'antd/locale/en_US';
+import zhCN from 'antd/locale/zh_CN';
+
+function App() {
+  const [locale, setLocale] = useState('en-US');
+  
+  return (
+    <ConfigProvider locale={locale === 'en-US' ? enUS : zhCN}>
+      <ProConfigProvider>
+        <YourApp />
+      </ProConfigProvider>
+    </ConfigProvider>
+  );
+}
+```
+
+### Custom Intl Messages
+
+```tsx
+import { ProConfigProvider, createIntl } from '@ant-design/pro-components';
+
+const customIntl = createIntl('en-US', {
+  tableForm: {
+    search: 'Find',
+    reset: 'Clear',
+    submit: 'Search Now',
+  },
+});
+
+<ProConfigProvider intl={customIntl}>
+  <App />
+</ProConfigProvider>
+```
+
+## Advanced Customization
+
+### Extending Components
+
+Create wrapped components with custom defaults:
+
+```tsx
+import { ProTable } from '@ant-design/pro-components';
+import type { ProTableProps } from '@ant-design/pro-components';
+
+function MyProTable<T extends Record<string, any>>(
+  props: ProTableProps<T, any>
+) {
+  return (
+    <ProTable<T>
+      search={{
+        labelWidth: 'auto',
+        defaultCollapsed: false,
+        ...props.search,
+      }}
+      pagination={{
+        pageSize: 20,
+        showSizeChanger: true,
+        ...props.pagination,
+      }}
+      options={{
+        density: true,
+        fullScreen: true,
+        reload: true,
+        setting: true,
+        ...props.options,
+      }}
+      {...props}
+    />
+  );
+}
+
+export default MyProTable;
+```
+
+### Global Styles
+
+Apply global customizations using CSS:
+
+```css
+/* Override specific ProComponents styles */
+.ant-pro-table-search {
+  background-color: #fafafa;
+  padding: 24px;
+  border-radius: 8px;
+}
+
+.ant-pro-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.ant-pro-page-container-children-content {
+  margin: 24px;
+}
+```
+
+<Warning>
+  Use global CSS overrides sparingly. Prefer using design tokens and component props for maintainable customizations.
+</Warning>
+
+## Best Practices
+
+<Steps>
+  <Step title="Use Design Tokens">
+    Always use design tokens instead of hardcoded values for colors, spacing, and typography:
+    
+    ```tsx
+    // ✅ Good
+    const { token } = theme.useToken();
+    style={{ padding: token.padding }}
+    
+    // ❌ Avoid
+    style={{ padding: '16px' }}
+    ```
+  </Step>
+  
+  <Step title="Maintain Theme Consistency">
+    Keep all theme customizations in a centralized location:
+    
+    ```tsx
+    // theme/index.ts
+    export const themeConfig = {
+      token: { /* tokens */ },
+      components: { /* component overrides */ },
+    };
+    ```
+  </Step>
+  
+  <Step title="Test in Both Light and Dark Modes">
+    Always verify your customizations work in both themes:
+    
+    ```tsx
+    // Test component in both modes
+    <ProConfigProvider dark={false}>
+      <YourComponent />
+    </ProConfigProvider>
+    
+    <ProConfigProvider dark={true}>
+      <YourComponent />
+    </ProConfigProvider>
+    ```
+  </Step>
+  
+  <Step title="Document Custom Components">
+    Add clear documentation for any custom wrappers or extensions you create.
+  </Step>
+</Steps>
+
+## Examples
+
+### Complete Theme Configuration
+
+```tsx
+import { ProConfigProvider } from '@ant-design/pro-components';
+import { ConfigProvider } from 'antd';
+
+const App = () => {
+  return (
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#1677ff',
+          borderRadius: 6,
+          fontSize: 14,
+        },
+        components: {
+          Button: {
+            controlHeight: 32,
+          },
+          Table: {
+            headerBg: '#fafafa',
+          },
+        },
+      }}
+    >
+      <ProConfigProvider
+        dark={false}
+        token={{
+          layout: {
+            sider: {
+              colorMenuBackground: '#001529',
+              colorTextMenu: 'rgba(255, 255, 255, 0.65)',
+              colorTextMenuSelected: '#fff',
+              colorBgMenuItemSelected: '#1677ff',
+            },
+            header: {
+              colorBgHeader: '#001529',
+              heightLayoutHeader: 64,
+            },
+          },
+        }}
+        hashed={false}
+      >
+        <YourApp />
+      </ProConfigProvider>
+    </ConfigProvider>
+  );
+};
+```
+
+<Tip>
+  Check the [Ant Design Theme Editor](https://ant.design/theme-editor) to visually design your theme and export the configuration.
+</Tip>

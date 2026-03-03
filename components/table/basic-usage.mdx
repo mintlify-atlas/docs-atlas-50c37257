@@ -1,0 +1,360 @@
+---
+title: Basic Usage
+description: Learn how to use ProTable for data display and management
+---
+
+ProTable is a powerful table component built on top of Ant Design Table, providing enhanced features for data fetching, searching, filtering, and column management.
+
+## Basic ProTable
+
+The simplest way to use ProTable is to pass columns and a request function:
+
+```tsx
+import { ProTable } from '@ant-design/pro-components';
+import type { ProColumns } from '@ant-design/pro-components';
+
+type GithubIssueItem = {
+  id: number;
+  title: string;
+  state: string;
+  created_at: string;
+  labels: { name: string; color: string; }[];
+};
+
+const columns: ProColumns<GithubIssueItem>[] = [
+  {
+    dataIndex: 'index',
+    valueType: 'indexBorder',
+    width: 48,
+  },
+  {
+    title: '标题',
+    dataIndex: 'title',
+    copyable: true,
+    ellipsis: true,
+    tooltip: '标题过长会自动收缩',
+  },
+  {
+    title: '状态',
+    dataIndex: 'state',
+    valueType: 'select',
+    valueEnum: {
+      open: { text: '未解决', status: 'Error' },
+      closed: { text: '已解决', status: 'Success' },
+    },
+  },
+  {
+    title: '创建时间',
+    dataIndex: 'created_at',
+    valueType: 'date',
+  },
+];
+
+export default () => {
+  return (
+    <ProTable<GithubIssueItem>
+      columns={columns}
+      request={async (params) => {
+        const response = await fetch('/api/issues', {
+          method: 'POST',
+          body: JSON.stringify(params),
+        });
+        const data = await response.json();
+        return {
+          data: data.list,
+          success: true,
+          total: data.total,
+        };
+      }}
+      rowKey="id"
+      pagination={{
+        pageSize: 10,
+      }}
+    />
+  );
+};
+```
+
+## Key Features
+
+<Steps>
+
+### Automatic Data Fetching
+
+ProTable automatically handles data fetching through the `request` prop. It manages loading states, pagination, and error handling for you.
+
+### Search and Filter
+
+Enable search functionality by configuring column search properties:
+
+```tsx
+const columns: ProColumns[] = [
+  {
+    title: '创建时间',
+    dataIndex: 'created_at',
+    valueType: 'dateRange',
+    search: {
+      transform: (value) => ({
+        startTime: value[0],
+        endTime: value[1],
+      }),
+    },
+  },
+];
+```
+
+### Column State Management
+
+ProTable provides built-in column visibility and order management:
+
+```tsx
+<ProTable
+  columnsState={{
+    persistenceKey: 'my-table-columns',
+    persistenceType: 'localStorage',
+  }}
+/>
+```
+
+</Steps>
+
+## Core Props
+
+### columns
+
+Defines table columns with enhanced features beyond Ant Design Table:
+
+- `valueType` - Automatic rendering for different data types (date, select, text, etc.)
+- `copyable` - Add copy functionality
+- `ellipsis` - Text overflow handling
+- `tooltip` - Column header tooltip
+- `search` - Search configuration
+- `hideInTable` - Hide column in table but show in search form
+- `hideInSearch` - Hide from search form
+
+### request
+
+Async function for fetching data:
+
+```tsx
+request={async (params, sort, filter) => {
+  // params: contains search form values and pagination
+  // sort: current sort state
+  // filter: current filter state
+  
+  const response = await fetchData(params);
+  
+  return {
+    data: response.list,
+    success: true,
+    total: response.total,
+  };
+}}
+```
+
+<Note>
+The `request` function receives pagination parameters automatically and should return an object with `data`, `success`, and `total` properties.
+</Note>
+
+### actionRef
+
+Provides programmatic control over the table:
+
+```tsx
+const actionRef = useRef<ActionType>();
+
+// Reload table data
+actionRef.current?.reload();
+
+// Reset to initial state
+actionRef.current?.reset();
+
+// Clear selected rows
+actionRef.current?.clearSelected();
+```
+
+## Value Types
+
+ProTable supports various value types for automatic rendering:
+
+<CodeGroup>
+
+```tsx Date
+{
+  title: '创建时间',
+  dataIndex: 'created_at',
+  valueType: 'date',
+}
+```
+
+```tsx Select
+{
+  title: '状态',
+  dataIndex: 'status',
+  valueType: 'select',
+  valueEnum: {
+    open: { text: '进行中', status: 'Processing' },
+    closed: { text: '已完成', status: 'Success' },
+  },
+}
+```
+
+```tsx Progress
+{
+  title: '进度',
+  dataIndex: 'progress',
+  valueType: 'progress',
+}
+```
+
+```tsx Money
+{
+  title: '金额',
+  dataIndex: 'amount',
+  valueType: 'money',
+}
+```
+
+</CodeGroup>
+
+## Toolbar and Actions
+
+### Custom Toolbar
+
+Add custom actions to the toolbar:
+
+```tsx
+<ProTable
+  headerTitle="Issue 管理"
+  toolBarRender={() => [
+    <Button
+      key="button"
+      icon={<PlusOutlined />}
+      type="primary"
+    >
+      新建
+    </Button>,
+    <Button key="export">导出</Button>,
+  ]}
+/>
+```
+
+### Built-in Options
+
+Control built-in table options:
+
+```tsx
+<ProTable
+  options={{
+    reload: true,        // Show reload button
+    setting: true,       // Show column settings
+    density: true,       // Show density toggle
+    fullScreen: true,    // Show fullscreen toggle
+  }}
+/>
+```
+
+## Search Form
+
+Customize the search form behavior:
+
+```tsx
+<ProTable
+  search={{
+    labelWidth: 'auto',
+    defaultCollapsed: false,
+    optionRender: (searchConfig, formProps, dom) => [
+      ...dom,
+      <Button key="custom">自定义操作</Button>,
+    ],
+  }}
+/>
+```
+
+<Tip>
+Set `search={false}` to disable the search form entirely, which is useful for simple tables that don't need filtering.
+</Tip>
+
+## Pagination
+
+ProTable handles pagination automatically, but you can customize it:
+
+```tsx
+<ProTable
+  pagination={{
+    pageSize: 20,
+    showSizeChanger: true,
+    showQuickJumper: true,
+    onChange: (page, pageSize) => {
+      console.log('Page changed:', page, pageSize);
+    },
+  }}
+/>
+```
+
+Set `pagination={false}` to disable pagination.
+
+## Column Operations
+
+Add operation columns with actions:
+
+```tsx
+{
+  title: '操作',
+  valueType: 'option',
+  render: (text, record, _, action) => [
+    <a
+      key="edit"
+      onClick={() => {
+        action?.startEditable?.(record.id);
+      }}
+    >
+      编辑
+    </a>,
+    <a key="view" href={record.url}>查看</a>,
+    <TableDropdown
+      key="more"
+      menus={[
+        { key: 'copy', name: '复制' },
+        { key: 'delete', name: '删除' },
+      ]}
+    />,
+  ],
+}
+```
+
+## Static Data Source
+
+For static data, use `dataSource` instead of `request`:
+
+```tsx
+const dataSource = [
+  { id: 1, name: 'John', age: 32 },
+  { id: 2, name: 'Jane', age: 28 },
+];
+
+<ProTable
+  columns={columns}
+  dataSource={dataSource}
+  rowKey="id"
+  search={false}
+  pagination={false}
+/>
+```
+
+## Loading State
+
+Control loading state manually:
+
+```tsx
+const [loading, setLoading] = useState(false);
+
+<ProTable
+  loading={loading}
+  // or with spinner config
+  loading={{
+    spinning: loading,
+    tip: 'Loading data...',
+  }}
+/>
+```

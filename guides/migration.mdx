@@ -1,0 +1,470 @@
+---
+title: Migration Guide
+description: Complete guide to migrating between ProComponents versions
+icon: "arrow-right-arrow-left"
+---
+
+## Overview
+
+ProComponents 3.0 represents a major upgrade focusing on Ant Design 6 support, improved performance, and modernized APIs. This guide will help you migrate from version 2.x to 3.x smoothly.
+
+<Warning>
+  ProComponents 3.0 completely removes Ant Design 4 compatibility. Ensure your project is ready for Ant Design 6 before upgrading.
+</Warning>
+
+## Prerequisites
+
+### Version Requirements
+
+Before starting the migration, ensure your dependencies meet these minimum versions:
+
+| Dependency | Version 2.x | Version 3.0 Required |
+|------------|-------------|----------------------|
+| antd | >= 4.20.0 | **>= 6.0.0** |
+| React | >= 16.9.0 | **>= 18.0.0** |
+| @ant-design/pro-components | 2.8.10 | **>= 3.0.0** |
+
+<Steps>
+  <Step title="Check Current Versions">
+    Review your `package.json` to verify current dependency versions:
+    
+    ```bash
+    npm list antd react react-dom @ant-design/pro-components
+    ```
+  </Step>
+  
+  <Step title="Create Migration Branch">
+    Create a dedicated branch for the migration in your version control:
+    
+    ```bash
+    git checkout -b upgrade/pro-components-3.0
+    ```
+  </Step>
+  
+  <Step title="Run Existing Tests">
+    Document your baseline by running all tests before making changes:
+    
+    ```bash
+    npm test
+    # Take screenshots of key pages for visual comparison
+    ```
+  </Step>
+</Steps>
+
+## Breaking Changes
+
+### ProTable Changes
+
+#### columnsStateMap → columnsState
+
+The API for controlling column state has been unified for better consistency.
+
+```tsx
+// ❌ Version 2.x
+<ProTable
+  columnsStateMap={{
+    name: { show: false },
+    age: { fixed: 'left' }
+  }}
+  onColumnsStateChange={(map) => console.log(map)}
+/>
+
+// ✅ Version 3.0
+<ProTable
+  columnsState={{
+    value: {
+      name: { show: false },
+      age: { fixed: 'left' }
+    },
+    onChange: (map) => console.log(map),
+    persistenceKey: 'my-table-columns',
+    persistenceType: 'localStorage'
+  }}
+/>
+```
+
+<Tip>
+  The new `columnsState` API follows the same controlled component pattern as Ant Design Table, making it more intuitive.
+</Tip>
+
+#### hideInSearch → search: false
+
+Search configuration has been unified under a single `search` property.
+
+```tsx
+// ❌ Version 2.x
+const columns = [
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    hideInSearch: true,
+  },
+];
+
+// ✅ Version 3.0
+const columns = [
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    search: false,
+  },
+];
+```
+
+The `search` property also supports advanced configuration:
+
+```tsx
+const columns = [
+  {
+    title: 'Created At',
+    dataIndex: 'createdAt',
+    valueType: 'dateRange',
+    search: {
+      transform: (value) => ({
+        startTime: value?.[0],
+        endTime: value?.[1],
+      }),
+    },
+  },
+];
+```
+
+#### tip → tooltip
+
+Column tooltips now use the standard `tooltip` property.
+
+```tsx
+// ❌ Version 2.x
+{
+  title: 'Email',
+  dataIndex: 'email',
+  tip: 'Company email for notifications'
+}
+
+// ✅ Version 3.0
+{
+  title: 'Email',
+  dataIndex: 'email',
+  tooltip: 'Company email for notifications'
+}
+
+// Advanced usage with icon
+{
+  title: 'Email',
+  dataIndex: 'email',
+  tooltip: {
+    title: 'Company email for notifications',
+    icon: <InfoCircleOutlined />
+  }
+}
+```
+
+### ProCard Changes
+
+#### Remove ProCard.TabPane
+
+Tab configuration now uses the standard Ant Design `items` array.
+
+```tsx
+// ❌ Version 2.x
+<ProCard>
+  <ProCard.TabPane tab="Overview" key="1">
+    <div>Overview Content</div>
+  </ProCard.TabPane>
+  <ProCard.TabPane tab="Details" key="2">
+    <div>Details Content</div>
+  </ProCard.TabPane>
+</ProCard>
+
+// ✅ Version 3.0
+<ProCard
+  tabs={{
+    items: [
+      {
+        key: '1',
+        label: 'Overview',
+        children: <div>Overview Content</div>
+      },
+      {
+        key: '2',
+        label: 'Details',
+        children: <div>Details Content</div>
+      }
+    ]
+  }}
+/>
+```
+
+### ProLayout Changes
+
+#### rightContentRender → actionsRender + avatarProps
+
+The header right content has been split for better maintainability.
+
+```tsx
+// ❌ Version 2.x
+<ProLayout
+  rightContentRender={() => (
+    <div>
+      <Avatar src="user.jpg" />
+      <span>Username</span>
+    </div>
+  )}
+/>
+
+// ✅ Version 3.0
+<ProLayout
+  avatarProps={{
+    src: 'user.jpg',
+    title: 'Username',
+    render: (props, dom) => (
+      <Dropdown menu={{ items: userMenu }}>
+        <a>{dom}</a>
+      </Dropdown>
+    )
+  }}
+  actionsRender={(props) => [
+    <Button key="notifications" icon={<BellOutlined />} />,
+    <Button key="settings" icon={<SettingOutlined />} />
+  ]}
+/>
+```
+
+### ProForm Changes
+
+#### Remove plain Property
+
+Use `variant` to control field appearance.
+
+```tsx
+// ❌ Version 2.x
+<ProFormText
+  name="username"
+  plain={true}
+/>
+
+// ✅ Version 3.0
+<ProFormText
+  name="username"
+  fieldProps={{ variant: 'borderless' }}
+/>
+```
+
+### ProList Changes
+
+#### metas → columns + listSlot
+
+ProList now uses the same column configuration as ProTable.
+
+```tsx
+// ❌ Version 2.x
+<ProList
+  metas={{
+    title: { dataIndex: 'name' },
+    description: { dataIndex: 'desc' },
+    avatar: { dataIndex: 'avatar' }
+  }}
+/>
+
+// ✅ Version 3.0
+<ProList
+  columns={[
+    { dataIndex: 'name', listSlot: 'title' },
+    { dataIndex: 'desc', listSlot: 'description' },
+    { dataIndex: 'avatar', listSlot: 'avatar' }
+  ]}
+/>
+```
+
+## Migration Steps
+
+<Steps>
+  <Step title="Update Dependencies">
+    Update your package dependencies to the required versions:
+    
+    ```bash
+    # Using npm
+    npm install antd@^6.0.0 @ant-design/pro-components@^3.0.0
+    
+    # Using pnpm
+    pnpm up antd@^6.0.0 @ant-design/pro-components@^3.0.0
+    
+    # Using yarn
+    yarn add antd@^6.0.0 @ant-design/pro-components@^3.0.0
+    ```
+  </Step>
+  
+  <Step title="Search for Deprecated APIs">
+    Use these commands to find usage of deprecated APIs in your codebase:
+    
+    ```bash
+    # Search for deprecated ProTable APIs
+    grep -r "columnsStateMap" src/
+    grep -r "hideInSearch" src/
+    grep -r "fixHeader" src/
+    
+    # Search for deprecated ProCard APIs
+    grep -r "ProCard.TabPane" src/
+    
+    # Search for deprecated ProLayout APIs
+    grep -r "rightContentRender" src/
+    
+    # Search for deprecated ProForm APIs
+    grep -r "plain" src/
+    ```
+  </Step>
+  
+  <Step title="Update Component by Component">
+    Migrate components in this recommended order:
+    
+    1. **ProTable** - Update column configurations first
+    2. **ProCard** - Convert TabPane to items array
+    3. **ProForm** - Replace plain with variant
+    4. **ProLayout** - Split rightContentRender
+    5. **ProList** - Convert metas to columns
+  </Step>
+  
+  <Step title="Update Layout Tokens">
+    If you're using custom layout tokens, update property names:
+    
+    ```tsx
+    // ❌ Version 2.x
+    const token = {
+      layout: {
+        pageContainer: {
+          marginInlinePageContainerContent: 40,
+          marginBlockPageContainerContent: 32,
+        },
+      },
+    };
+    
+    // ✅ Version 3.0
+    const token = {
+      layout: {
+        pageContainer: {
+          paddingInlinePageContainerContent: 40,
+          paddingBlockPageContainerContent: 32,
+        },
+      },
+    };
+    ```
+  </Step>
+  
+  <Step title="Test Thoroughly">
+    Run your test suite and verify functionality:
+    
+    ```bash
+    npm test
+    npm run build
+    npm run dev
+    ```
+    
+    Pay special attention to:
+    - Table column state persistence
+    - Form field appearance
+    - Layout header actions
+    - Card tab functionality
+  </Step>
+</Steps>
+
+## Benefits of Upgrading
+
+### Improved TypeScript Support
+
+Version 3.0 provides significantly better type inference:
+
+```tsx
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+<ProTable<User>
+  columns={[
+    {
+      title: 'Name',
+      dataIndex: 'name', // Full type checking
+      // Editor provides autocomplete for User properties
+    }
+  ]}
+/>
+```
+
+### Better Performance
+
+- Removed Ant Design 4 compatibility code reduces bundle size
+- Improved Tree Shaking for smaller production builds
+- Optimized rendering for large datasets
+
+### Modernized APIs
+
+More consistent API design following React and Ant Design best practices:
+
+- Controlled component patterns
+- Standard property naming
+- Better composability
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="TypeScript errors after upgrade">
+    **Symptom**: Type errors referencing old API properties
+    
+    **Solution**: 
+    1. Remove references to `StatisticsCardProps` (renamed to `StatisticCardProps`)
+    2. Update custom type definitions that reference old ProComponents types
+    3. Ensure `tsconfig.json` doesn't point to old type declarations
+  </Accordion>
+  
+  <Accordion title="Column state not persisting">
+    **Symptom**: Table column configurations reset on page reload
+    
+    **Solution**:
+    1. Ensure you've added `persistenceKey` to `columnsState`
+    2. Set `persistenceType` to `'localStorage'` or `'sessionStorage'`
+    3. Verify `value` is a new object reference (use spreading or cloning)
+  </Accordion>
+  
+  <Accordion title="Tabs not rendering">
+    **Symptom**: ProCard tabs show no content
+    
+    **Solution**:
+    1. Verify `tabs.items` array has proper `key` and `label` properties
+    2. Ensure `children` property is set for each tab item
+    3. Check that items array isn't filtered to undefined values
+  </Accordion>
+  
+  <Accordion title="Header actions missing">
+    **Symptom**: Layout header right side content disappeared
+    
+    **Solution**:
+    1. Ensure `actionsRender` returns an array of ReactNode
+    2. Add keys to all rendered action elements
+    3. Check that the function doesn't return `undefined`
+  </Accordion>
+</AccordionGroup>
+
+## Rollback Plan
+
+If you encounter critical issues, you can rollback:
+
+```bash
+# Rollback to version 2.x
+npm install @ant-design/pro-components@^2.8.10 antd@^5.0.0
+
+# Using pnpm
+pnpm up @ant-design/pro-components@^2.8.10 antd@^5.0.0
+```
+
+<Warning>
+  Ensure you restore your lockfile (`package-lock.json`, `pnpm-lock.yaml`, or `yarn.lock`) to the pre-migration state when rolling back.
+</Warning>
+
+## Need Help?
+
+If you encounter issues during migration:
+
+- Check the [GitHub Issues](https://github.com/ant-design/pro-components/issues) for known problems
+- Review the [Ant Design 6 migration guide](https://ant.design/docs/react/migration-v5) for base component changes
+- Join the [community discussions](https://github.com/ant-design/pro-components/discussions) for support

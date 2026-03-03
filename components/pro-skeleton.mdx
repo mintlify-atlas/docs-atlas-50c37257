@@ -1,0 +1,300 @@
+---
+title: ProSkeleton
+description: Loading placeholder components for page, list, and descriptions layouts
+---
+
+ProSkeleton provides pre-built skeleton loading states for ProComponents, offering consistent loading experiences across your application.
+
+## Features
+
+- **Pre-configured Layouts**: List, descriptions, and result page skeletons
+- **Consistent Design**: Matches ProComponents layouts
+- **Customizable**: Adjust skeleton appearance
+- **Animated**: Smooth loading animations
+- **Responsive**: Adapts to different screen sizes
+
+## Basic Usage
+
+```tsx
+import { ProSkeleton } from '@ant-design/pro-components';
+
+export default () => {
+  return <ProSkeleton type="list" />;
+};
+```
+
+## Skeleton Types
+
+<Tabs>
+  <Tab title="List">
+    ```tsx
+    <ProSkeleton type="list" />
+    ```
+    Skeleton for list pages with search, toolbar, and list items.
+  </Tab>
+  
+  <Tab title="Descriptions">
+    ```tsx
+    <ProSkeleton type="descriptions" />
+    ```
+    Skeleton for descriptions pages with page header and descriptions items.
+  </Tab>
+  
+  <Tab title="Result">
+    ```tsx
+    <ProSkeleton type="result" />
+    ```
+    Skeleton for result pages.
+  </Tab>
+</Tabs>
+
+## List Page Skeleton
+
+Full page skeleton with all components:
+
+```tsx
+import { ListPageSkeleton } from '@ant-design/pro-components';
+
+export default () => {
+  return (
+    <ListPageSkeleton
+      toolbar // Show toolbar skeleton
+      list // Show list items
+      search // Show search form
+      pageHeader={false} // Hide page header
+    />
+  );
+};
+```
+
+### List Components
+
+```tsx
+import {
+  PageHeaderSkeleton,
+  ListToolbarSkeleton,
+  ListSkeleton,
+} from '@ant-design/pro-components';
+
+// Individual components
+<PageHeaderSkeleton />
+<ListToolbarSkeleton />
+<ListSkeleton rowCount={5} />
+```
+
+## Descriptions Page Skeleton
+
+```tsx
+import { DescriptionsPageSkeleton } from '@ant-design/pro-components';
+
+export default () => {
+  return (
+    <DescriptionsPageSkeleton
+      pageHeader // Show page header
+      list={false} // Hide list
+      rowCount={8} // Number of description items
+    />
+  );
+};
+```
+
+### Descriptions Components
+
+```tsx
+import {
+  DescriptionsSkeleton,
+  TableSkeleton,
+} from '@ant-design/pro-components';
+
+<DescriptionsSkeleton
+  column={2}
+  rowCount={6}
+/>
+
+<TableSkeleton
+  columns={3}
+  rowCount={10}
+/>
+```
+
+## Custom Skeleton
+
+Combine skeleton components:
+
+```tsx
+import {
+  PageHeaderSkeleton,
+  ListToolbarSkeleton,
+  TableSkeleton,
+} from '@ant-design/pro-components';
+import { ProCard } from '@ant-design/pro-components';
+
+export default () => {
+  return (
+    <div>
+      <PageHeaderSkeleton />
+      <ProCard>
+        <ListToolbarSkeleton />
+        <TableSkeleton columns={5} rowCount={10} />
+      </ProCard>
+    </div>
+  );
+};
+```
+
+## Active Animation
+
+Enable wave animation:
+
+```tsx
+<ProSkeleton type="list" active />
+```
+
+## Usage with Data Loading
+
+```tsx
+import { ProTable, ProSkeleton } from '@ant-design/pro-components';
+import { useState, useEffect } from 'react';
+
+export default () => {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState([]);
+  
+  useEffect(() => {
+    fetchData().then(result => {
+      setData(result);
+      setLoading(false);
+    });
+  }, []);
+  
+  if (loading) {
+    return <ProSkeleton type="list" />;
+  }
+  
+  return <ProTable dataSource={data} columns={columns} />;
+};
+```
+
+## Built-in Skeleton Support
+
+Many ProComponents have built-in skeleton loading:
+
+```tsx
+// ProTable shows skeleton automatically during request
+<ProTable
+  request={async () => {
+    const data = await fetchData();
+    return { data, success: true };
+  }}
+  columns={columns}
+/>
+
+// ProDescriptions shows skeleton during loading
+<ProDescriptions
+  request={async () => {
+    const data = await fetchData();
+    return { data, success: true };
+  }}
+  columns={columns}
+/>
+```
+
+## Key Props
+
+### ProSkeleton Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `type` | `'list' \| 'descriptions' \| 'result'` | Skeleton type |
+| `active` | `boolean` | Enable wave animation |
+| `pageHeader` | `boolean` | Show page header skeleton |
+| `toolbar` | `boolean` | Show toolbar skeleton (list) |
+| `search` | `boolean` | Show search form skeleton (list) |
+| `list` | `boolean` | Show list items skeleton |
+| `rowCount` | `number` | Number of rows |
+
+### ListPageSkeleton Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `pageHeader` | `boolean` | `true` | Show page header |
+| `search` | `boolean` | `true` | Show search form |
+| `toolbar` | `boolean` | `true` | Show toolbar |
+| `list` | `boolean` | `true` | Show list items |
+| `rowCount` | `number` | `5` | List item count |
+| `active` | `boolean` | `true` | Wave animation |
+
+### DescriptionsPageSkeleton Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `pageHeader` | `boolean` | `true` | Show page header |
+| `list` | `boolean` | `true` | Show descriptions |
+| `rowCount` | `number` | `8` | Description item count |
+| `column` | `number` | `2` | Columns per row |
+| `active` | `boolean` | `true` | Wave animation |
+
+### TableSkeleton Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `columns` | `number` | Number of columns |
+| `rowCount` | `number` | Number of rows |
+| `active` | `boolean` | Wave animation |
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use matching skeleton types">
+    Choose the skeleton type that matches your component:
+    - Use `list` skeleton for ProTable/ProList
+    - Use `descriptions` skeleton for ProDescriptions
+    - Use custom skeletons for complex layouts
+  </Accordion>
+  
+  <Accordion title="Enable active animation">
+    Enable the wave animation for better user experience:
+    ```tsx
+    <ProSkeleton type="list" active />
+    ```
+  </Accordion>
+  
+  <Accordion title="Match skeleton layout to actual content">
+    Configure skeleton props to match your actual component:
+    ```tsx
+    <ListPageSkeleton
+      rowCount={10} // Match your page size
+      pageHeader={false} // If you don't have page header
+    />
+    ```
+  </Accordion>
+  
+  <Accordion title="Leverage built-in skeletons">
+    ProTable and ProDescriptions have built-in skeleton support during request loading - no need to add custom skeletons.
+  </Accordion>
+</AccordionGroup>
+
+## Component Reference
+
+### Available Skeleton Components
+
+```tsx
+import {
+  ProSkeleton,              // Main skeleton component
+  ListPageSkeleton,         // Full list page
+  DescriptionsPageSkeleton, // Full descriptions page
+  PageHeaderSkeleton,       // Page header only
+  ListToolbarSkeleton,      // Toolbar only
+  ListSkeleton,             // List items only
+  DescriptionsSkeleton,     // Descriptions items only
+  TableSkeleton,            // Table only
+  TableItemSkeleton,        // Single table item
+} from '@ant-design/pro-components';
+```
+
+## Related Components
+
+- [ProTable](/components/pro-table) - Table with built-in skeleton
+- [ProDescriptions](/components/pro-descriptions) - Descriptions with built-in skeleton
+- [ProList](/components/pro-list) - List with built-in skeleton
+- [PageContainer](/components/pro-layout) - Page container for skeletons

@@ -1,0 +1,496 @@
+---
+title: ProList
+description: Complete API reference for ProList component
+---
+
+# ProList API
+
+ProList is an enhanced list component that combines ProTable features with Ant Design List, supporting data fetching, search forms, and flexible item rendering.
+
+## ProListProps
+
+Extends ProTable props and Ant Design List props.
+
+<ParamField path="columns" type="ProColumns[]">
+  Column configuration with `listSlot` property to map data to list item slots.
+  
+  <Expandable title="Available List Slots">
+    - `title` - Item title
+    - `subTitle` - Item subtitle
+    - `avatar` - Item avatar
+    - `description` - Item description
+    - `content` - Item main content
+    - `actions` - Item action buttons
+    - `aside` - Item aside content
+    - `type` - Item type indicator
+  </Expandable>
+</ParamField>
+
+<ParamField path="metas" type="ProListMetas" deprecated>
+  Legacy API for mapping data to list item parts. Use `columns` with `listSlot` instead.
+  
+  <Expandable title="Migration Example">
+    ```tsx
+    // Old API (deprecated)
+    <ProList
+      metas={{
+        title: { dataIndex: 'name' },
+        avatar: { dataIndex: 'avatar' },
+      }}
+    />
+    
+    // New API (recommended)
+    <ProList
+      columns={[
+        { title: 'Name', dataIndex: 'name', listSlot: 'title' },
+        { dataIndex: 'avatar', listSlot: 'avatar' },
+      ]}
+    />
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField path="request" type="function">
+  Method to fetch data from the server.
+  
+  ```typescript
+  (params: U & {
+    pageSize?: number;
+    current?: number;
+    keyword?: string;
+  }, sort: Record<string, SortOrder>, filter: Record<string, FilterValue>) => Promise<RequestData<DataSource>>
+  ```
+</ParamField>
+
+<ParamField path="dataSource" type="T[]">
+  Static data source for the list.
+</ParamField>
+
+<ParamField path="rowKey" type="string | function" default="key">
+  Unique key for each list item.
+  
+  ```typescript
+  string | ((record: T) => React.Key)
+  ```
+</ParamField>
+
+<ParamField path="actionRef" type="React.Ref<ActionType>">
+  Reference to control the list programmatically.
+  
+  Methods:
+  - `reload()` - Reload list data
+  - `reset()` - Reset list and form state
+  - `clearSelected()` - Clear row selection
+</ParamField>
+
+## List Display
+
+<ParamField path="itemLayout" type="'horizontal' | 'vertical'" default="horizontal">
+  Layout of list items.
+  
+  - `horizontal` - Horizontal layout with avatar/content side by side
+  - `vertical` - Vertical layout with content stacked
+</ParamField>
+
+<ParamField path="split" type="boolean" default="true">
+  Whether to show divider between items.
+</ParamField>
+
+<ParamField path="variant" type="'outlined' | 'borderless'" default="borderless">
+  List variant.
+  
+  - `outlined` - List with border
+  - `borderless` - List without border
+</ParamField>
+
+<ParamField path="size" type="'default' | 'large' | 'small'" default="default">
+  List size.
+</ParamField>
+
+<ParamField path="grid" type="ListGridType">
+  Grid layout configuration.
+  
+  ```typescript
+  type ListGridType = {
+    gutter?: number | [number, number];
+    column?: number;
+    xs?: number;
+    sm?: number;
+    md?: number;
+    lg?: number;
+    xl?: number;
+    xxl?: number;
+  }
+  ```
+  
+  <Expandable title="Example">
+    ```tsx
+    <ProList
+      grid={{
+        gutter: 16,
+        xs: 1,
+        sm: 2,
+        md: 3,
+        lg: 3,
+        xl: 4,
+        xxl: 4,
+      }}
+    />
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField path="pagination" type="false | PaginationProps" default="false">
+  Pagination configuration. Set to `false` to disable.
+</ParamField>
+
+<ParamField path="loading" type="boolean" default="false">
+  Loading state for the list.
+</ParamField>
+
+<ParamField path="loadMore" type="React.ReactNode">
+  Custom load more component.
+</ParamField>
+
+<ParamField path="header" type="React.ReactNode">
+  List header content.
+</ParamField>
+
+<ParamField path="footer" type="React.ReactNode">
+  List footer content.
+</ParamField>
+
+<ParamField path="locale" type="ListLocale">
+  Locale configuration.
+  
+  ```typescript
+  type ListLocale = {
+    emptyText?: React.ReactNode;
+  }
+  ```
+</ParamField>
+
+## Item Rendering
+
+<ParamField path="itemRender" type="function">
+  Custom render for entire list item.
+  
+  ```typescript
+  (item: T, index: number, defaultDom: React.ReactElement) => React.ReactNode
+  ```
+  
+  The `defaultDom` parameter is the default rendered list item that you can customize or replace.
+</ParamField>
+
+<ParamField path="itemHeaderRender" type="function">
+  Custom render for list item header.
+  
+  ```typescript
+  (item: T, index: number) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="itemTitleRender" type="function">
+  Custom render for list item title.
+  
+  ```typescript
+  (item: T, index: number) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="rowClassName" type="string | function">
+  Class name for list item row.
+  
+  ```typescript
+  string | ((item: T, index: number) => string)
+  ```
+</ParamField>
+
+<ParamField path="onRow" type="function">
+  Props to add to the list item wrapper element.
+  
+  ```typescript
+  (record: T, index: number) => React.HTMLAttributes<HTMLElement>
+  ```
+</ParamField>
+
+<ParamField path="onItem" type="function">
+  Props to add to the list item content element.
+  
+  ```typescript
+  (record: T, index: number) => React.HTMLAttributes<HTMLElement>
+  ```
+</ParamField>
+
+<ParamField path="itemCardProps" type="CheckCardProps">
+  Props for selectable card items (when using CheckCard).
+</ParamField>
+
+## Search & Toolbar
+
+<ParamField path="search" type="false | SearchConfig" default="false">
+  Search form configuration. Inherited from ProTable.
+  
+  Set to object to enable:
+  ```tsx
+  <ProList
+    search={{
+      filterType: 'light',
+    }}
+  />
+  ```
+</ParamField>
+
+<ParamField path="toolbar" type="ListToolBarProps">
+  Toolbar configuration.
+</ParamField>
+
+<ParamField path="toolBarRender" type="function | false">
+  Custom render for toolbar actions.
+  
+  ```typescript
+  (action: ActionType, rows: T[]) => React.ReactNode[]
+  ```
+</ParamField>
+
+<ParamField path="options" type="OptionConfig | false" default="false">
+  Table options configuration (reload, density, settings).
+</ParamField>
+
+<ParamField path="headerTitle" type="React.ReactNode">
+  Title in the toolbar.
+</ParamField>
+
+<ParamField path="tooltip" type="string | LabelTooltipType">
+  Tooltip for the header title.
+</ParamField>
+
+## Selection
+
+<ParamField path="rowSelection" type="TableRowSelection | false" default="false">
+  Row selection configuration.
+  
+  <Expandable title="TableRowSelection Properties">
+    - `selectedRowKeys?: Key[]` - Controlled selected keys
+    - `onChange?: (selectedRowKeys: Key[], selectedRows: T[]) => void`
+    - `getCheckboxProps?: (record: T) => object` - Checkbox props
+    - `selections?: boolean | SelectionItem[]` - Selection dropdown
+    - `type?: 'checkbox' | 'radio'`
+  </Expandable>
+</ParamField>
+
+<ParamField path="expandable" type="ExpandableConfig">
+  Expandable row configuration.
+</ParamField>
+
+## Card Props
+
+<ParamField path="cardProps" type="ProCardProps | false">
+  Props for the outer card wrapper. Set to `false` to disable card.
+</ParamField>
+
+<ParamField path="cardBordered" type="boolean | Bordered">
+  Border configuration for the card.
+</ParamField>
+
+<ParamField path="ghost" type="boolean" default="false">
+  Ghost mode - removes card padding and background.
+</ParamField>
+
+## Data Handling
+
+Inherited from ProTable:
+
+<ParamField path="params" type="U">
+  Additional request parameters. Changes trigger reload.
+</ParamField>
+
+<ParamField path="postData" type="function">
+  Process data after request.
+  
+  ```typescript
+  (data: any[]) => any[]
+  ```
+</ParamField>
+
+<ParamField path="onLoad" type="function">
+  Callback after data loads.
+  
+  ```typescript
+  (dataSource: T[]) => void
+  ```
+</ParamField>
+
+<ParamField path="onRequestError" type="function">
+  Callback when request fails.
+  
+  ```typescript
+  (e: Error) => void
+  ```
+</ParamField>
+
+<ParamField path="polling" type="number | function">
+  Polling interval in milliseconds.
+</ParamField>
+
+<ParamField path="manualRequest" type="boolean" default="false">
+  Manually trigger request.
+</ParamField>
+
+<ParamField path="revalidateOnFocus" type="boolean" default="false">
+  Auto reload when window gains focus.
+</ParamField>
+
+<ParamField path="debounceTime" type="number" default="10">
+  Debounce time for form changes in milliseconds.
+</ParamField>
+
+## Usage Examples
+
+<Tabs>
+  <Tab title="Basic List">
+    ```tsx
+    import { ProList } from '@ant-design/pro-components';
+    import { Avatar } from 'antd';
+
+    export default () => (
+      <ProList
+        columns={[
+          {
+            dataIndex: 'avatar',
+            listSlot: 'avatar',
+            valueType: 'avatar',
+          },
+          {
+            title: 'Name',
+            dataIndex: 'name',
+            listSlot: 'title',
+          },
+          {
+            dataIndex: 'description',
+            listSlot: 'description',
+          },
+          {
+            dataIndex: 'actions',
+            listSlot: 'actions',
+            valueType: 'option',
+            render: (_, record) => [
+              <a key="edit">Edit</a>,
+              <a key="delete">Delete</a>,
+            ],
+          },
+        ]}
+        request={async (params) => {
+          const response = await fetch('/api/users');
+          const data = await response.json();
+          return {
+            data: data.list,
+            success: true,
+            total: data.total,
+          };
+        }}
+      />
+    );
+    ```
+  </Tab>
+  <Tab title="Grid Layout">
+    ```tsx
+    <ProList
+      grid={{
+        gutter: 16,
+        xs: 1,
+        sm: 2,
+        md: 3,
+        lg: 3,
+        xl: 4,
+        xxl: 4,
+      }}
+      columns={[
+        {
+          dataIndex: 'title',
+          listSlot: 'title',
+        },
+        {
+          dataIndex: 'image',
+          listSlot: 'avatar',
+          valueType: 'image',
+        },
+        {
+          dataIndex: 'description',
+          listSlot: 'description',
+        },
+      ]}
+      dataSource={data}
+    />
+    ```
+  </Tab>
+  <Tab title="With Search">
+    ```tsx
+    <ProList
+      search={{
+        filterType: 'light',
+      }}
+      toolBarRender={() => [
+        <Button key="create" type="primary">
+          Create
+        </Button>,
+      ]}
+      columns={[
+        {
+          title: 'Name',
+          dataIndex: 'name',
+          listSlot: 'title',
+        },
+        {
+          title: 'Status',
+          dataIndex: 'status',
+          valueType: 'select',
+          valueEnum: {
+            active: { text: 'Active', status: 'Success' },
+            inactive: { text: 'Inactive', status: 'Default' },
+          },
+        },
+      ]}
+      request={fetchData}
+    />
+    ```
+  </Tab>
+  <Tab title="Custom Item Render">
+    ```tsx
+    <ProList
+      itemRender={(item, index, defaultDom) => (
+        <Card hoverable>
+          {defaultDom}
+        </Card>
+      )}
+      columns={[
+        {
+          dataIndex: 'title',
+          listSlot: 'title',
+        },
+        {
+          dataIndex: 'content',
+          listSlot: 'content',
+        },
+      ]}
+      dataSource={data}
+    />
+    ```
+  </Tab>
+  <Tab title="With Selection">
+    ```tsx
+    const [selectedRows, setSelectedRows] = useState([]);
+
+    <ProList
+      rowSelection={{
+        selectedRowKeys: selectedRows,
+        onChange: (keys, rows) => {
+          setSelectedRows(keys);
+        },
+      }}
+      columns={columns}
+      dataSource={data}
+    />
+    ```
+  </Tab>
+</Tabs>

@@ -1,0 +1,542 @@
+---
+title: Theming System
+description: Customize ProComponents appearance with the design token system and theme algorithms
+---
+
+ProComponents provides a powerful theming system built on top of Ant Design's design tokens, allowing you to customize every aspect of your application's appearance.
+
+## Understanding Design Tokens
+
+Design tokens are the visual design atoms of ProComponents. They define colors, spacing, typography, and other design decisions that create a consistent look and feel.
+
+### Token Hierarchy
+
+ProComponents extends Ant Design's token system with three layers:
+
+1. **Global Tokens**: Ant Design's base tokens (colors, spacing, typography)
+2. **Pro Tokens**: ProComponents-specific tokens (`proComponentsCls`, `antCls`)
+3. **Layout Tokens**: Specialized tokens for layout components (header, sider, page container)
+
+<Tip>
+All Ant Design tokens are available in ProComponents. You can use any token from [Ant Design's token documentation](https://ant.design/docs/react/customize-theme).
+</Tip>
+
+## Using ProConfigProvider
+
+The `ProConfigProvider` is your gateway to customizing ProComponents theming:
+
+```tsx
+import { ProConfigProvider } from '@ant-design/pro-components';
+
+function App() {
+  return (
+    <ProConfigProvider
+      token={{
+        // Customize layout-specific tokens
+        layout: {
+          header: {
+            colorBgHeader: '#001529',
+            colorHeaderTitle: '#ffffff',
+            heightLayoutHeader: 64,
+          },
+        },
+      }}
+    >
+      <YourApp />
+    </ProConfigProvider>
+  );
+}
+```
+
+## Theme Modes
+
+### Dark Mode
+
+Enable dark mode across your entire application:
+
+<CodeGroup>
+```tsx Basic Dark Mode
+import { ProConfigProvider } from '@ant-design/pro-components';
+
+function App() {
+  return (
+    <ProConfigProvider dark>
+      <YourApp />
+    </ProConfigProvider>
+  );
+}
+```
+
+```tsx Dynamic Theme Switching
+import { ProConfigProvider } from '@ant-design/pro-components';
+import { useState } from 'react';
+import { Switch } from 'antd';
+
+function App() {
+  const [dark, setDark] = useState(false);
+
+  return (
+    <ProConfigProvider dark={dark}>
+      <Switch
+        checked={dark}
+        onChange={setDark}
+        checkedChildren="Dark"
+        unCheckedChildren="Light"
+      />
+      <YourApp />
+    </ProConfigProvider>
+  );
+}
+```
+</CodeGroup>
+
+### Algorithm Merging
+
+ProConfigProvider automatically merges theme algorithms when dark mode is enabled:
+
+```typescript
+// From src/provider/index.tsx
+const mergeAlgorithm = () => {
+  const isDark = dark ?? proProvide.dark;
+
+  if (isDark) {
+    // Merge existing algorithms with dark algorithm
+    return [theme?.algorithm, antdTheme.darkAlgorithm]
+      .flat(1)
+      .filter(Boolean);
+  }
+  return theme?.algorithm;
+};
+```
+
+## Customizing Layout Tokens
+
+Layout tokens provide fine-grained control over ProLayout appearance.
+
+### Header Customization
+
+Create a custom header theme:
+
+```tsx
+import { ProLayout } from '@ant-design/pro-components';
+
+function MyLayout() {
+  return (
+    <ProLayout
+      token={{
+        header: {
+          // Background color
+          colorBgHeader: '#004FD9',
+          
+          // Background when scrolling (with transparency)
+          colorBgScrollHeader: 'rgba(0, 79, 217, 0.8)',
+          
+          // Title color
+          colorHeaderTitle: '#ffffff',
+          
+          // Menu item states
+          colorBgMenuItemHover: 'rgba(0, 0, 0, 0.06)',
+          colorBgMenuItemSelected: 'rgba(0, 0, 0, 0.15)',
+          colorTextMenuSelected: '#fff',
+          
+          // Right actions (icons, avatar, etc.)
+          colorBgRightActionsItemHover: 'rgba(0, 0, 0, 0.06)',
+          colorTextRightActionsItem: 'rgba(255, 255, 255, 0.65)',
+          
+          // Header height
+          heightLayoutHeader: 56,
+        },
+      }}
+    >
+      {/* Layout content */}
+    </ProLayout>
+  );
+}
+```
+
+### Sidebar (Sider) Customization
+
+Customize the sidebar menu appearance:
+
+```tsx
+import { ProLayout } from '@ant-design/pro-components';
+
+function MyLayout() {
+  return (
+    <ProLayout
+      token={{
+        sider: {
+          // Background color
+          colorMenuBackground: '#001529',
+          
+          // Collapsed button (expand/collapse trigger)
+          colorBgCollapsedButton: '#fff',
+          colorTextCollapsedButton: 'rgba(0, 0, 0, 0.45)',
+          colorTextCollapsedButtonHover: 'rgba(0, 0, 0, 0.65)',
+          
+          // Menu item states
+          colorBgMenuItemHover: 'rgba(255, 255, 255, 0.06)',
+          colorBgMenuItemSelected: 'rgba(255, 255, 255, 0.15)',
+          
+          // Text colors
+          colorTextMenu: 'rgba(255, 255, 255, 0.75)',
+          colorTextMenuSecondary: 'rgba(255, 255, 255, 0.65)',
+          colorTextMenuSelected: '#fff',
+          colorTextMenuTitle: 'rgba(255, 255, 255, 0.95)',
+          
+          // Spacing
+          paddingInlineLayoutMenu: 8,
+          paddingBlockLayoutMenu: 0,
+          
+          // Menu divider color
+          colorMenuItemDivider: 'rgba(255, 255, 255, 0.15)',
+        },
+      }}
+    >
+      {/* Layout content */}
+    </ProLayout>
+  );
+}
+```
+
+### PageContainer Customization
+
+```tsx
+import { ProConfigProvider } from '@ant-design/pro-components';
+
+function App() {
+  return (
+    <ProConfigProvider
+      token={{
+        layout: {
+          pageContainer: {
+            // Background (transparent by default)
+            colorBgPageContainer: 'transparent',
+            
+            // Fixed background when using fixedHeader
+            colorBgPageContainerFixed: '#ffffff',
+            
+            // Content padding
+            paddingInlinePageContainerContent: 40,
+            paddingBlockPageContainerContent: 32,
+          },
+        },
+      }}
+    >
+      <YourApp />
+    </ProConfigProvider>
+  );
+}
+```
+
+## Real-World Example: Custom Theme
+
+Here's a complete example inspired by the ProComponents demos:
+
+<CodeGroup>
+```tsx Blue Theme
+import { ProLayout, ProConfigProvider } from '@ant-design/pro-components';
+
+const blueTheme = {
+  colorBgAppListIconHover: 'rgba(0,0,0,0.06)',
+  colorTextAppListIconHover: 'rgba(255,255,255,0.95)',
+  colorTextAppListIcon: 'rgba(255,255,255,0.85)',
+  
+  sider: {
+    colorBgCollapsedButton: '#fff',
+    colorTextCollapsedButtonHover: 'rgba(0,0,0,0.65)',
+    colorTextCollapsedButton: 'rgba(0,0,0,0.45)',
+    colorMenuBackground: '#004FD9',
+    colorBgMenuItemHover: 'rgba(0,0,0,0.06)',
+    colorBgMenuItemSelected: 'rgba(0,0,0,0.15)',
+    colorTextMenuSelected: '#fff',
+    colorTextMenu: 'rgba(255,255,255,0.75)',
+    colorTextMenuSecondary: 'rgba(255,255,255,0.65)',
+  },
+  
+  header: {
+    colorBgHeader: '#004FD9',
+    colorBgRightActionsItemHover: 'rgba(0,0,0,0.06)',
+    colorTextRightActionsItem: 'rgba(255,255,255,0.65)',
+    colorHeaderTitle: '#fff',
+    colorBgMenuItemHover: 'rgba(0,0,0,0.06)',
+    colorBgMenuItemSelected: 'rgba(0,0,0,0.15)',
+    colorTextMenuSelected: '#fff',
+  },
+};
+
+function App() {
+  return (
+    <ProLayout token={blueTheme}>
+      {/* Your content */}
+    </ProLayout>
+  );
+}
+```
+
+```tsx Green Theme
+const greenTheme = {
+  sider: {
+    colorMenuBackground: '#00A676',
+    colorBgMenuItemHover: 'rgba(0,0,0,0.06)',
+    colorBgMenuItemSelected: 'rgba(0,0,0,0.15)',
+    colorTextMenuSelected: '#fff',
+    colorTextMenu: 'rgba(255,255,255,0.75)',
+  },
+  
+  header: {
+    colorBgHeader: '#00A676',
+    colorHeaderTitle: '#fff',
+  },
+};
+```
+
+```tsx Purple Theme
+const purpleTheme = {
+  sider: {
+    colorMenuBackground: '#722ED1',
+    colorBgMenuItemHover: 'rgba(0,0,0,0.06)',
+    colorBgMenuItemSelected: 'rgba(0,0,0,0.15)',
+    colorTextMenuSelected: '#fff',
+    colorTextMenu: 'rgba(255,255,255,0.75)',
+  },
+  
+  header: {
+    colorBgHeader: '#722ED1',
+    colorHeaderTitle: '#fff',
+  },
+};
+```
+</CodeGroup>
+
+## Color Utilities
+
+ProComponents provides utility functions for color manipulation:
+
+### setAlpha
+
+Add transparency to any color:
+
+```typescript
+import { setAlpha } from '@ant-design/pro-components';
+
+// Create semi-transparent background
+const bgColor = setAlpha('#1677ff', 0.1);
+// Returns: 'rgba(22, 119, 255, 0.1)'
+```
+
+### lighten
+
+Adjust color brightness:
+
+```typescript
+import { lighten } from '@ant-design/pro-components';
+
+// Lighten a color by 20%
+const lightColor = lighten('#000000', 20);
+// Returns: '#333333'
+```
+
+<Note>
+These utilities use [@ctrl/tinycolor](https://github.com/ctrl/tinycolor) internally and support all color formats: hex, rgb, rgba, hsl, hsla, and named colors.
+</Note>
+
+## Token Computation
+
+ProComponents computes final tokens through a multi-stage process:
+
+```typescript
+// 1. Get base Ant Design tokens
+const antdToken = theme.useToken();
+
+// 2. Merge with custom Pro tokens
+const proLayoutTokenMerge = useMemo(() => {
+  return getLayoutDesignToken(propsToken || {}, tokenContext.token);
+}, [propsToken, tokenContext.token]);
+
+// 3. Deep merge all token sources
+const finalToken = merge(
+  proProvide.token,
+  tokenContext.token,
+  {
+    proComponentsCls: '.ant-pro',
+    antCls: '.ant',
+    themeId: tokenContext.theme.id,
+    layout: proLayoutTokenMerge,
+  }
+);
+```
+
+### The merge() Utility
+
+The `merge()` function performs a deep merge that:
+
+- Merges nested objects recursively
+- Overwrites arrays (doesn't concatenate)
+- Preserves `null` and `undefined` values
+- Handles multiple merge sources
+
+```typescript
+import { merge } from '@ant-design/pro-components';
+
+const result = merge(
+  { a: 1, b: { c: 2 } },
+  { b: { d: 3 }, e: 4 }
+);
+// Result: { a: 1, b: { c: 2, d: 3 }, e: 4 }
+```
+
+## CSS-in-JS Styling
+
+ProComponents uses `@ant-design/cssinjs` for dynamic styling:
+
+### Using the useStyle Hook
+
+```typescript
+import { useStyle } from '@ant-design/pro-components';
+
+export function MyComponent() {
+  const { wrapSSR, hashId } = useStyle('MyComponent', (token) => ({
+    '.my-component': {
+      padding: token.paddingLG,
+      backgroundColor: token.colorBgContainer,
+      color: token.colorText,
+      borderRadius: token.borderRadius,
+      
+      '&:hover': {
+        backgroundColor: token.colorBgTextHover,
+      },
+    },
+  }));
+
+  return wrapSSR(
+    <div className={`my-component ${hashId}`}>
+      Custom Styled Component
+    </div>
+  );
+}
+```
+
+### Style Layers
+
+Styles are registered in a specific layer for proper CSS cascade:
+
+```typescript
+useStyleRegister(
+  {
+    theme: theme,
+    token,
+    path: [componentName],
+    layer: {
+      name: 'antd-pro', // ProComponents layer
+    },
+  },
+  () => styleFn(token)
+);
+```
+
+<Tip>
+The `antd-pro` layer ensures ProComponents styles have appropriate specificity relative to Ant Design styles.
+</Tip>
+
+## Hash ID Management
+
+Hash IDs provide style isolation in production:
+
+<Tabs>
+  <Tab title="Enable Hashing">
+    ```tsx
+    import { ProConfigProvider } from '@ant-design/pro-components';
+
+    function App() {
+      return (
+        <ProConfigProvider hashed={true}>
+          {/* Hash IDs enabled for style isolation */}
+          <YourApp />
+        </ProConfigProvider>
+      );
+    }
+    ```
+  </Tab>
+  <Tab title="Disable Hashing">
+    ```tsx
+    import { ProConfigProvider } from '@ant-design/pro-components';
+
+    function App() {
+      return (
+        <ProConfigProvider hashed={false}>
+          {/* Predictable class names for testing */}
+          <YourApp />
+        </ProConfigProvider>
+      );
+    }
+    ```
+  </Tab>
+  <Tab title="Auto Mode">
+    ```tsx
+    // Default behavior: disabled in DEV/TEST, enabled in production
+    import { ProConfigProvider } from '@ant-design/pro-components';
+
+    function App() {
+      return (
+        <ProConfigProvider>
+          {/* Auto-detects environment */}
+          <YourApp />
+        </ProConfigProvider>
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Advanced: Custom Prefix
+
+Customize the component class prefix:
+
+```tsx
+import { ProConfigProvider } from '@ant-design/pro-components';
+
+function App() {
+  return (
+    <ProConfigProvider prefixCls="my-company">
+      {/* Components use .my-company-pro-* classes */}
+      <YourApp />
+    </ProConfigProvider>
+  );
+}
+```
+
+<Note>
+Changing `prefixCls` affects all ProComponents within the provider. Use this for white-labeling or avoiding style conflicts.
+</Note>
+
+## TypeScript Support
+
+ProComponents provides full TypeScript support for tokens:
+
+```typescript
+import type { ProAliasToken, DeepPartial, LayoutDesignToken } from '@ant-design/pro-components';
+
+// Define custom theme with type safety
+const customTheme: DeepPartial<LayoutDesignToken> = {
+  header: {
+    colorBgHeader: '#001529',
+    heightLayoutHeader: 64,
+  },
+  sider: {
+    colorMenuBackground: '#001529',
+    paddingInlineLayoutMenu: 8,
+  },
+};
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Architecture Overview" icon="book" href="/concepts/overview">
+    Learn about ProComponents architecture and design philosophy
+  </Card>
+  <Card title="Internationalization" icon="globe" href="/concepts/internationalization">
+    Add multi-language support to your application
+  </Card>
+</CardGroup>

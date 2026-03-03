@@ -1,0 +1,222 @@
+---
+title: Introduction
+description: ProComponents - Enterprise-level UI components designed to work with Ant Design like a Pro
+---
+
+<img
+  className="block dark:hidden"
+  src="https://gw.alipayobjects.com/zos/kitchen/wzToJwlSw%24/logo.svg"
+  alt="ProComponents Logo"
+  height="160"
+/>
+<img
+  className="hidden dark:block"
+  src="https://gw.alipayobjects.com/zos/kitchen/wzToJwlSw%24/logo.svg"
+  alt="ProComponents Logo"
+  height="160"
+/>
+
+# ProComponents
+
+Designed for Enterprise-Level Application, Use Ant Design like a Pro!
+
+ProComponents is a comprehensive UI component library built on top of Ant Design, specifically designed for enterprise applications. It provides advanced, production-ready components that handle complex business scenarios out of the box.
+
+## Overview
+
+ProComponents extends Ant Design with powerful components like ProTable, ProForm, and ProLayout that significantly reduce the amount of boilerplate code needed for common enterprise UI patterns. Instead of writing hundreds of lines of configuration, you can achieve the same result with a clean, declarative API.
+
+<CardGroup cols={2}>
+  <Card title="ProTable" icon="table" href="/components/pro-table">
+    Advanced data tables with built-in search, filtering, sorting, and CRUD operations
+  </Card>
+  <Card title="ProForm" icon="file-lines" href="/components/pro-form">
+    Enterprise-ready forms with validation, layouts, and 20+ specialized field types
+  </Card>
+  <Card title="ProLayout" icon="sidebar" href="/components/pro-layout">
+    Complete admin layout solution with navigation, breadcrumbs, and responsive design
+  </Card>
+  <Card title="ProCard" icon="window" href="/components/pro-card">
+    Enhanced cards with statistics, checkable cards, and complex layouts
+  </Card>
+</CardGroup>
+
+## Key Features
+
+ProComponents stands as a beacon for React-based enterprise application development. Here's what makes it exceptional:
+
+<AccordionGroup>
+  <Accordion title="Extensive Component Suite" icon="layer-group">
+    ProComponents boasts a comprehensive array of UI elements—ranging from tables and forms to charts and tree views. It caters to the diverse needs of enterprise applications with finesse.
+    
+    - **ProTable**: Advanced data tables with search, filter, and pagination
+    - **ProForm**: Multiple form layouts (Modal, Drawer, Steps, Query)
+    - **ProLayout**: Complete page layout with routing integration
+    - **ProCard**: Statistics cards, checkable cards, and dividers
+    - **ProList**: Advanced lists with toolbar and batch operations
+    - **ProDescriptions**: Display read-only structured data
+    - **ProField**: Unified field rendering for different value types
+  </Accordion>
+  
+  <Accordion title="Advanced Functionality" icon="rocket">
+    Beyond basic UI elements, ProComponents is equipped with sophisticated data handling and business logic capabilities:
+    
+    - Built-in request handling with loading states
+    - Automatic form-table synchronization
+    - Column state persistence with localStorage
+    - Advanced value types (date ranges, money, progress, etc.)
+    - Editable tables with inline validation
+    - Drag-and-drop sorting support
+  </Accordion>
+  
+  <Accordion title="Developer Experience" icon="code">
+    With its straightforward API and detailed documentation, ProComponents ensures a smooth onboarding experience:
+    
+    - TypeScript-first with full type definitions
+    - Intuitive props API matching Ant Design patterns
+    - Extensive demo examples for every component
+    - Hot module replacement in development
+    - Comprehensive error handling and boundaries
+  </Accordion>
+  
+  <Accordion title="Enterprise-Ready" icon="building">
+    Built specifically for production enterprise applications:
+    
+    - Internationalization (i18n) support out of the box
+    - Theming system compatible with Ant Design tokens
+    - Tree-shaking for optimal bundle size
+    - SSR (Server-Side Rendering) compatible
+    - Accessibility (a11y) standards compliant
+    - Production-tested at scale by Ant Financial
+  </Accordion>
+  
+  <Accordion title="Unmatched Customizability" icon="palette">
+    The library accommodates a plethora of configurations and styling options:
+    
+    - Custom render functions for tables and forms
+    - Pluggable value type system
+    - Override any component with your own implementation
+    - CSS-in-JS with @emotion for dynamic styling
+    - Support for custom themes and design tokens
+  </Accordion>
+</AccordionGroup>
+
+## What Makes ProComponents Different?
+
+While Ant Design provides basic building blocks, ProComponents takes it further by understanding common enterprise patterns:
+
+<CodeGroup>
+
+```tsx Traditional Ant Design
+// Typical CRUD table with Ant Design requires ~200 lines
+import { Table, Form, Input, Button, Modal } from 'antd';
+
+function UserTable() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [form] = Form.useForm();
+  
+  // Fetch data, handle pagination, sorting...
+  // Handle create/edit/delete operations...
+  // Manage form state and validation...
+  // Handle search and filters...
+  
+  return (
+    <>
+      <Form>{/* Search form fields */}</Form>
+      <Table 
+        loading={loading}
+        dataSource={data}
+        // ... 50+ lines of column config
+      />
+      <Modal>{/* Edit form */}</Modal>
+    </>
+  );
+}
+```
+
+```tsx ProComponents Approach
+// Same functionality with ProComponents in ~30 lines
+import { ProTable } from '@ant-design/pro-components';
+
+function UserTable() {
+  return (
+    <ProTable
+      columns={columns}
+      request={async (params) => {
+        const data = await fetchUsers(params);
+        return { data, success: true, total: data.length };
+      }}
+      editable={{
+        type: 'multiple',
+        onSave: async (key, record) => {
+          await updateUser(record);
+        },
+      }}
+      search={{
+        labelWidth: 'auto',
+      }}
+      rowKey="id"
+      pagination={{ pageSize: 10 }}
+      toolBarRender={() => [<Button>Create</Button>]}
+    />
+  );
+}
+```
+
+</CodeGroup>
+
+<Info>
+  ProComponents handles the heavy lifting of state management, data fetching, form synchronization, and UI patterns so you can focus on your business logic.
+</Info>
+
+## Browser Compatibility
+
+ProComponents supports all modern browsers:
+
+- Edge (last 2 versions)
+- Firefox (last 2 versions)  
+- Chrome (last 2 versions)
+- Safari (last 2 versions)
+- Opera (last 2 versions)
+- Electron (last 2 versions)
+
+<Warning>
+  Internet Explorer support was dropped in ProComponents 3.0. For legacy browser support, use ProComponents 2.x.
+</Warning>
+
+## Package Information
+
+- **Package**: `@ant-design/pro-components`
+- **Version**: 3.1.10+
+- **License**: MIT
+- **Bundle**: Supports ESM and CommonJS
+- **TypeScript**: Full type definitions included
+- **Dependencies**: Requires React 18+, Ant Design 6+
+
+## Who Uses ProComponents?
+
+ProComponents is production-tested and used by:
+
+- Ant Financial (Alipay) internal systems
+- Thousands of enterprise applications worldwide
+- Open source projects in the Ant Design ecosystem
+- Startups to Fortune 500 companies
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Get started by installing ProComponents in your project
+  </Card>
+  <Card title="Quick Start" icon="bolt" href="/quickstart">
+    Build your first ProTable or ProForm in minutes
+  </Card>
+  <Card title="Components" icon="grid" href="/components/overview">
+    Explore all available components and their features
+  </Card>
+  <Card title="API Reference" icon="book" href="/api/pro-table">
+    Dive deep into component APIs and configurations
+  </Card>
+</CardGroup>

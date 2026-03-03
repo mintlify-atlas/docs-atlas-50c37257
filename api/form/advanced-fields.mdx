@@ -1,0 +1,776 @@
+---
+title: Advanced Fields
+description: Advanced form field components for complex data structures
+---
+
+Advanced field components provide functionality for dynamic lists, field dependencies, and grouped fields.
+
+## ProFormList
+
+Dynamic list component for managing multiple items with add/remove/sort operations.
+
+### Import
+
+```tsx
+import { ProFormList } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormList
+      name="contacts"
+      label="Contacts"
+      creatorButtonProps={{
+        creatorButtonText: 'Add Contact'
+      }}
+    >
+      <ProFormText name="name" label="Name" />
+      <ProFormText name="phone" label="Phone" />
+      <ProFormText name="email" label="Email" />
+    </ProFormList>
+    ```
+  </Tab>
+  <Tab title="With Actions">
+    ```tsx
+    <ProFormList
+      name="tasks"
+      label="Tasks"
+      actionRender={(field, action, defaultActionDom) => [
+        defaultActionDom,
+        <Button
+          key="custom"
+          onClick={() => {
+            console.log('Current item:', field);
+          }}
+        >
+          Custom Action
+        </Button>,
+      ]}
+      creatorButtonProps={{
+        creatorButtonText: 'Add Task',
+        position: 'bottom'
+      }}
+    >
+      <ProFormText name="title" label="Title" />
+      <ProFormTextArea name="description" label="Description" />
+      <ProFormDatePicker name="dueDate" label="Due Date" />
+    </ProFormList>
+    ```
+  </Tab>
+  <Tab title="Nested Structure">
+    ```tsx
+    <ProFormList
+      name="orders"
+      label="Orders"
+    >
+      <ProFormText name="orderNumber" label="Order #" />
+      <ProFormList
+        name="items"
+        label="Items"
+        creatorButtonProps={{
+          creatorButtonText: 'Add Item'
+        }}
+      >
+        <ProFormText name="product" label="Product" />
+        <ProFormDigit name="quantity" label="Quantity" />
+        <ProFormDigit name="price" label="Price" />
+      </ProFormList>
+    </ProFormList>
+    ```
+  </Tab>
+  <Tab title="Custom Render">
+    ```tsx
+    <ProFormList
+      name="members"
+      label="Team Members"
+      itemRender={({ listDom, action }, { index }) => (
+        <Card
+          title={`Member ${index + 1}`}
+          extra={action}
+          style={{ marginBottom: 16 }}
+        >
+          {listDom}
+        </Card>
+      )}
+    >
+      {(meta, index) => [
+        <ProFormText
+          key="name"
+          name="name"
+          label="Name"
+          placeholder={`Member ${index + 1} name`}
+        />,
+        <ProFormSelect
+          key="role"
+          name="role"
+          label="Role"
+          options={[
+            { label: 'Admin', value: 'admin' },
+            { label: 'User', value: 'user' },
+          ]}
+        />,
+      ]}
+    </ProFormList>
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+<ParamField path="name" type="string | string[]" required>
+  Field name for the list in form values.
+</ParamField>
+
+<ParamField path="label" type="ReactNode">
+  Label displayed above the list.
+</ParamField>
+
+<ParamField path="children" type="ReactNode | ((meta: FormListFieldData, index: number) => ReactNode)">
+  List item content. Can be:
+  - Static JSX elements
+  - Function receiving meta data and index for dynamic rendering
+</ParamField>
+
+<ParamField path="actionRef" type="MutableRefObject<FormListActionType>">
+  Ref to access list operations imperatively:
+  ```typescript
+  interface FormListActionType {
+    add: (defaultValue?: any, insertIndex?: number) => void;
+    remove: (index: number) => void;
+    move: (from: number, to: number) => void;
+    get: (index: number) => any;
+    getList: () => any[];
+  }
+  ```
+  
+  Usage:
+  ```tsx
+  const actionRef = useRef<FormListActionType>();
+  
+  <ProFormList actionRef={actionRef} name="items" />
+  
+  // Later
+  actionRef.current?.add({ name: 'New Item' });
+  actionRef.current?.remove(0);
+  actionRef.current?.move(0, 2);
+  ```
+</ParamField>
+
+<ParamField path="creatorButtonProps" type="false | ButtonProps & { creatorButtonText?: string, position?: 'top' | 'bottom' }">
+  Props for the "Add" button. Set to false to hide button:
+  ```tsx
+  creatorButtonProps={{
+    creatorButtonText: 'Add Item',
+    position: 'bottom',
+    type: 'dashed',
+    block: true,
+    icon: <PlusOutlined />
+  }}
+  ```
+</ParamField>
+
+<ParamField path="creatorRecord" type="Record<string, any> | (() => Record<string, any>)">
+  Default values for new items:
+  ```tsx
+  creatorRecord={{ status: 'active', quantity: 1 }}
+  // or
+  creatorRecord={() => ({ id: generateId(), date: new Date() })}
+  ```
+</ParamField>
+
+<ParamField path="actionRender" type="(field: FormListFieldData, action: FormListOperation, defaultActionDom: ReactNode[], count: number) => ReactNode[]">
+  Custom render function for item actions (copy, delete, move buttons):
+  ```tsx
+  actionRender={(field, action, defaultActionDom) => [
+    ...defaultActionDom,
+    <Button onClick={() => console.log(field)}>View</Button>
+  ]}
+  ```
+</ParamField>
+
+<ParamField path="itemRender" type="(doms: { listDom: ReactNode, action: ReactNode }, listMeta: { field: FormListFieldData, fields: FormListFieldData[], index: number, operation: FormListOperation, record: any, meta: FormListMeta }) => ReactNode">
+  Custom render function for entire list item including actions:
+  ```tsx
+  itemRender={({ listDom, action }, { index, record }) => (
+    <div className="custom-item">
+      <div className="item-header">
+        Item {index + 1}
+        <div>{action}</div>
+      </div>
+      <div className="item-body">{listDom}</div>
+    </div>
+  )}
+  ```
+</ParamField>
+
+<ParamField path="itemContainerRender" type="(doms: ReactNode) => ReactNode">
+  Wrapper for all list items:
+  ```tsx
+  itemContainerRender={(doms) => <Space direction="vertical">{doms}</Space>}
+  ```
+</ParamField>
+
+<ParamField path="min" type="number">
+  Minimum number of items. Delete button is disabled when limit is reached.
+</ParamField>
+
+<ParamField path="max" type="number">
+  Maximum number of items. Add button is disabled when limit is reached.
+</ParamField>
+
+<ParamField path="copyIconProps" type="{ Icon?: ReactNode, tooltipText?: string } | false">
+  Props for copy button. Set to false to hide:
+  ```tsx
+  copyIconProps={{ Icon: <CopyOutlined />, tooltipText: 'Duplicate' }}
+  ```
+</ParamField>
+
+<ParamField path="deleteIconProps" type="{ Icon?: ReactNode, tooltipText?: string } | false">
+  Props for delete button. Set to false to hide:
+  ```tsx
+  deleteIconProps={{ Icon: <DeleteOutlined />, tooltipText: 'Remove' }}
+  ```
+</ParamField>
+
+<ParamField path="arrowSort" type="boolean" default="false">
+  Whether to show up/down arrow buttons for sorting items.
+</ParamField>
+
+<ParamField path="upIconProps" type="{ Icon?: ReactNode, tooltipText?: string }">
+  Props for move up button (when arrowSort is enabled).
+</ParamField>
+
+<ParamField path="downIconProps" type="{ Icon?: ReactNode, tooltipText?: string }">
+  Props for move down button (when arrowSort is enabled).
+</ParamField>
+
+<ParamField path="alwaysShowItemLabel" type="boolean" default="false">
+  Whether to always show field labels in list items. When false, labels are hidden after the first item.
+</ParamField>
+
+<ParamField path="actionGuard" type="{ beforeAddRow?: (index: number) => boolean | Promise<boolean>, beforeRemoveRow?: (index: number) => boolean | Promise<boolean> }">
+  Guard functions called before add/remove operations:
+  ```tsx
+  actionGuard={{
+    beforeAddRow: async (index) => {
+      const confirmed = await confirm('Add new item?');
+      return confirmed;
+    },
+    beforeRemoveRow: async (index) => {
+      const confirmed = await confirm('Delete this item?');
+      return confirmed;
+    }
+  }}
+  ```
+</ParamField>
+
+<ParamField path="onAfterAdd" type="(defaultValue: any, insertIndex: number, count: number) => void">
+  Callback after item is added successfully.
+</ParamField>
+
+<ParamField path="onAfterRemove" type="(index: number, count: number) => void">
+  Callback after item is removed successfully.
+</ParamField>
+
+<ParamField path="isValidateList" type="boolean" default="false">
+  Whether to validate that the list is not empty.
+</ParamField>
+
+<ParamField path="emptyListMessage" type="string" default="'List cannot be empty'">
+  Validation message when list is empty (when isValidateList is true).
+</ParamField>
+
+<ParamField path="rules" type="Rule[]">
+  Validation rules for the list. Each rule can include `required` property.
+</ParamField>
+
+<ParamField path="required" type="boolean">
+  Whether the list is required.
+</ParamField>
+
+<ParamField path="readonly" type="boolean" default="false">
+  Whether the list is read-only. In read-only mode, action buttons are hidden.
+</ParamField>
+
+<ParamField path="transform" type="(value: any[], field: NamePath) => any">
+  Transform list data when submitting form.
+</ParamField>
+
+<ParamField path="colProps" type="ColProps">
+  Grid column props for the list container.
+</ParamField>
+
+<ParamField path="rowProps" type="RowProps">
+  Grid row props for list items.
+</ParamField>
+
+---
+
+## ProFormDependency
+
+Component for creating field dependencies and conditional rendering based on form values.
+
+### Import
+
+```tsx
+import { ProFormDependency } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormSelect
+      name="type"
+      label="Type"
+      options={[
+        { label: 'Person', value: 'person' },
+        { label: 'Company', value: 'company' },
+      ]}
+    />
+    
+    <ProFormDependency name={['type']}>
+      {({ type }) => {
+        if (type === 'person') {
+          return (
+            <ProFormText
+              name="firstName"
+              label="First Name"
+            />
+          );
+        }
+        if (type === 'company') {
+          return (
+            <ProFormText
+              name="companyName"
+              label="Company Name"
+            />
+          );
+        }
+        return null;
+      }}
+    </ProFormDependency>
+    ```
+  </Tab>
+  <Tab title="Multiple Fields">
+    ```tsx
+    <ProFormSelect name="country" label="Country" />
+    <ProFormSelect name="state" label="State" />
+    <ProFormText name="city" label="City" />
+    
+    <ProFormDependency name={['country', 'state', 'city']}>
+      {({ country, state, city }) => (
+        <Alert
+          message={`Location: ${city || ''}, ${state || ''}, ${country || ''}`}
+          type="info"
+        />
+      )}
+    </ProFormDependency>
+    ```
+  </Tab>
+  <Tab title="Nested Path">
+    ```tsx
+    <ProFormDependency name={[['user', 'role'], ['user', 'permissions']]}>
+      {({ user }) => {
+        const { role, permissions } = user || {};
+        
+        if (role === 'admin') {
+          return <Alert message="Admin has all permissions" />;
+        }
+        
+        return (
+          <ProFormSelect
+            name={['user', 'permissions']}
+            label="Permissions"
+            mode="multiple"
+            options={availablePermissions}
+          />
+        );
+      }}
+    </ProFormDependency>
+    ```
+  </Tab>
+  <Tab title="With Form Instance">
+    ```tsx
+    <ProFormDependency name={['items']}>
+      {({ items }, form) => {
+        const total = items?.reduce((sum, item) => 
+          sum + (item.quantity || 0) * (item.price || 0), 0
+        );
+        
+        return (
+          <ProFormMoney
+            name="total"
+            label="Total"
+            readonly
+            fieldProps={{
+              value: total
+            }}
+          />
+        );
+      }}
+    </ProFormDependency>
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+<ParamField path="name" type="NamePath[]" required>
+  Array of field names to depend on. Each name can be:
+  - String: `['username']`
+  - Array (nested path): `[['user', 'email']]`
+  - Mixed: `['type', ['user', 'role']]`
+</ParamField>
+
+<ParamField path="children" type="(values: Record<string, any>, form: ProFormInstance) => ReactNode" required>
+  Render function receiving dependent field values and form instance:
+  ```tsx
+  {(values, form) => {
+    // values: object with field values
+    // form: ProForm instance with methods
+    return <div>{values.fieldName}</div>;
+  }}
+  ```
+</ParamField>
+
+<ParamField path="ignoreFormListField" type="boolean" default="false">
+  When true, ignores ProFormList context and reads from global form values instead of list item values.
+</ParamField>
+
+<ParamField path="shouldUpdate" type="boolean | ((prevValues: any, nextValues: any, info: { source?: string }) => boolean)">
+  Custom condition for when to re-render. By default, re-renders when dependent field values change:
+  ```tsx
+  shouldUpdate={(prev, next) => {
+    return prev.username !== next.username;
+  }}
+  ```
+</ParamField>
+
+---
+
+## ProFormFieldSet
+
+Component for grouping multiple fields into a single form value.
+
+### Import
+
+```tsx
+import { ProFormFieldSet } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormFieldSet
+      name="dateRange"
+      label="Date Range"
+    >
+      <DatePicker placeholder="Start date" />
+      <DatePicker placeholder="End date" />
+    </ProFormFieldSet>
+    // Form value: { dateRange: [startDate, endDate] }
+    ```
+  </Tab>
+  <Tab title="Mixed Inputs">
+    ```tsx
+    <ProFormFieldSet
+      name="price"
+      label="Price"
+      space={8}
+    >
+      <InputNumber placeholder="Min" style={{ width: 120 }} />
+      <span>-</span>
+      <InputNumber placeholder="Max" style={{ width: 120 }} />
+    </ProFormFieldSet>
+    // Form value: { price: [minPrice, maxPrice] }
+    ```
+  </Tab>
+  <Tab title="Compact Group">
+    ```tsx
+    <ProFormFieldSet
+      name="address"
+      label="Address"
+      type="group"
+    >
+      <Input placeholder="Street" />
+      <Input placeholder="City" />
+      <Input placeholder="Zip" style={{ width: 100 }} />
+    </ProFormFieldSet>
+    // Form value: { address: [street, city, zip] }
+    ```
+  </Tab>
+  <Tab title="With ProForm Fields">
+    ```tsx
+    <ProFormFieldSet
+      name="contact"
+      label="Contact Info"
+    >
+      <ProFormText
+        name="email"
+        placeholder="Email"
+        fieldProps={{ style: { width: 200 } }}
+      />
+      <ProFormText
+        name="phone"
+        placeholder="Phone"
+        fieldProps={{ style: { width: 150 } }}
+      />
+    </ProFormFieldSet>
+    // Form value: { contact: [email, phone] }
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+<ParamField path="name" type="string | string[]" required>
+  Field name in form values. The value will be an array of child field values.
+</ParamField>
+
+<ParamField path="label" type="ReactNode">
+  Label displayed above the field set.
+</ParamField>
+
+<ParamField path="type" type="'space' | 'group'" default="'space'">
+  Layout type:
+  - `space`: Uses Ant Design Space component (with gaps)
+  - `group`: Uses Space.Compact (no gaps, connected borders)
+</ParamField>
+
+<ParamField path="space" type="SpaceProps | GroupProps">
+  Props for the Space or Space.Compact component:
+  ```tsx
+  // For type="space"
+  space={{ size: 16, direction: 'vertical', align: 'start' }}
+  
+  // For type="group"
+  space={{ block: true }}
+  ```
+</ParamField>
+
+<ParamField path="children" type="ReactNode | ((value: any[], props: ProFormFieldSetProps) => ReactNode)">
+  Child fields. Can be static or function for dynamic rendering:
+  ```tsx
+  {(value, props) => (
+    <>
+      <Input value={value[0]} />
+      <Input value={value[1]} />
+    </>
+  )}
+  ```
+</ParamField>
+
+<ParamField path="value" type="any[]">
+  Controlled value. Array of values for each child field.
+</ParamField>
+
+<ParamField path="onChange" type="(value: any[]) => void">
+  Callback when any child field value changes.
+</ParamField>
+
+<ParamField path="transform" type="(value: any[], field: NamePath) => any">
+  Transform fieldset value when submitting form:
+  ```tsx
+  transform={(value) => ({
+    min: value[0],
+    max: value[1]
+  })}
+  ```
+</ParamField>
+
+<ParamField path="convertValue" type="(value: any, field: NamePath) => any[]">
+  Convert value from form to fieldset format:
+  ```tsx
+  convertValue={(value) => [
+    value?.min,
+    value?.max
+  ]}
+  ```
+</ParamField>
+
+<ParamField path="colProps" type="ColProps">
+  Grid column props for the fieldset container.
+</ParamField>
+
+<ParamField path="rowProps" type="RowProps">
+  Grid row props for the fieldset.
+</ParamField>
+
+## Common Patterns
+
+<Expandable title="Dynamic Form with ProFormList">
+  Create forms with variable number of items:
+  
+  ```tsx
+  const [form] = Form.useForm();
+  const actionRef = useRef<FormListActionType>();
+  
+  <ProForm form={form}>
+    <ProFormList
+      name="items"
+      label="Items"
+      actionRef={actionRef}
+      min={1}
+      max={10}
+      creatorButtonProps={{
+        creatorButtonText: 'Add Item',
+      }}
+      actionGuard={{
+        beforeRemoveRow: async (index) => {
+          const values = actionRef.current?.get(index);
+          if (values?.isImportant) {
+            return confirm('This is important. Delete anyway?');
+          }
+          return true;
+        }
+      }}
+    >
+      <ProFormText name="name" label="Name" />
+      <ProFormDigit name="quantity" label="Quantity" />
+      
+      <ProFormDependency name={['quantity']}>
+        {({ quantity }) => (
+          quantity > 100 ? (
+            <Alert message="Large quantity!" type="warning" />
+          ) : null
+        )}
+      </ProFormDependency>
+    </ProFormList>
+  </ProForm>
+  ```
+</Expandable>
+
+<Expandable title="Conditional Fields with ProFormDependency">
+  Show/hide fields based on other field values:
+  
+  ```tsx
+  <ProFormRadio.Group
+    name="shippingMethod"
+    label="Shipping Method"
+    options={[
+      { label: 'Standard', value: 'standard' },
+      { label: 'Express', value: 'express' },
+      { label: 'Pickup', value: 'pickup' },
+    ]}
+  />
+  
+  <ProFormDependency name={['shippingMethod']}>
+    {({ shippingMethod }) => {
+      if (shippingMethod === 'pickup') {
+        return (
+          <>
+            <ProFormSelect
+              name="pickupLocation"
+              label="Pickup Location"
+              options={locations}
+            />
+            <ProFormDatePicker
+              name="pickupDate"
+              label="Pickup Date"
+            />
+          </>
+        );
+      }
+      
+      if (shippingMethod) {
+        return (
+          <>
+            <ProFormText name="address" label="Shipping Address" />
+            <ProFormText name="city" label="City" />
+            <ProFormText name="zipCode" label="Zip Code" />
+          </>
+        );
+      }
+      
+      return null;
+    }}
+  </ProFormDependency>
+  ```
+</Expandable>
+
+<Expandable title="Grouped Fields with ProFormFieldSet">
+  Combine related fields into array values:
+  
+  ```tsx
+  <ProForm
+    onFinish={async (values) => {
+      // values.priceRange = [minPrice, maxPrice]
+      // values.sizeRange = [width, height]
+      console.log(values);
+    }}
+  >
+    <ProFormFieldSet
+      name="priceRange"
+      label="Price Range"
+      transform={(value) => ({
+        minPrice: value[0],
+        maxPrice: value[1]
+      })}
+    >
+      <InputNumber
+        placeholder="Min"
+        prefix="$"
+        style={{ width: 150 }}
+      />
+      <InputNumber
+        placeholder="Max"
+        prefix="$"
+        style={{ width: 150 }}
+      />
+    </ProFormFieldSet>
+    
+    <ProFormFieldSet
+      name="sizeRange"
+      label="Dimensions"
+      type="group"
+    >
+      <InputNumber placeholder="Width" addonAfter="cm" />
+      <InputNumber placeholder="Height" addonAfter="cm" />
+    </ProFormFieldSet>
+  </ProForm>
+  ```
+</Expandable>
+
+<Expandable title="Nested Lists">
+  Create nested dynamic structures:
+  
+  ```tsx
+  <ProFormList name="categories" label="Categories">
+    <ProFormText name="name" label="Category Name" />
+    
+    <ProFormList
+      name="products"
+      label="Products"
+      creatorButtonProps={{
+        creatorButtonText: 'Add Product'
+      }}
+    >
+      <ProFormText name="productName" label="Product" />
+      <ProFormDigit name="price" label="Price" />
+      <ProFormDigit name="stock" label="Stock" />
+    </ProFormList>
+  </ProFormList>
+  ```
+  
+  Form value structure:
+  ```typescript
+  {
+    categories: [
+      {
+        name: 'Electronics',
+        products: [
+          { productName: 'Laptop', price: 999, stock: 10 },
+          { productName: 'Phone', price: 599, stock: 25 }
+        ]
+      }
+    ]
+  }
+  ```
+</Expandable>

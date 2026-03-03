@@ -1,0 +1,611 @@
+---
+title: ProField
+description: Unified field component supporting 30+ value types for display and editing
+---
+
+ProField is the foundational component that powers value rendering across all ProComponents. It provides automatic formatting, editing capabilities, and consistent display for 30+ value types.
+
+## Features
+
+- **30+ Value Types**: Comprehensive support for common data types
+- **Dual Modes**: Read-only display and editable input modes
+- **Automatic Formatting**: Smart formatting based on value type
+- **ValueEnum Support**: Map values to display text
+- **Request Integration**: Async options loading
+- **Extensible**: Add custom value types
+
+## Basic Usage
+
+```tsx
+import { ProField } from '@ant-design/pro-components';
+
+export default () => {
+  return (
+    <>
+      {/* Read mode (default) */}
+      <ProField
+        text="Hello World"
+        valueType="text"
+        mode="read"
+      />
+      
+      {/* Edit mode */}
+      <ProField
+        text="Hello World"
+        valueType="text"
+        mode="edit"
+        fieldProps={{
+          placeholder: '请输入',
+        }}
+      />
+    </>
+  );
+};
+```
+
+## Value Types
+
+### Text Types
+
+<Tabs>
+  <Tab title="Text">
+    ```tsx
+    <ProField valueType="text" text="Plain text" />
+    ```
+    Basic text display
+  </Tab>
+  
+  <Tab title="TextArea">
+    ```tsx
+    <ProField
+      valueType="textarea"
+      text="Multi-line\ntext content"
+      mode="edit"
+      fieldProps={{ rows: 4 }}
+    />
+    ```
+    Multi-line text input
+  </Tab>
+  
+  <Tab title="Password">
+    ```tsx
+    <ProField
+      valueType="password"
+      text="secret123"
+      mode="edit"
+    />
+    ```
+    Password input with visibility toggle
+  </Tab>
+</Tabs>
+
+### Numeric Types
+
+```tsx
+// Digit - Numeric input
+<ProField
+  valueType="digit"
+  text={12345}
+  mode="edit"
+  fieldProps={{
+    precision: 0,
+    min: 0,
+    max: 100000,
+  }}
+/>
+
+// Money - Currency formatting
+<ProField
+  valueType="money"
+  text={12345.67}
+  fieldProps={{
+    locale: 'zh-CN',
+    customSymbol: '¥',
+  }}
+/>
+
+// Percent - Percentage display
+<ProField
+  valueType="percent"
+  text={75}
+  fieldProps={{
+    precision: 2,
+  }}
+/>
+
+// Progress - Progress bar
+<ProField
+  valueType="progress"
+  text={75}
+  fieldProps={{
+    status: 'active',
+  }}
+/>
+```
+
+### Date & Time Types
+
+```tsx
+// Date picker
+<ProField
+  valueType="date"
+  text={Date.now()}
+  mode="edit"
+/>
+
+// DateTime picker
+<ProField
+  valueType="dateTime"
+  text={Date.now()}
+  mode="edit"
+/>
+
+// Time picker
+<ProField
+  valueType="time"
+  text={Date.now()}
+  mode="edit"
+/>
+
+// Date range picker
+<ProField
+  valueType="dateRange"
+  text={[Date.now(), Date.now() + 86400000]}
+  mode="edit"
+/>
+
+// DateTime range picker
+<ProField
+  valueType="dateTimeRange"
+  text={[Date.now(), Date.now() + 86400000]}
+  mode="edit"
+/>
+
+// Relative time display
+<ProField
+  valueType="fromNow"
+  text={Date.now() - 3600000}
+/>
+```
+
+### Selection Types
+
+```tsx
+// Select dropdown
+<ProField
+  valueType="select"
+  text="option1"
+  mode="edit"
+  valueEnum={{
+    option1: '选项1',
+    option2: '选项2',
+    option3: '选项3',
+  }}
+/>
+
+// Radio group
+<ProField
+  valueType="radio"
+  text="A"
+  mode="edit"
+  valueEnum={{
+    A: '选项A',
+    B: '选项B',
+    C: '选项C',
+  }}
+/>
+
+// Checkbox group
+<ProField
+  valueType="checkbox"
+  text={['A', 'B']}
+  mode="edit"
+  valueEnum={{
+    A: '选项A',
+    B: '选项B',
+    C: '选项C',
+  }}
+/>
+
+// Switch
+<ProField
+  valueType="switch"
+  text={true}
+  mode="edit"
+/>
+
+// Rate
+<ProField
+  valueType="rate"
+  text={4}
+  mode="edit"
+  fieldProps={{ count: 5 }}
+/>
+
+// Slider
+<ProField
+  valueType="slider"
+  text={50}
+  mode="edit"
+  fieldProps={{
+    min: 0,
+    max: 100,
+  }}
+/>
+
+// Segmented
+<ProField
+  valueType="segmented"
+  text="option1"
+  mode="edit"
+  valueEnum={{
+    option1: '选项1',
+    option2: '选项2',
+  }}
+/>
+```
+
+### Cascading Selection
+
+```tsx
+// Cascader
+<ProField
+  valueType="cascader"
+  text={['zhejiang', 'hangzhou']}
+  mode="edit"
+  fieldProps={{
+    options: [
+      {
+        value: 'zhejiang',
+        label: '浙江',
+        children: [
+          { value: 'hangzhou', label: '杭州' },
+        ],
+      },
+    ],
+  }}
+/>
+
+// TreeSelect
+<ProField
+  valueType="treeSelect"
+  text="node1"
+  mode="edit"
+  fieldProps={{
+    treeData: [
+      {
+        value: 'parent',
+        title: '父节点',
+        children: [
+          { value: 'node1', title: '子节点1' },
+        ],
+      },
+    ],
+  }}
+/>
+```
+
+### Display Types
+
+```tsx
+// Avatar
+<ProField
+  valueType="avatar"
+  text="https://example.com/avatar.jpg"
+/>
+
+// Image
+<ProField
+  valueType="image"
+  text="https://example.com/image.jpg"
+  fieldProps={{ width: 100 }}
+/>
+
+// Code
+<ProField
+  valueType="code"
+  text="const a = 1;"
+  fieldProps={{ language: 'javascript' }}
+/>
+
+// JSON Code
+<ProField
+  valueType="jsonCode"
+  text={JSON.stringify({ key: 'value' }, null, 2)}
+/>
+
+// Color picker
+<ProField
+  valueType="color"
+  text="#1890ff"
+  mode="edit"
+/>
+```
+
+### Special Types
+
+```tsx
+// Index - Auto-incrementing index
+<ProField valueType="index" text={1} />
+
+// Index with border
+<ProField valueType="indexBorder" text={1} />
+
+// Option - Action buttons
+<ProField
+  valueType="option"
+  text=""
+  mode="edit"
+  render={() => [
+    <a key="edit">编辑</a>,
+    <a key="delete">删除</a>,
+  ]}
+/>
+```
+
+## ValueEnum
+
+Map values to display text with status badges:
+
+```tsx
+<ProField
+  text="open"
+  valueType="select"
+  valueEnum={{
+    all: { text: '全部', status: 'Default' },
+    open: {
+      text: '未解决',
+      status: 'Error',
+    },
+    closed: {
+      text: '已解决',
+      status: 'Success',
+    },
+    processing: {
+      text: '处理中',
+      status: 'Processing',
+    },
+  }}
+/>
+```
+
+### Status Colors
+
+Available status values:
+- `Success` - Green
+- `Error` - Red
+- `Warning` - Orange
+- `Processing` - Blue
+- `Default` - Gray
+
+## Request Integration
+
+Load options asynchronously:
+
+```tsx
+<ProField
+  valueType="select"
+  text="beijing"
+  mode="edit"
+  request={async () => {
+    const response = await fetch('/api/cities');
+    const data = await response.json();
+    return data.map(item => ({
+      label: item.name,
+      value: item.code,
+    }));
+  }}
+  params={{ country: 'CN' }} // Triggers reload when changed
+/>
+```
+
+## Render Customization
+
+```tsx
+<ProField
+  text="custom value"
+  valueType="text"
+  render={(text, props, dom) => (
+    <div style={{ color: 'red' }}>
+      {text}
+    </div>
+  )}
+/>
+```
+
+## Mode Switching
+
+```tsx
+import { useState } from 'react';
+
+const Demo = () => {
+  const [mode, setMode] = useState<'read' | 'edit'>('read');
+  const [value, setValue] = useState('Initial value');
+  
+  return (
+    <>
+      <Button onClick={() => setMode(mode === 'read' ? 'edit' : 'read')}>
+        {mode === 'read' ? '编辑' : '完成'}
+      </Button>
+      
+      <ProField
+        text={value}
+        valueType="text"
+        mode={mode}
+        fieldProps={{
+          onChange: (e) => setValue(e.target.value),
+        }}
+      />
+    </>
+  );
+};
+```
+
+## Empty Text
+
+```tsx
+<ProField
+  text={null}
+  valueType="text"
+  proFieldProps={{
+    emptyText: '-', // Display when value is empty
+  }}
+/>
+```
+
+## Light Mode
+
+Compact inline editing:
+
+```tsx
+<ProField
+  text="value"
+  valueType="text"
+  mode="edit"
+  light
+  fieldProps={{
+    placeholder: '请输入',
+  }}
+/>
+```
+
+## Field Components
+
+Individual field components are also exported:
+
+```tsx
+import {
+  FieldText,
+  FieldDigit,
+  FieldMoney,
+  FieldPercent,
+  FieldSelect,
+  FieldDatePicker,
+  FieldTimePicker,
+  // ... and more
+} from '@ant-design/pro-components';
+
+<FieldMoney
+  text={12345.67}
+  mode="read"
+  locale="zh-CN"
+/>
+```
+
+## Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `text` | `any` | Field value |
+| `valueType` | `ProFieldValueType` | Value type |
+| `mode` | `'read' \| 'edit'` | Display mode |
+| `fieldProps` | `any` | Props passed to field component |
+| `valueEnum` | `ValueEnumMap \| ValueEnumObj` | Value enum mapping |
+| `request` | `() => Promise<RequestData>` | Async options loader |
+| `params` | `any` | Request parameters |
+| `render` | `(text, props, dom) => ReactNode` | Custom render function |
+| `light` | `boolean` | Compact light mode |
+| `proFieldProps` | `ProFieldProps` | ProField specific props |
+
+## Custom Value Types
+
+Register custom value types:
+
+```tsx
+import { ProProvider } from '@ant-design/pro-components';
+
+const CustomField = ({ text, mode, fieldProps }) => {
+  if (mode === 'read') {
+    return <span>{text}</span>;
+  }
+  return <input value={text} {...fieldProps} />;
+};
+
+const App = () => (
+  <ProProvider
+    valueTypeMap={{
+      custom: {
+        render: (text, props) => <CustomField text={text} {...props} />,
+      },
+    }}
+  >
+    <ProField valueType="custom" text="value" />
+  </ProProvider>
+);
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Choose the right value type">
+    Use specific value types instead of generic ones:
+    - Use `money` instead of `digit` for currency
+    - Use `percent` instead of `digit` for percentages
+    - Use `dateTime` instead of `text` for timestamps
+  </Accordion>
+  
+  <Accordion title="Leverage valueEnum for status fields">
+    Use valueEnum with status for automatic badge rendering:
+    ```tsx
+    valueEnum={{
+      active: { text: 'Active', status: 'Success' },
+      inactive: { text: 'Inactive', status: 'Default' },
+    }}
+    ```
+  </Accordion>
+  
+  <Accordion title="Use request for dynamic options">
+    Load select/radio options from API using request prop instead of static valueEnum.
+  </Accordion>
+  
+  <Accordion title="Set appropriate empty text">
+    Provide meaningful empty text for better UX:
+    ```tsx
+    proFieldProps={{ emptyText: 'N/A' }}
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Value Type Reference
+
+<AccordionGroup>
+  <Accordion title="All Value Types">
+    - `text` - Plain text
+    - `textarea` - Multi-line text
+    - `password` - Password input
+    - `digit` - Numeric input
+    - `digitRange` - Numeric range
+    - `money` - Currency
+    - `percent` - Percentage
+    - `progress` - Progress bar
+    - `date` - Date picker
+    - `dateTime` - DateTime picker
+    - `time` - Time picker
+    - `dateRange` - Date range
+    - `dateTimeRange` - DateTime range
+    - `fromNow` - Relative time
+    - `select` - Select dropdown
+    - `radio` - Radio group
+    - `checkbox` - Checkbox group
+    - `switch` - Toggle switch
+    - `rate` - Star rating
+    - `slider` - Slider input
+    - `segmented` - Segmented control
+    - `cascader` - Cascading select
+    - `treeSelect` - Tree select
+    - `avatar` - Avatar display
+    - `image` - Image display
+    - `code` - Code display
+    - `jsonCode` - JSON viewer
+    - `color` - Color picker
+    - `index` - Index number
+    - `indexBorder` - Bordered index
+    - `option` - Action buttons
+  </Accordion>
+</AccordionGroup>
+
+## Related Components
+
+- [ProForm](/components/pro-form) - Form fields using ProField
+- [ProTable](/components/pro-table) - Table cells using ProField
+- [ProDescriptions](/components/pro-descriptions) - Description items using ProField

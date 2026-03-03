@@ -1,122 +1,121 @@
 {
   "$schema": "https://mintlify.com/docs.json",
+  "name": "ProComponents",
   "theme": "mint",
-  "name": "Mint Starter Kit",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#1677FF",
+    "light": "#69b1ff",
+    "dark": "#0958d9"
   },
-  "favicon": "/favicon.svg",
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/ant-design/pro-components"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/ant-design/pro-components"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Get Started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "introduction",
+              "installation",
+              "quickstart"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Core Concepts",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "concepts/overview",
+              "concepts/theming",
+              "concepts/internationalization"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Components",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "components/overview",
+              "components/pro-table",
+              "components/pro-form",
+              "components/pro-layout",
+              "components/pro-card",
+              "components/pro-list",
+              "components/pro-descriptions",
+              "components/pro-field",
+              "components/pro-skeleton",
+              "components/pro-provider"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Form Components",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "components/form/form-layouts",
+              "components/form/form-fields",
+              "components/form/field-components"
+            ]
+          },
+          {
+            "group": "Table Components",
+            "pages": [
+              "components/table/basic-usage",
+              "components/table/editable-table",
+              "components/table/drag-sort-table"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/migration",
+              "guides/customization",
+              "guides/best-practices"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Components API",
             "pages": [
-              "api-reference/introduction"
+              "api/pro-table",
+              "api/pro-form",
+              "api/pro-layout",
+              "api/pro-card",
+              "api/pro-list",
+              "api/pro-descriptions",
+              "api/pro-field",
+              "api/pro-skeleton",
+              "api/pro-provider"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Form Fields API",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api/form/text-fields",
+              "api/form/select-fields",
+              "api/form/date-fields",
+              "api/form/upload-fields",
+              "api/form/advanced-fields"
+            ]
+          },
+          {
+            "group": "Utilities",
+            "pages": [
+              "api/utilities/hooks",
+              "api/utilities/helpers"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

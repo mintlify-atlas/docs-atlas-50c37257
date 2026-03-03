@@ -1,0 +1,352 @@
+---
+title: ProSkeleton
+description: Complete API reference for ProSkeleton component
+---
+
+# ProSkeleton API
+
+ProSkeleton provides loading skeleton screens for Pro components, matching the layout of ProTable, ProList, and ProDescriptions.
+
+## ProSkeletonProps
+
+<ParamField path="type" type="'list' | 'descriptions' | 'result'" default="list">
+  Type of skeleton to display.
+  
+  - `list` - Skeleton for ProTable/ProList
+  - `descriptions` - Skeleton for ProDescriptions
+  - `result` - Skeleton for Result page
+</ParamField>
+
+<ParamField path="active" type="boolean" default="true">
+  Whether to show animation.
+</ParamField>
+
+## List Skeleton Props
+
+When `type="list"`:
+
+<ParamField path="pageHeader" type="boolean | PageHeaderSkeletonProps" default="true">
+  Whether to show page header skeleton.
+  
+  Can be an object to customize:
+  ```typescript
+  {
+    active?: boolean;
+  }
+  ```
+</ParamField>
+
+<ParamField path="toolbar" type="boolean | ToolbarSkeletonProps" default="true">
+  Whether to show toolbar skeleton.
+  
+  Can be an object to customize:
+  ```typescript
+  {
+    active?: boolean;
+    actions?: number; // Number of action buttons
+  }
+  ```
+</ParamField>
+
+<ParamField path="list" type="boolean | ListSkeletonProps" default="true">
+  Whether to show list skeleton.
+  
+  Can be an object to customize:
+  ```typescript
+  {
+    active?: boolean;
+    size?: 'default' | 'large' | 'small';
+    rows?: number; // Number of list items
+  }
+  ```
+</ParamField>
+
+<ParamField path="statistic" type="boolean | number" default="false">
+  Whether to show statistic cards.
+  
+  - `boolean` - Show/hide statistics
+  - `number` - Number of statistic cards to show
+</ParamField>
+
+## Descriptions Skeleton Props
+
+When `type="descriptions"`:
+
+<ParamField path="pageHeader" type="boolean" default="false">
+  Whether to show page header skeleton.
+</ParamField>
+
+<ParamField path="list" type="boolean | number" default="true">
+  Whether to show descriptions skeleton.
+  
+  - `boolean` - Show/hide descriptions
+  - `number` - Number of description items to show
+</ParamField>
+
+<ParamField path="columns" type="number" default="3">
+  Number of columns for descriptions.
+</ParamField>
+
+## Exported Components
+
+ProSkeleton also exports individual skeleton components:
+
+### PageHeaderSkeleton
+
+Skeleton for page header.
+
+```tsx
+import { PageHeaderSkeleton } from '@ant-design/pro-components';
+
+<PageHeaderSkeleton active />
+```
+
+<ParamField path="active" type="boolean" default="true">
+  Whether to show animation.
+</ParamField>
+
+### ListToolbarSkeleton
+
+Skeleton for list toolbar.
+
+```tsx
+import { ListToolbarSkeleton } from '@ant-design/pro-components';
+
+<ListToolbarSkeleton active actions={3} />
+```
+
+<ParamField path="active" type="boolean" default="true">
+  Whether to show animation.
+</ParamField>
+
+<ParamField path="actions" type="number" default="2">
+  Number of action button skeletons.
+</ParamField>
+
+### TableSkeleton
+
+Skeleton for table.
+
+```tsx
+import { TableSkeleton } from '@ant-design/pro-components';
+
+<TableSkeleton active columns={5} rows={10} />
+```
+
+<ParamField path="active" type="boolean" default="true">
+  Whether to show animation.
+</ParamField>
+
+<ParamField path="columns" type="number" default="4">
+  Number of table columns.
+</ParamField>
+
+<ParamField path="rows" type="number" default="8">
+  Number of table rows.
+</ParamField>
+
+### ListSkeleton
+
+Skeleton for list items.
+
+```tsx
+import { ListSkeleton } from '@ant-design/pro-components';
+
+<ListSkeleton active size="large" rows={5} />
+```
+
+<ParamField path="active" type="boolean" default="true">
+  Whether to show animation.
+</ParamField>
+
+<ParamField path="size" type="'default' | 'large' | 'small'" default="default">
+  Size of list items.
+</ParamField>
+
+<ParamField path="rows" type="number" default="5">
+  Number of list items.
+</ParamField>
+
+### ListSkeletonItem
+
+Skeleton for a single list item.
+
+```tsx
+import { ListSkeletonItem } from '@ant-design/pro-components';
+
+<ListSkeletonItem active size="large" />
+```
+
+<ParamField path="active" type="boolean" default="true">
+  Whether to show animation.
+</ParamField>
+
+<ParamField path="size" type="'default' | 'large' | 'small'" default="default">
+  Size of the list item.
+</ParamField>
+
+### DescriptionsSkeleton
+
+Skeleton for descriptions.
+
+```tsx
+import { DescriptionsSkeleton } from '@ant-design/pro-components';
+
+<DescriptionsSkeleton active items={6} columns={3} />
+```
+
+<ParamField path="active" type="boolean" default="true">
+  Whether to show animation.
+</ParamField>
+
+<ParamField path="items" type="number" default="8">
+  Number of description items.
+</ParamField>
+
+<ParamField path="columns" type="number" default="3">
+  Number of columns.
+</ParamField>
+
+### TableItemSkeleton
+
+Skeleton for a table item row.
+
+```tsx
+import { TableItemSkeleton } from '@ant-design/pro-components';
+
+<TableItemSkeleton active columns={5} />
+```
+
+<ParamField path="active" type="boolean" default="true">
+  Whether to show animation.
+</ParamField>
+
+<ParamField path="columns" type="number" default="4">
+  Number of columns in the row.
+</ParamField>
+
+## Usage Examples
+
+<Tabs>
+  <Tab title="List Skeleton">
+    ```tsx
+    import { ProSkeleton } from '@ant-design/pro-components';
+
+    // Full page skeleton with header, toolbar, and table
+    <ProSkeleton type="list" />
+
+    // Customized list skeleton
+    <ProSkeleton
+      type="list"
+      pageHeader={{
+        active: true,
+      }}
+      toolbar={{
+        active: true,
+        actions: 3,
+      }}
+      list={{
+        active: true,
+        rows: 10,
+        size: 'large',
+      }}
+      statistic={4}
+    />
+
+    // Table only (no header or toolbar)
+    <ProSkeleton
+      type="list"
+      pageHeader={false}
+      toolbar={false}
+    />
+    ```
+  </Tab>
+  <Tab title="Descriptions Skeleton">
+    ```tsx
+    import { ProSkeleton } from '@ant-design/pro-components';
+
+    // Basic descriptions skeleton
+    <ProSkeleton type="descriptions" />
+
+    // With page header and custom columns
+    <ProSkeleton
+      type="descriptions"
+      pageHeader
+      list={12}
+      columns={2}
+    />
+    ```
+  </Tab>
+  <Tab title="Result Skeleton">
+    ```tsx
+    import { ProSkeleton } from '@ant-design/pro-components';
+
+    // Result page skeleton
+    <ProSkeleton type="result" active />
+    ```
+  </Tab>
+  <Tab title="With Loading State">
+    ```tsx
+    import { ProTable, ProSkeleton } from '@ant-design/pro-components';
+    import { useState, useEffect } from 'react';
+
+    export default () => {
+      const [loading, setLoading] = useState(true);
+      const [data, setData] = useState([]);
+
+      useEffect(() => {
+        fetchData().then(result => {
+          setData(result);
+          setLoading(false);
+        });
+      }, []);
+
+      if (loading) {
+        return <ProSkeleton type="list" />;
+      }
+
+      return (
+        <ProTable
+          dataSource={data}
+          columns={columns}
+        />
+      );
+    };
+    ```
+  </Tab>
+  <Tab title="Individual Components">
+    ```tsx
+    import {
+      PageHeaderSkeleton,
+      ListToolbarSkeleton,
+      TableSkeleton,
+      DescriptionsSkeleton,
+    } from '@ant-design/pro-components';
+
+    // Build custom skeleton layout
+    <div>
+      <PageHeaderSkeleton active />
+      <ListToolbarSkeleton active actions={2} />
+      <TableSkeleton active rows={8} columns={5} />
+    </div>
+
+    // Or descriptions
+    <div>
+      <PageHeaderSkeleton active />
+      <DescriptionsSkeleton active items={9} columns={3} />
+    </div>
+    ```
+  </Tab>
+</Tabs>
+
+## Best Practices
+
+1. **Match component type**: Use `type="list"` for ProTable/ProList and `type="descriptions"` for ProDescriptions to match the actual component layout.
+
+2. **Show during data loading**: Display skeleton while fetching data from API to improve perceived performance.
+
+3. **Customize for your layout**: Adjust `rows`, `columns`, and other props to match your actual component configuration.
+
+4. **Keep animations**: The default `active` animation provides better visual feedback.
+
+5. **Hide unnecessary parts**: Set `pageHeader={false}` or `toolbar={false}` if your component doesn't have those sections.

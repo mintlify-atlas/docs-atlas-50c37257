@@ -1,0 +1,321 @@
+---
+title: Architecture Overview
+description: Understanding ProComponents architecture, design philosophy, and core principles
+---
+
+ProComponents is a comprehensive React component library built on top of Ant Design, specifically designed for enterprise-level applications. This guide explains how ProComponents works under the hood and the architectural decisions that power it.
+
+## Design Philosophy
+
+ProComponents follows several core principles that guide its architecture:
+
+### 1. Build on Top of Ant Design
+
+ProComponents extends Ant Design's component ecosystem rather than replacing it. Every ProComponent wraps and enhances Ant Design components with additional functionality:
+
+- **Token System Integration**: Inherits and extends Ant Design's design token system
+- **ConfigProvider Compatibility**: Works seamlessly with Ant Design's configuration context
+- **Theme Synchronization**: Automatically syncs with Ant Design's theme algorithm
+
+### 2. Provider-Based Configuration
+
+The library uses React Context to provide global configuration, similar to Ant Design's `ConfigProvider` but with additional enterprise features.
+
+<CodeGroup>
+```tsx Provider Architecture
+import { ProConfigProvider } from '@ant-design/pro-components';
+import { ConfigProvider } from 'antd';
+
+function App() {
+  return (
+    <ProConfigProvider
+      token={{
+        layout: {
+          header: {
+            colorBgHeader: '#001529',
+            heightLayoutHeader: 64,
+          },
+        },
+      }}
+    >
+      <YourApp />
+    </ProConfigProvider>
+  );
+}
+```
+
+```tsx Nested Providers
+// ProConfigProvider automatically wraps AntdConfigProvider
+import { ProConfigProvider } from '@ant-design/pro-components';
+
+function App() {
+  return (
+    <ProConfigProvider dark>
+      {/* Dark theme is automatically applied */}
+      <YourComponents />
+    </ProConfigProvider>
+  );
+}
+```
+</CodeGroup>
+
+## Architecture Layers
+
+ProComponents is organized into distinct architectural layers:
+
+### Core Provider Layer
+
+The foundation of ProComponents is the `ProConfigContext`, which manages:
+
+- **Design Tokens**: Extended token system with ProComponents-specific tokens
+- **Internationalization**: Built-in i18n support with 35+ locales
+- **Theme Management**: Dark/light mode and custom theme algorithms
+- **Hash ID Generation**: CSS-in-JS with optional hashing for style isolation
+
+<Tip>
+The provider layer automatically detects and merges with Ant Design's `ConfigProvider`, ensuring seamless integration.
+</Tip>
+
+### Component Layer
+
+ProComponents provides high-level components organized by function:
+
+```
+src/
+├── card/          # ProCard, CheckCard, StatisticCard
+├── descriptions/  # ProDescriptions
+├── field/         # ProField and field components
+├── form/          # ProForm and form variants
+├── layout/        # ProLayout for application structure
+├── list/          # ProList
+├── provider/      # Core provider and theming
+└── table/         # ProTable and related components
+```
+
+### Token System
+
+ProComponents extends Ant Design's token system with layout-specific tokens:
+
+<Tabs>
+  <Tab title="Header Tokens">
+    ```typescript
+    interface HeaderTokens {
+      colorBgHeader: string;           // Header background
+      colorBgScrollHeader: string;     // Background when scrolling
+      colorHeaderTitle: string;        // Title text color
+      colorBgMenuItemHover: string;    // Menu item hover state
+      colorBgMenuItemSelected: string; // Selected menu item
+      colorTextMenuSelected: string;   // Selected menu text
+      heightLayoutHeader: number;      // Header height (default: 56px)
+    }
+    ```
+  </Tab>
+  <Tab title="Sider Tokens">
+    ```typescript
+    interface SiderTokens {
+      colorMenuBackground: string;       // Sidebar background
+      colorBgMenuItemHover: string;      // Menu item hover
+      colorBgMenuItemSelected: string;   // Selected menu item
+      colorTextMenuSelected: string;     // Selected text color
+      colorTextMenu: string;             // Default menu text
+      colorTextMenuSecondary: string;    // Secondary menu text
+      paddingInlineLayoutMenu: number;   // Horizontal padding (8px)
+      paddingBlockLayoutMenu: number;    // Vertical padding (0px)
+    }
+    ```
+  </Tab>
+  <Tab title="PageContainer Tokens">
+    ```typescript
+    interface PageContainerTokens {
+      colorBgPageContainer: string;               // Container background
+      paddingInlinePageContainerContent: number;  // Horizontal padding (40px)
+      paddingBlockPageContainerContent: number;   // Vertical padding (32px)
+      colorBgPageContainerFixed: string;          // Fixed container background
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## CSS-in-JS and Style System
+
+ProComponents uses `@ant-design/cssinjs` for dynamic styling with several key features:
+
+### Style Registration
+
+The `useStyle` hook registers component styles with the theme system:
+
+```typescript
+import { useStyle } from '@ant-design/pro-components';
+
+export function MyProComponent() {
+  const { wrapSSR, hashId } = useStyle('MyProComponent', (token) => ({
+    '.my-component': {
+      color: token.colorText,
+      padding: token.paddingLG,
+      backgroundColor: token.colorBgContainer,
+    },
+  }));
+
+  return wrapSSR(
+    <div className={`my-component ${hashId}`}>
+      Content
+    </div>
+  );
+}
+```
+
+### Hash ID System
+
+Styles are isolated using hash IDs in production to prevent conflicts:
+
+<CodeGroup>
+```tsx Development Mode
+// Hash IDs are disabled in development for easier debugging
+// className: "ant-pro-card"
+<ProCard />
+```
+
+```tsx Production Mode
+// Hash IDs are enabled for style isolation
+// className: "ant-pro-card css-dev-only-do-not-override-1rqnfsa"
+<ProCard />
+```
+</CodeGroup>
+
+<Note>
+You can disable hash IDs by setting `hashed={false}` on `ProConfigProvider`, useful for testing or when you need predictable class names.
+</Note>
+
+## Token Computation and Merging
+
+ProComponents uses a sophisticated token merging strategy:
+
+1. **Base Tokens**: Start with Ant Design's design tokens
+2. **Custom Tokens**: Apply user-provided token overrides
+3. **Layout Tokens**: Compute layout-specific tokens with `getLayoutDesignToken()`
+4. **Deep Merge**: Use the `merge()` utility to combine all token layers
+
+```typescript
+// From src/provider/typing/layoutToken.ts
+export const getLayoutDesignToken = (
+  baseDesignTokens: DeepPartial<LayoutDesignToken>,
+  antdToken: Record<string, any>,
+): LayoutDesignToken => {
+  return {
+    // Computed with alpha transparency
+    colorBgAppListIconHover: setAlpha(antdToken.colorTextBase, 0.04),
+    
+    header: {
+      colorBgHeader: setAlpha(antdToken.colorBgElevated, 0.6),
+      heightLayoutHeader: 56,
+      // ... more header tokens
+    },
+    
+    sider: {
+      paddingInlineLayoutMenu: 8,
+      colorBgMenuItemHover: setAlpha(antdToken.colorTextBase, 0.03),
+      // ... more sider tokens
+    },
+  };
+};
+```
+
+## State Management
+
+ProComponents uses **SWR** (Stale-While-Revalidate) for data fetching and caching:
+
+- **Automatic Caching**: Request results are cached to minimize network calls
+- **Auto Revalidation**: Data is revalidated when the window regains focus
+- **Cache Cleanup**: Optional `autoClearCache` prop clears cache on unmount
+
+```tsx
+import { ProConfigProvider } from '@ant-design/pro-components';
+
+function App() {
+  return (
+    <ProConfigProvider autoClearCache>
+      {/* SWR cache is automatically cleared when this unmounts */}
+      <YourComponents />
+    </ProConfigProvider>
+  );
+}
+```
+
+## Class Naming Convention
+
+ProComponents follows a consistent class naming pattern:
+
+- **Prefix**: `.ant-pro` (customizable via `prefixCls` prop)
+- **Component**: Component-specific identifier (e.g., `card`, `table`, `layout`)
+- **Element**: Sub-element within component (e.g., `header`, `body`, `footer`)
+- **Modifier**: State or variant (e.g., `selected`, `hover`, `dark`)
+
+Example: `.ant-pro-card-header-bordered`
+
+<Tip>
+You can customize the prefix by setting the `prefixCls` prop on `ProConfigProvider`:
+
+```tsx
+<ProConfigProvider prefixCls="my-app">
+  {/* Components will use .my-app-pro-* classes */}
+</ProConfigProvider>
+```
+</Tip>
+
+## Performance Optimizations
+
+### Memoization Strategy
+
+ProComponents extensively uses `useMemo` and `useCallback` to prevent unnecessary re-renders:
+
+```typescript
+const proProvideValue = useMemo(() => {
+  return {
+    ...proProvide,
+    token: merge(proProvide.token, tokenContext.token, {
+      proComponentsCls,
+      antCls,
+    }),
+  };
+}, [proProvide, tokenContext.token, proComponentsCls, antCls]);
+```
+
+### Token Caching
+
+The `useCacheToken` hook from `@ant-design/cssinjs` ensures tokens are only recomputed when dependencies change:
+
+```typescript
+const [token, hashId] = useCacheToken(
+  tokenContext.theme,
+  [tokenContext.token, finalToken],
+  {
+    salt: proComponentsCls,
+    override: finalToken,
+  },
+);
+```
+
+## Browser Support
+
+ProComponents targets modern browsers:
+
+- Chrome (last 2 versions)
+- Firefox (last 2 versions)
+- Safari (last 2 versions)
+- Edge (last 2 versions)
+- Electron (last 2 versions)
+
+<Note>
+Internet Explorer support was dropped in ProComponents 3.0. Use version 2.x if IE11 support is required.
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Theming System" icon="palette" href="/concepts/theming">
+    Learn how to customize ProComponents with the design token system
+  </Card>
+  <Card title="Internationalization" icon="globe" href="/concepts/internationalization">
+    Explore built-in i18n support for 35+ languages
+  </Card>
+</CardGroup>

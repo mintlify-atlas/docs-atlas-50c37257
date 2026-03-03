@@ -1,0 +1,741 @@
+---
+title: Form Field Types
+description: Overview of form field types and configurations in ProComponents
+---
+
+ProComponents provides a comprehensive set of form field components that wrap Ant Design inputs with enhanced features like validation, formatting, and remote data loading.
+
+## Basic Input Fields
+
+### ProFormText
+
+Standard text input with optional password variant.
+
+```tsx
+import { ProFormText } from '@ant-design/pro-components';
+
+<ProFormText
+  name="username"
+  label="Username"
+  placeholder="Enter username"
+  required
+  rules={[
+    { required: true, message: 'Username is required' },
+    { min: 3, message: 'At least 3 characters' },
+  ]}
+/>
+```
+
+#### Password with Strength Indicator
+
+```tsx
+<ProFormText.Password
+  name="password"
+  label="Password"
+  fieldProps={{
+    statusRender: (value) => {
+      const strength = calculateStrength(value);
+      return <StrengthIndicator level={strength} />;
+    },
+    strengthText: 'Use at least 8 characters',
+    popoverProps: { placement: 'rightTop' },
+  }}
+/>
+```
+
+### ProFormTextArea
+
+Multi-line text input.
+
+```tsx
+import { ProFormTextArea } from '@ant-design/pro-components';
+
+<ProFormTextArea
+  name="description"
+  label="Description"
+  fieldProps={{
+    rows: 4,
+    maxLength: 500,
+    showCount: true,
+  }}
+/>
+```
+
+### ProFormDigit
+
+Numeric input with formatting.
+
+```tsx
+import { ProFormDigit } from '@ant-design/pro-components';
+
+<ProFormDigit
+  name="quantity"
+  label="Quantity"
+  min={0}
+  max={999}
+  fieldProps={{
+    precision: 0,
+    step: 1,
+  }}
+/>
+```
+
+#### Digit Range
+
+```tsx
+import { ProFormDigitRange } from '@ant-design/pro-components';
+
+<ProFormDigitRange
+  name="priceRange"
+  label="Price Range"
+  separatorText="to"
+/>
+```
+
+### ProFormMoney
+
+Currency input with formatting.
+
+```tsx
+import { ProFormMoney } from '@ant-design/pro-components';
+
+<ProFormMoney
+  name="price"
+  label="Price"
+  locale="en-US"
+  fieldProps={{
+    precision: 2,
+  }}
+  customSymbol="$"
+/>
+```
+
+## Selection Fields
+
+### ProFormSelect
+
+Dropdown selection with remote data support.
+
+```tsx
+import { ProFormSelect } from '@ant-design/pro-components';
+
+<ProFormSelect
+  name="category"
+  label="Category"
+  options={[
+    { label: 'Electronics', value: 'electronics' },
+    { label: 'Books', value: 'books' },
+  ]}
+  showSearch
+  allowClear
+/>
+```
+
+#### Remote Data Loading
+
+```tsx
+<ProFormSelect
+  name="user"
+  label="User"
+  request={async ({ keyWords }) => {
+    const users = await fetchUsers(keyWords);
+    return users.map(u => ({
+      label: u.name,
+      value: u.id,
+    }));
+  }}
+  debounceTime={300}
+  showSearch
+/>
+```
+
+#### Multiple Selection
+
+```tsx
+<ProFormSelect
+  name="tags"
+  label="Tags"
+  mode="multiple"
+  options={tags}
+  fieldProps={{
+    maxTagCount: 3,
+  }}
+/>
+```
+
+### ProFormSelect.SearchSelect
+
+Enhanced select with search functionality.
+
+```tsx
+import { ProFormSelect } from '@ant-design/pro-components';
+
+<ProFormSelect.SearchSelect
+  name="users"
+  label="Select Users"
+  mode="multiple"
+  request={async (params) => {
+    const result = await searchUsers(params.keyWords);
+    return result;
+  }}
+  fieldProps={{
+    searchOnFocus: true,
+    resetAfterSelect: true,
+    fetchDataOnSearch: true,
+  }}
+/>
+```
+
+### ProFormCheckbox
+
+Checkbox input for boolean or multiple selections.
+
+```tsx
+import { ProFormCheckbox } from '@ant-design/pro-components';
+
+// Single checkbox
+<ProFormCheckbox name="agreed" label="I agree to terms" />
+
+// Checkbox group
+<ProFormCheckbox.Group
+  name="features"
+  label="Features"
+  options={[
+    { label: 'Feature A', value: 'a' },
+    { label: 'Feature B', value: 'b' },
+    { label: 'Feature C', value: 'c' },
+  ]}
+/>
+```
+
+### ProFormRadio
+
+Radio button selection.
+
+```tsx
+import { ProFormRadio } from '@ant-design/pro-components';
+
+<ProFormRadio.Group
+  name="status"
+  label="Status"
+  options={[
+    { label: 'Draft', value: 'draft' },
+    { label: 'Published', value: 'published' },
+  ]}
+  radioType="button" // or "radio"
+/>
+```
+
+### ProFormSwitch
+
+Toggle switch for boolean values.
+
+```tsx
+import { ProFormSwitch } from '@ant-design/pro-components';
+
+<ProFormSwitch
+  name="enabled"
+  label="Enabled"
+  checkedChildren="On"
+  unCheckedChildren="Off"
+/>
+```
+
+### ProFormTreeSelect
+
+Tree-structured selection.
+
+```tsx
+import { ProFormTreeSelect } from '@ant-design/pro-components';
+
+<ProFormTreeSelect
+  name="department"
+  label="Department"
+  fieldProps={{
+    treeData: [
+      {
+        title: 'Engineering',
+        value: 'eng',
+        children: [
+          { title: 'Frontend', value: 'fe' },
+          { title: 'Backend', value: 'be' },
+        ],
+      },
+    ],
+    showSearch: true,
+    treeDefaultExpandAll: true,
+  }}
+/>
+```
+
+### ProFormCascader
+
+Cascading dropdown for hierarchical data.
+
+```tsx
+import { ProFormCascader } from '@ant-design/pro-components';
+
+<ProFormCascader
+  name="location"
+  label="Location"
+  fieldProps={{
+    options: [
+      {
+        value: 'us',
+        label: 'United States',
+        children: [
+          { value: 'ny', label: 'New York' },
+          { value: 'ca', label: 'California' },
+        ],
+      },
+    ],
+  }}
+/>
+```
+
+### ProFormSegmented
+
+Segmented control for quick selection.
+
+```tsx
+import { ProFormSegmented } from '@ant-design/pro-components';
+
+<ProFormSegmented
+  name="view"
+  label="View Mode"
+  fieldProps={{
+    options: [
+      { label: 'List', value: 'list' },
+      { label: 'Grid', value: 'grid' },
+    ],
+  }}
+/>
+```
+
+## Date & Time Fields
+
+### ProFormDatePicker
+
+Date selection with multiple picker types.
+
+```tsx
+import { ProFormDatePicker } from '@ant-design/pro-components';
+
+// Standard date picker
+<ProFormDatePicker
+  name="date"
+  label="Date"
+  fieldProps={{
+    format: 'YYYY-MM-DD',
+  }}
+/>
+
+// Week picker
+<ProFormDatePicker.Week name="week" label="Week" />
+
+// Month picker
+<ProFormDatePicker.Month name="month" label="Month" />
+
+// Quarter picker
+<ProFormDatePicker.Quarter name="quarter" label="Quarter" />
+
+// Year picker
+<ProFormDatePicker.Year name="year" label="Year" />
+```
+
+### ProFormDateTimePicker
+
+Date and time selection.
+
+```tsx
+import { ProFormDateTimePicker } from '@ant-design/pro-components';
+
+<ProFormDateTimePicker
+  name="datetime"
+  label="Datetime"
+  fieldProps={{
+    format: 'YYYY-MM-DD HH:mm:ss',
+    showTime: { format: 'HH:mm:ss' },
+  }}
+/>
+```
+
+### ProFormTimePicker
+
+Time-only selection.
+
+```tsx
+import { ProFormTimePicker } from '@ant-design/pro-components';
+
+<ProFormTimePicker
+  name="time"
+  label="Time"
+  fieldProps={{
+    format: 'HH:mm',
+  }}
+/>
+```
+
+### Date Range Pickers
+
+```tsx
+import {
+  ProFormDateRangePicker,
+  ProFormDateTimeRangePicker,
+  ProFormTimeRangePicker,
+} from '@ant-design/pro-components';
+
+// Date range
+<ProFormDateRangePicker name="dateRange" label="Date Range" />
+
+// DateTime range
+<ProFormDateTimeRangePicker name="datetimeRange" label="DateTime Range" />
+
+// Time range
+<ProFormTimeRangePicker name="timeRange" label="Time Range" />
+
+// Month range
+<ProFormDateMonthRangePicker name="monthRange" label="Month Range" />
+
+// Week range
+<ProFormDateWeekRangePicker name="weekRange" label="Week Range" />
+
+// Quarter range
+<ProFormDateQuarterRangePicker name="quarterRange" label="Quarter Range" />
+
+// Year range
+<ProFormDateYearRangePicker name="yearRange" label="Year Range" />
+```
+
+## Advanced Fields
+
+### ProFormSlider
+
+Slider for numeric ranges.
+
+```tsx
+import { ProFormSlider } from '@ant-design/pro-components';
+
+<ProFormSlider
+  name="volume"
+  label="Volume"
+  min={0}
+  max={100}
+  fieldProps={{
+    marks: {
+      0: '0',
+      50: '50',
+      100: '100',
+    },
+  }}
+/>
+```
+
+### ProFormRate
+
+Star rating input.
+
+```tsx
+import { ProFormRate } from '@ant-design/pro-components';
+
+<ProFormRate
+  name="rating"
+  label="Rating"
+  fieldProps={{
+    count: 5,
+    allowHalf: true,
+  }}
+/>
+```
+
+### ProFormColorPicker
+
+Color selection.
+
+```tsx
+import { ProFormColorPicker } from '@ant-design/pro-components';
+
+<ProFormColorPicker
+  name="color"
+  label="Theme Color"
+  fieldProps={{
+    showText: true,
+  }}
+/>
+```
+
+### ProFormUploadButton
+
+File upload with button trigger.
+
+```tsx
+import { ProFormUploadButton } from '@ant-design/pro-components';
+
+<ProFormUploadButton
+  name="files"
+  label="Upload Files"
+  max={5}
+  fieldProps={{
+    name: 'file',
+    action: '/api/upload',
+    listType: 'text',
+  }}
+  extra="Support: PDF, DOC, JPG (max 10MB)"
+/>
+```
+
+### ProFormUploadDragger
+
+Drag-and-drop file upload.
+
+```tsx
+import { ProFormUploadDragger } from '@ant-design/pro-components';
+
+<ProFormUploadDragger
+  name="images"
+  label="Upload Images"
+  max={3}
+  fieldProps={{
+    name: 'file',
+    action: '/api/upload',
+    listType: 'picture',
+  }}
+  description="Drag files here or click to upload"
+/>
+```
+
+### ProFormCaptcha
+
+Captcha input with countdown.
+
+```tsx
+import { ProFormCaptcha, ProFormText } from '@ant-design/pro-components';
+
+<ProFormText name="phone" label="Phone" />
+<ProFormCaptcha
+  name="captcha"
+  label="Verification Code"
+  phoneName="phone"
+  fieldProps={{
+    maxLength: 6,
+  }}
+  captchaProps={{
+    getText: (timing) => (timing ? `${timing}s` : 'Get Code'),
+  }}
+  onGetCaptcha={async (phone) => {
+    await sendCaptcha(phone);
+    message.success('Code sent!');
+  }}
+/>
+```
+
+## Field Groups & Collections
+
+### ProForm.Group
+
+Group related fields together.
+
+```tsx
+import { ProForm, ProFormText } from '@ant-design/pro-components';
+
+<ProForm.Group title="Contact Information">
+  <ProFormText name="email" label="Email" />
+  <ProFormText name="phone" label="Phone" />
+</ProForm.Group>
+```
+
+### ProFormList
+
+Dynamic form list for repeating fields.
+
+```tsx
+import { ProFormList, ProFormText } from '@ant-design/pro-components';
+
+<ProFormList
+  name="members"
+  label="Team Members"
+  creatorButtonProps={{
+    creatorButtonText: 'Add Member',
+  }}
+  initialValue={[{ name: '', email: '' }]}
+  itemRender={({ listDom, action }) => (
+    <div style={{ display: 'flex', gap: 8 }}>
+      {listDom}
+      {action}
+    </div>
+  )}
+>
+  <ProFormText name="name" label="Name" />
+  <ProFormText name="email" label="Email" />
+</ProFormList>
+```
+
+### ProFormFieldSet
+
+Group fields with shared name path.
+
+```tsx
+import { ProFormFieldSet, ProFormText } from '@ant-design/pro-components';
+
+<ProFormFieldSet
+  name="address"
+  label="Address"
+  transform={(value) => ({ address: value })}
+>
+  <ProFormText placeholder="Street" />
+  <ProFormText placeholder="City" />
+  <ProFormText placeholder="ZIP" />
+</ProFormFieldSet>
+```
+
+### ProFormDependency
+
+Conditional fields based on other field values.
+
+```tsx
+import { ProFormDependency, ProFormSelect, ProFormText } from '@ant-design/pro-components';
+
+<ProFormSelect
+  name="type"
+  label="Type"
+  options={[
+    { label: 'Email', value: 'email' },
+    { label: 'Phone', value: 'phone' },
+  ]}
+/>
+
+<ProFormDependency name={['type']}>
+  {({ type }) => {
+    if (type === 'email') {
+      return <ProFormText name="email" label="Email Address" />;
+    }
+    if (type === 'phone') {
+      return <ProFormText name="phone" label="Phone Number" />;
+    }
+    return null;
+  }}
+</ProFormDependency>
+```
+
+## Common Props
+
+All form fields share these common props:
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `name` | `string \| string[]` | Field name (supports nested paths) |
+| `label` | `React.ReactNode` | Field label |
+| `tooltip` | `string \| { title, icon }` | Help tooltip |
+| `placeholder` | `string` | Placeholder text |
+| `disabled` | `boolean` | Disable the field |
+| `readonly` | `boolean` | Read-only mode |
+| `hidden` | `boolean` | Hide the field |
+| `required` | `boolean` | Mark as required |
+| `rules` | `Rule[]` | Validation rules |
+| `fieldProps` | `object` | Props passed to the underlying Ant Design component |
+| `formItemProps` | `FormItemProps` | Props for Form.Item wrapper |
+| `colProps` | `ColProps` | Grid column props |
+| `colSize` | `number` | Column size multiplier |
+
+## Field Props
+
+### Remote Data Loading
+
+```tsx
+<ProFormSelect
+  request={async (params) => {
+    const data = await fetchOptions(params);
+    return data;
+  }}
+  params={{ category: 'tech' }} // Trigger refetch when params change
+  debounceTime={300}
+/>
+```
+
+### Value Enum
+
+```tsx
+<ProFormSelect
+  valueEnum={{
+    draft: { text: 'Draft', status: 'Default' },
+    published: { text: 'Published', status: 'Success' },
+  }}
+/>
+```
+
+### Transform
+
+Transform value before submission:
+
+```tsx
+<ProFormText
+  name="price"
+  transform={(value) => Number(value)}
+/>
+```
+
+### Convert Value
+
+Convert between form value and field value:
+
+```tsx
+<ProFormText
+  convertValue={(value) => value?.toUpperCase()}
+/>
+```
+
+## Validation
+
+### Built-in Rules
+
+```tsx
+<ProFormText
+  name="email"
+  rules={[
+    { required: true, message: 'Required' },
+    { type: 'email', message: 'Invalid email' },
+    { max: 100, message: 'Too long' },
+    { pattern: /^[A-Z]/, message: 'Must start with uppercase' },
+  ]}
+/>
+```
+
+### Custom Validator
+
+```tsx
+<ProFormText
+  name="username"
+  rules={[
+    {
+      validator: async (_, value) => {
+        const exists = await checkUsername(value);
+        if (exists) {
+          throw new Error('Username already taken');
+        }
+      },
+    },
+  ]}
+/>
+```
+
+### Cross-field Validation
+
+```tsx
+<ProFormDependency name={['password']}>
+  {({ password }) => (
+    <ProFormText.Password
+      name="confirmPassword"
+      rules={[
+        {
+          validator: (_, value) => {
+            if (value !== password) {
+              return Promise.reject('Passwords do not match');
+            }
+            return Promise.resolve();
+          },
+        },
+      ]}
+    />
+  )}
+</ProFormDependency>
+```

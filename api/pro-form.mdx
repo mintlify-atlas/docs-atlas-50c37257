@@ -1,0 +1,626 @@
+---
+title: ProForm
+description: Complete API reference for ProForm component
+---
+
+# ProForm API
+
+ProForm extends Ant Design's Form with enhanced field components and layouts optimized for CRUD operations.
+
+## ProFormProps
+
+Extends all Ant Design Form properties with additional enhancements.
+
+<ParamField path="onFinish" type="function">
+  Callback when form is submitted successfully.
+  
+  ```typescript
+  (values: T) => Promise<boolean | void>
+  ```
+  
+  Return `true` to keep the loading state and prevent form reset. Return `false` or `void` to auto-reset.
+</ParamField>
+
+<ParamField path="onFinishFailed" type="function">
+  Callback when form submission fails validation.
+  
+  ```typescript
+  (errorInfo: { values: T; errorFields: any[]; outOfDate: boolean }) => void
+  ```
+</ParamField>
+
+<ParamField path="submitter" type="SubmitterProps | false">
+  Configuration for submit/reset buttons. Set to `false` to hide.
+  
+  <Expandable title="SubmitterProps">
+    - `onSubmit?: () => void` - Submit callback
+    - `onReset?: () => void` - Reset callback
+    - `searchConfig?: { resetText?: string; submitText?: string }` - Button text
+    - `submitButtonProps?: ButtonProps` - Submit button props
+    - `resetButtonProps?: ButtonProps` - Reset button props
+    - `render?: function` - Custom render for buttons
+  </Expandable>
+</ParamField>
+
+<ParamField path="dateFormatter" type="string | false | function" default="string">
+  Format dates before submission.
+  
+  - `"string"` - Format as YYYY-MM-DD
+  - `"number"` - Format as timestamp  
+  - `false` - No formatting
+  - `function` - Custom formatter
+</ParamField>
+
+<ParamField path="grid" type="boolean" default="false">
+  Enable grid layout for form items.
+</ParamField>
+
+<ParamField path="colProps" type="ColProps">
+  Column props for grid layout (only when `grid` is enabled).
+  
+  <Expandable title="Example">
+    ```tsx
+    <ProForm
+      grid
+      colProps={{ span: 12 }}
+    >
+      {/* Form items will take 50% width */}
+    </ProForm>
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField path="rowProps" type="RowProps">
+  Row props for grid layout (only when `grid` is enabled).
+</ParamField>
+
+<ParamField path="request" type="function">
+  Load initial form values from remote.
+  
+  ```typescript
+  (params?: any) => Promise<T>
+  ```
+</ParamField>
+
+<ParamField path="params" type="any">
+  Parameters for the request. Changes trigger reload.
+</ParamField>
+
+<ParamField path="isKeyPressSubmit" type="boolean" default="true">
+  Enable form submission on Enter key press.
+</ParamField>
+
+<ParamField path="loading" type="boolean">
+  Loading state for the form.
+</ParamField>
+
+<ParamField path="autoFocusFirstInput" type="boolean" default="true">
+  Auto focus the first input field.
+</ParamField>
+
+<ParamField path="syncToUrl" type="boolean | function" default="false">
+  Sync form values to URL query parameters.
+</ParamField>
+
+<ParamField path="syncToInitialValues" type="boolean" default="true">
+  Sync initial values when they change.
+</ParamField>
+
+<ParamField path="omitNil" type="boolean" default="true">
+  Omit null and undefined values from submission.
+</ParamField>
+
+## ProFormFieldItemProps
+
+Common props for all ProForm field components.
+
+<ParamField path="name" type="NamePath" required>
+  Field name for form value binding.
+  
+  ```typescript
+  type NamePath = string | number | (string | number)[]
+  ```
+</ParamField>
+
+<ParamField path="label" type="React.ReactNode">
+  Field label.
+</ParamField>
+
+<ParamField path="tooltip" type="string | LabelTooltipType">
+  Tooltip for the field label.
+  
+  ```typescript
+  type LabelTooltipType = {
+    icon?: React.ReactNode;
+    tooltip?: string | React.ReactNode;
+  }
+  ```
+</ParamField>
+
+<ParamField path="placeholder" type="string | string[]">
+  Placeholder text for the input.
+</ParamField>
+
+<ParamField path="width" type="number | 'xs' | 'sm' | 'md' | 'lg' | 'xl'" default="md">
+  Field width.
+  
+  - `xs` = 104px
+  - `sm` = 216px
+  - `md` = 328px
+  - `lg` = 440px
+  - `xl` = 552px
+</ParamField>
+
+<ParamField path="fieldProps" type="T">
+  Props passed directly to the underlying input component.
+</ParamField>
+
+<ParamField path="formItemProps" type="FormItemProps">
+  Props for the Form.Item wrapper.
+</ParamField>
+
+<ParamField path="rules" type="Rule[]">
+  Validation rules (same as Ant Design Form.Item rules).
+</ParamField>
+
+<ParamField path="required" type="boolean" default="false">
+  Whether the field is required.
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  Disable the field.
+</ParamField>
+
+<ParamField path="readonly" type="boolean" default="false">
+  Render field in readonly mode.
+</ParamField>
+
+<ParamField path="hidden" type="boolean" default="false">
+  Hide the field.
+</ParamField>
+
+<ParamField path="colProps" type="ColProps">
+  Column props for this specific field (when grid layout is enabled).
+</ParamField>
+
+<ParamField path="secondary" type="boolean" default="false">
+  Secondary field (only for LightFilter).
+</ParamField>
+
+<ParamField path="allowClear" type="boolean" default="true">
+  Show clear button.
+</ParamField>
+
+<ParamField path="bordered" type="boolean" default="true">
+  Show border for the input.
+</ParamField>
+
+<ParamField path="colSize" type="number" default="1">
+  Number of columns the field occupies.
+</ParamField>
+
+<ParamField path="params" type="any">
+  Parameters for remote data request (for Select, Cascader, etc.).
+</ParamField>
+
+<ParamField path="request" type="function">
+  Load remote data for Select/Cascader/TreeSelect fields.
+  
+  ```typescript
+  (params?: any) => Promise<{ label: React.ReactNode; value: any }[]>
+  ```
+</ParamField>
+
+<ParamField path="valueEnum" type="Record<string, any>">
+  Value enum for Select/Radio/Checkbox fields.
+</ParamField>
+
+<ParamField path="debounceTime" type="number" default="0">
+  Debounce time for request in milliseconds.
+</ParamField>
+
+<ParamField path="ignoreFormItem" type="boolean" default="false">
+  Don't wrap field in Form.Item (advanced usage).
+</ParamField>
+
+<ParamField path="convertValue" type="function">
+  Convert value when getting from form.
+  
+  ```typescript
+  (value: any, namePath: NamePath) => any
+  ```
+</ParamField>
+
+<ParamField path="transform" type="function">
+  Transform value before form submission.
+  
+  ```typescript
+  (value: any, namePath: NamePath, allValues: any) => any
+  ```
+</ParamField>
+
+## ProFormGroup
+
+Group multiple form fields together.
+
+<ParamField path="title" type="React.ReactNode">
+  Group title.
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode">
+  Form fields in the group.
+</ParamField>
+
+<ParamField path="size" type="number" default="64">
+  Space between fields.
+</ParamField>
+
+<ParamField path="labelLayout" type="'horizontal' | 'vertical'">
+  Label layout for fields in the group.
+</ParamField>
+
+<ParamField path="collapsible" type="boolean" default="false">
+  Whether the group is collapsible.
+</ParamField>
+
+<ParamField path="collapsed" type="boolean">
+  Controlled collapsed state.
+</ParamField>
+
+<ParamField path="defaultCollapsed" type="boolean" default="false">
+  Default collapsed state.
+</ParamField>
+
+<ParamField path="extra" type="React.ReactNode">
+  Extra content in the group header.
+</ParamField>
+
+<ParamField path="grid" type="boolean">
+  Enable grid layout (inherits from ProForm if not set).
+</ParamField>
+
+<ParamField path="colProps" type="ColProps">
+  Column props for grid layout.
+</ParamField>
+
+<ParamField path="rowProps" type="RowProps">
+  Row props for grid layout.
+</ParamField>
+
+## Field Components
+
+### ProFormText
+
+Text input field.
+
+```tsx
+<ProFormText
+  name="username"
+  label="Username"
+  placeholder="Please enter username"
+  rules={[{ required: true }]}
+/>
+```
+
+### ProFormTextArea
+
+Textarea input field.
+
+<ParamField path="fieldProps.rows" type="number" default="3">
+  Number of rows.
+</ParamField>
+
+<ParamField path="fieldProps.maxLength" type="number">
+  Maximum length.
+</ParamField>
+
+<ParamField path="fieldProps.showCount" type="boolean" default="false">
+  Show character count.
+</ParamField>
+
+### ProFormDigit
+
+Numeric input field.
+
+<ParamField path="fieldProps.min" type="number">
+  Minimum value.
+</ParamField>
+
+<ParamField path="fieldProps.max" type="number">
+  Maximum value.
+</ParamField>
+
+<ParamField path="fieldProps.precision" type="number">
+  Number of decimal places.
+</ParamField>
+
+### ProFormSelect
+
+Select dropdown field.
+
+<ParamField path="options" type="{ label: React.ReactNode; value: any }[]">
+  Static options.
+</ParamField>
+
+<ParamField path="request" type="function">
+  Load options from remote.
+</ParamField>
+
+<ParamField path="valueEnum" type="Record<string, any>">
+  Value enum for options.
+</ParamField>
+
+<ParamField path="fieldProps.mode" type="'multiple' | 'tags'">
+  Selection mode.
+</ParamField>
+
+<ParamField path="fieldProps.showSearch" type="boolean" default="false">
+  Enable search.
+</ParamField>
+
+### ProFormDatePicker
+
+Date picker field.
+
+<ParamField path="fieldProps.format" type="string" default="YYYY-MM-DD">
+  Date format.
+</ParamField>
+
+<ParamField path="fieldProps.showTime" type="boolean | object">
+  Show time selection.
+</ParamField>
+
+### ProFormDateRangePicker
+
+Date range picker field.
+
+<ParamField path="fieldProps.format" type="string" default="YYYY-MM-DD">
+  Date format.
+</ParamField>
+
+### ProFormCheckbox
+
+Checkbox field.
+
+<ParamField path="options" type="{ label: React.ReactNode; value: any }[]">
+  Checkbox options (for checkbox group).
+</ParamField>
+
+### ProFormRadio
+
+Radio field.
+
+<ParamField path="options" type="{ label: React.ReactNode; value: any }[]">
+  Radio options.
+</ParamField>
+
+<ParamField path="radioType" type="'button' | 'default'" default="default">
+  Radio style.
+</ParamField>
+
+### ProFormSwitch
+
+Switch field.
+
+<ParamField path="fieldProps.checkedChildren" type="React.ReactNode">
+  Content when checked.
+</ParamField>
+
+<ParamField path="fieldProps.unCheckedChildren" type="React.ReactNode">
+  Content when unchecked.
+</ParamField>
+
+### ProFormRate
+
+Rate field.
+
+<ParamField path="fieldProps.count" type="number" default="5">
+  Number of stars.
+</ParamField>
+
+<ParamField path="fieldProps.allowHalf" type="boolean" default="false">
+  Allow half stars.
+</ParamField>
+
+### ProFormSlider
+
+Slider field.
+
+<ParamField path="fieldProps.min" type="number" default="0">
+  Minimum value.
+</ParamField>
+
+<ParamField path="fieldProps.max" type="number" default="100">
+  Maximum value.
+</ParamField>
+
+<ParamField path="fieldProps.step" type="number" default="1">
+  Step value.
+</ParamField>
+
+<ParamField path="fieldProps.marks" type="object">
+  Tick marks.
+</ParamField>
+
+### ProFormCascader
+
+Cascader field.
+
+<ParamField path="options" type="CascaderOption[]">
+  Cascader options.
+</ParamField>
+
+<ParamField path="request" type="function">
+  Load options from remote.
+</ParamField>
+
+### ProFormTreeSelect
+
+Tree select field.
+
+<ParamField path="fieldProps.treeData" type="TreeNode[]">
+  Tree data.
+</ParamField>
+
+<ParamField path="request" type="function">
+  Load tree data from remote.
+</ParamField>
+
+### ProFormUploadButton / ProFormUploadDragger
+
+File upload fields.
+
+<ParamField path="fieldProps.action" type="string">
+  Upload URL.
+</ParamField>
+
+<ParamField path="fieldProps.listType" type="'text' | 'picture' | 'picture-card'" default="text">
+  File list display type.
+</ParamField>
+
+<ParamField path="fieldProps.maxCount" type="number">
+  Maximum number of files.
+</ParamField>
+
+## Form Layouts
+
+### ModalForm
+
+Form in a modal dialog.
+
+<ParamField path="trigger" type="React.ReactElement">
+  Element to trigger modal open.
+</ParamField>
+
+<ParamField path="modalProps" type="ModalProps">
+  Ant Design Modal props.
+</ParamField>
+
+<ParamField path="title" type="React.ReactNode">
+  Modal title.
+</ParamField>
+
+<ParamField path="width" type="number | string" default="800px">
+  Modal width.
+</ParamField>
+
+<ParamField path="onVisibleChange" type="function">
+  Callback when modal visibility changes.
+  
+  ```typescript
+  (visible: boolean) => void
+  ```
+</ParamField>
+
+### DrawerForm
+
+Form in a drawer.
+
+<ParamField path="trigger" type="React.ReactElement">
+  Element to trigger drawer open.
+</ParamField>
+
+<ParamField path="drawerProps" type="DrawerProps">
+  Ant Design Drawer props.
+</ParamField>
+
+<ParamField path="width" type="number | string" default="800px">
+  Drawer width.
+</ParamField>
+
+### QueryFilter
+
+Compact query form layout.
+
+<ParamField path="collapsed" type="boolean">
+  Controlled collapsed state.
+</ParamField>
+
+<ParamField path="defaultCollapsed" type="boolean" default="true">
+  Default collapsed state.
+</ParamField>
+
+<ParamField path="onCollapse" type="function">
+  Callback when collapse state changes.
+</ParamField>
+
+<ParamField path="split" type="boolean" default="false">
+  Show divider between sections.
+</ParamField>
+
+### LightFilter
+
+Inline lightweight filter form.
+
+<ParamField path="placement" type="'top' | 'bottom'" default="bottom">
+  Dropdown placement.
+</ParamField>
+
+<ParamField path="footerRender" type="function | false">
+  Custom render for dropdown footer.
+</ParamField>
+
+## Usage Examples
+
+<Tabs>
+  <Tab title="Basic Form">
+    ```tsx
+    import { ProForm, ProFormText } from '@ant-design/pro-components';
+
+    export default () => (
+      <ProForm
+        onFinish={async (values) => {
+          console.log(values);
+          return true;
+        }}
+      >
+        <ProFormText
+          name="name"
+          label="Name"
+          rules={[{ required: true }]}
+        />
+        <ProFormText
+          name="email"
+          label="Email"
+          rules={[{ required: true, type: 'email' }]}
+        />
+      </ProForm>
+    );
+    ```
+  </Tab>
+  <Tab title="Grid Layout">
+    ```tsx
+    <ProForm
+      grid
+      colProps={{ span: 12 }}
+      rowProps={{ gutter: 16 }}
+    >
+      <ProFormText name="firstName" label="First Name" />
+      <ProFormText name="lastName" label="Last Name" />
+      <ProFormText
+        name="address"
+        label="Address"
+        colProps={{ span: 24 }}
+      />
+    </ProForm>
+    ```
+  </Tab>
+  <Tab title="Modal Form">
+    ```tsx
+    import { ModalForm, ProFormText } from '@ant-design/pro-components';
+
+    export default () => (
+      <ModalForm
+        title="New User"
+        trigger={<Button type="primary">Create</Button>}
+        onFinish={async (values) => {
+          await createUser(values);
+          return true;
+        }}
+      >
+        <ProFormText name="name" label="Name" />
+      </ModalForm>
+    );
+    ```
+  </Tab>
+</Tabs>

@@ -1,0 +1,623 @@
+---
+title: ProTable
+description: Complete API reference for ProTable component
+---
+
+# ProTable API
+
+ProTable is an enhanced table component built on top of Ant Design Table with advanced features like data fetching, column state management, and integrated search forms.
+
+## ProTableProps
+
+<ParamField path="columns" type="ProColumns[]">
+  Column configuration with extended features beyond standard Ant Design columns.
+</ParamField>
+
+<ParamField path="request" type="function">
+  A method to fetch dataSource from the server.
+  
+  ```typescript
+  (params: U & {
+    pageSize?: number;
+    current?: number;
+    keyword?: string;
+  }, sort: Record<string, SortOrder>, filter: Record<string, FilterValue>) => Promise<RequestData<DataSource>>
+  ```
+</ParamField>
+
+<ParamField path="params" type="U">
+  Additional parameters for the request. Modifying this will trigger a reload.
+  
+  <Expandable title="Example">
+    ```tsx
+    <ProTable params={{ userId: currentUser.id }} />
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField path="dataSource" type="DataSource[]">
+  Static data source for the table (alternative to using request).
+</ParamField>
+
+<ParamField path="defaultData" type="DataSource[]">
+  Default data to display before request completes.
+</ParamField>
+
+<ParamField path="actionRef" type="React.Ref<ActionType>">
+  Reference to control the table programmatically.
+  
+  <Expandable title="ActionType Methods">
+    - `reload()` - Reload table data
+    - `reset()` - Reset table and form state
+    - `clearSelected()` - Clear row selection
+    - `reloadAndRest()` - Reload data and reset to page 1
+    - `setPageInfo(pageInfo)` - Set pagination info
+    - `scrollTo(config)` - Scroll to specific position
+    - `fullScreen()` - Toggle fullscreen mode
+  </Expandable>
+</ParamField>
+
+<ParamField path="formRef" type="FormInstance">
+  Reference to the search form instance.
+</ParamField>
+
+<ParamField path="toolbar" type="ListToolBarProps">
+  Configuration for the list toolbar.
+</ParamField>
+
+<ParamField path="toolBarRender" type="function | false">
+  Render function for custom toolbar actions.
+  
+  ```typescript
+  (action: ActionType, rows: DataSource[]) => React.ReactNode[]
+  ```
+</ParamField>
+
+<ParamField path="optionsRender" type="function">
+  Render function for the options area (density, column settings, etc.).
+</ParamField>
+
+<ParamField path="search" type="false | SearchConfig">
+  Configuration for the search form. Set to `false` to disable.
+  
+  <Expandable title="SearchConfig Properties">
+    - `filterType?: 'query' | 'light'` - Type of filter form
+    - `searchText?: string` - Text for search button
+    - `resetText?: string` - Text for reset button
+    - `submitText?: string` - Text for submit button
+    - `labelWidth?: number | 'auto'` - Label width
+    - `span?: number` - Column span for form items
+    - `collapsed?: boolean` - Whether form is collapsed
+    - `collapseRender?: function` - Custom render for collapse button
+    - `optionRender?: function` - Custom render for form actions
+  </Expandable>
+</ParamField>
+
+<ParamField path="form" type="ProFormProps & QueryFilterProps">
+  Configuration for the search form (applies to both form type and search form).
+</ParamField>
+
+<ParamField path="dateFormatter" type="string | number | function | false" default="string">
+  How to format dates in the request.
+  
+  - `"string"` - Format as YYYY-MM-DD
+  - `"number"` - Format as timestamp
+  - `false` - No formatting
+  - `function` - Custom formatter
+</ParamField>
+
+<ParamField path="beforeSearchSubmit" type="function">
+  Transform search form data before submission.
+  
+  ```typescript
+  (params: Partial<U>) => any
+  ```
+</ParamField>
+
+<ParamField path="onLoad" type="function">
+  Callback triggered after data is loaded.
+  
+  ```typescript
+  (dataSource: DataSource[]) => void
+  ```
+</ParamField>
+
+<ParamField path="onLoadingChange" type="function">
+  Callback triggered when loading state changes.
+  
+  ```typescript
+  (loading: boolean | SpinProps) => void
+  ```
+</ParamField>
+
+<ParamField path="onRequestError" type="function">
+  Callback triggered when request fails.
+  
+  ```typescript
+  (e: Error) => void
+  ```
+</ParamField>
+
+<ParamField path="onSubmit" type="function">
+  Callback triggered when search form is submitted.
+  
+  ```typescript
+  (params: U) => void
+  ```
+</ParamField>
+
+<ParamField path="onReset" type="function">
+  Callback triggered when search form is reset.
+  
+  ```typescript
+  () => void
+  ```
+</ParamField>
+
+<ParamField path="postData" type="function">
+  Process data after request returns.
+  
+  ```typescript
+  (data: any[]) => any[]
+  ```
+</ParamField>
+
+<ParamField path="columnsState" type="ColumnStateType">
+  Configuration for column state persistence.
+  
+  <Expandable title="ColumnStateType Properties">
+    - `persistenceKey?: string` - Key for storage
+    - `persistenceType?: 'localStorage' | 'sessionStorage'` - Storage type
+    - `defaultValue?: Record<string, ColumnsState>` - Default column state
+    - `value?: Record<string, ColumnsState>` - Controlled column state
+    - `onChange?: (map: Record<string, ColumnsState>) => void` - Change callback
+  </Expandable>
+</ParamField>
+
+<ParamField path="options" type="OptionConfig | false" default="{ reload: true, density: true, setting: true }">
+  Configuration for table options (reload, density, column settings).
+  
+  <Expandable title="OptionConfig Properties">
+    - `reload?: boolean | function` - Show reload button
+    - `density?: boolean` - Show density adjustment
+    - `setting?: boolean` - Show column settings
+    - `fullScreen?: boolean` - Show fullscreen toggle
+  </Expandable>
+</ParamField>
+
+<ParamField path="rowSelection" type="TableRowSelection | false">
+  Row selection configuration (extends Ant Design rowSelection).
+  
+  Additional properties:
+  - `alwaysShowAlert?: boolean` - Always show selection alert
+</ParamField>
+
+<ParamField path="tableAlertRender" type="AlertRenderType">
+  Custom render for the selection alert.
+  
+  ```typescript
+  (props: {
+    selectedRowKeys: Key[];
+    selectedRows: DataSource[];
+    onCleanSelected: () => void;
+  }) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="tableAlertOptionRender" type="AlertRenderType">
+  Custom render for selection alert actions.
+</ParamField>
+
+<ParamField path="editable" type="RowEditableConfig">
+  Configuration for editable rows.
+  
+  <Expandable title="RowEditableConfig Properties">
+    - `type?: 'single' | 'multiple'` - Edit mode
+    - `form?: FormInstance` - Form instance
+    - `editableKeys?: Key[]` - Controlled editable keys
+    - `onChange?: (editableKeys: Key[], editableRows: DataSource[]) => void`
+    - `onSave?: (key: Key, row: DataSource) => Promise<void>` - Save callback
+    - `onDelete?: (key: Key, row: DataSource) => Promise<void>` - Delete callback
+    - `onCancel?: (key: Key, row: DataSource) => void` - Cancel callback
+    - `actionRender?: function` - Custom action render
+  </Expandable>
+</ParamField>
+
+<ParamField path="onDataSourceChange" type="function">
+  Callback when data source changes (for editable table).
+  
+  ```typescript
+  (dataSource: DataSource[]) => void
+  ```
+</ParamField>
+
+<ParamField path="cardProps" type="ProCardProps | false">
+  Props for the outer card wrapper. Set to `false` to disable card.
+</ParamField>
+
+<ParamField path="cardBordered" type="boolean | Bordered">
+  Border configuration for search form and table card.
+  
+  ```typescript
+  type Bordered = boolean | { search?: boolean; table?: boolean }
+  ```
+</ParamField>
+
+<ParamField path="ghost" type="boolean" default="false">
+  Ghost mode - removes card padding and background.
+</ParamField>
+
+<ParamField path="headerTitle" type="React.ReactNode">
+  Title in the top left corner.
+</ParamField>
+
+<ParamField path="tooltip" type="string | LabelTooltipType">
+  Tooltip for the header title.
+</ParamField>
+
+<ParamField path="tableRender" type="function">
+  Custom render for the entire table.
+  
+  ```typescript
+  (props: ProTableProps, defaultDom: React.ReactNode, domList: {
+    toolbar: React.ReactNode;
+    alert: React.ReactNode;
+    table: React.ReactNode;
+  }) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="tableViewRender" type="function">
+  Custom render for the table view (used internally by ProList).
+</ParamField>
+
+<ParamField path="tableExtraRender" type="function">
+  Render extra content between search form and table.
+  
+  ```typescript
+  (props: ProTableProps, dataSource: DataSource[]) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="searchFormRender" type="function">
+  Custom render for the search form.
+  
+  ```typescript
+  (props: ProTableProps, defaultDom: JSX.Element) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="tableClassName" type="string">
+  ClassName for the table wrapper.
+</ParamField>
+
+<ParamField path="tableStyle" type="React.CSSProperties">
+  Style for the table wrapper.
+</ParamField>
+
+<ParamField path="columnEmptyText" type="string | false" default="-">
+  Text to display when cell value is empty.
+</ParamField>
+
+<ParamField path="polling" type="number | function">
+  Polling interval in milliseconds. Minimum is 2000ms.
+  
+  ```typescript
+  number | ((dataSource: DataSource[]) => number)
+  ```
+</ParamField>
+
+<ParamField path="manualRequest" type="boolean" default="false">
+  Whether to manually trigger the request.
+</ParamField>
+
+<ParamField path="revalidateOnFocus" type="boolean" default="false">
+  Auto reload when window gains focus (only works with request).
+</ParamField>
+
+<ParamField path="debounceTime" type="number" default="10">
+  Debounce time for form changes in milliseconds.
+</ParamField>
+
+<ParamField path="defaultSize" type="SizeType">
+  Default table size.
+  
+  ```typescript
+  type SizeType = 'small' | 'middle' | 'large'
+  ```
+</ParamField>
+
+<ParamField path="onSizeChange" type="function">
+  Callback when table size changes.
+  
+  ```typescript
+  (size: DensitySize) => void
+  ```
+</ParamField>
+
+<ParamField path="type" type="ProSchemaComponentTypes" default="table">
+  Component type for schema rendering.
+</ParamField>
+
+<ParamField path="name" type="NamePath">
+  Name for editable table to communicate with form directly.
+</ParamField>
+
+<ParamField path="ErrorBoundary" type="React.ComponentClass | false">
+  Custom error boundary component.
+</ParamField>
+
+## ProColumns
+
+Extends Ant Design's ColumnType with additional properties.
+
+<ParamField path="dataIndex" type="string | string[]" required>
+  Data index for the column.
+</ParamField>
+
+<ParamField path="title" type="React.ReactNode | function">
+  Column title.
+</ParamField>
+
+<ParamField path="valueType" type="ProFieldValueType" default="text">
+  Type of the value for rendering and editing.
+  
+  <Expandable title="Available Value Types">
+    `text`, `textarea`, `date`, `dateTime`, `dateWeek`, `dateMonth`, `dateQuarter`, `dateYear`, `dateRange`, `dateTimeRange`, `time`, `timeRange`, `select`, `checkbox`, `radio`, `radioButton`, `progress`, `money`, `percent`, `digit`, `digitRange`, `second`, `code`, `jsonCode`, `rate`, `switch`, `option`, `password`, `image`, `cascader`, `treeSelect`, `color`, `segmented`, `fromNow`, `avatar`, `index`, `indexBorder`
+  </Expandable>
+</ParamField>
+
+<ParamField path="valueEnum" type="Record<string, any> | Map<string, any>">
+  Value enum for mapping values to display text.
+</ParamField>
+
+<ParamField path="fieldProps" type="any">
+  Props passed to the field component.
+</ParamField>
+
+<ParamField path="formItemProps" type="FormItemProps">
+  Props for the Form.Item wrapper.
+</ParamField>
+
+<ParamField path="render" type="function">
+  Custom render for the cell in read mode.
+  
+  ```typescript
+  (text: any, record: T, index: number, action: ActionType, schema: ProSchema) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="renderText" type="function">
+  Transform the value before rendering.
+  
+  ```typescript
+  (text: any, record: T, index: number, action: ActionType) => any
+  ```
+</ParamField>
+
+<ParamField path="renderFormItem" type="function">
+  Custom render for the form field in edit mode.
+</ParamField>
+
+<ParamField path="search" type="boolean | { transform: function }" default="true">
+  Configuration for search form.
+  
+  - `false` - Hide in search form
+  - `transform` - Transform value before submission
+</ParamField>
+
+<ParamField path="hideInTable" type="boolean" default="false">
+  Hide column in table.
+</ParamField>
+
+<ParamField path="hideInForm" type="boolean" default="false">
+  Hide in create form.
+</ParamField>
+
+<ParamField path="hideInSearch" type="boolean" default="false">
+  Hide in search form.
+</ParamField>
+
+<ParamField path="hideInSetting" type="boolean" default="false">
+  Hide in column settings.
+</ParamField>
+
+<ParamField path="hideInDescriptions" type="boolean" default="false">
+  Hide in descriptions.
+</ParamField>
+
+<ParamField path="order" type="number">
+  Sort order in form (higher values appear first).
+</ParamField>
+
+<ParamField path="index" type="number">
+  Index for the column.
+</ParamField>
+
+<ParamField path="colSize" type="number" default="1">
+  Number of grid columns the form item occupies.
+</ParamField>
+
+<ParamField path="initialValue" type="any">
+  Initial value for search form.
+</ParamField>
+
+<ParamField path="ellipsis" type="boolean | { showTitle?: boolean }">
+  Whether to show ellipsis for long text.
+</ParamField>
+
+<ParamField path="copyable" type="boolean" default="false">
+  Whether the value is copyable.
+</ParamField>
+
+<ParamField path="tooltip" type="string | LabelTooltipType">
+  Tooltip for the column header.
+</ParamField>
+
+<ParamField path="filters" type="boolean | ColumnFilterItem[]">
+  Filter menu items.
+</ParamField>
+
+<ParamField path="onFilter" type="boolean | function">
+  Filter function. Set to `false` to disable local filtering.
+</ParamField>
+
+<ParamField path="sorter" type="boolean | string | CompareFn | ProSorter">
+  Sorter configuration.
+  
+  - `boolean` - Enable/disable sorting
+  - `string` - Field name for remote sorting
+  - `function` - Local compare function
+  - `object` - Advanced sorter config
+</ParamField>
+
+<ParamField path="editable" type="boolean | function">
+  Whether the column is editable.
+  
+  ```typescript
+  boolean | ((text: any, record: T, index: number) => boolean)
+  ```
+</ParamField>
+
+<ParamField path="readonly" type="boolean" default="false">
+  Whether the column is readonly.
+</ParamField>
+
+<ParamField path="disable" type="boolean | { checkbox: boolean }">
+  Disable column settings.
+</ParamField>
+
+<ParamField path="listSlot" type="string">
+  List item slot for ProList.
+  
+  Options: `title`, `subTitle`, `avatar`, `description`, `content`, `actions`, `aside`, `type`
+</ParamField>
+
+<ParamField path="request" type="function">
+  Async function to load remote data for select/cascader fields.
+  
+  ```typescript
+  (params?: any) => Promise<{ label: React.ReactNode; value: any; [key: string]: any }[]>
+  ```
+</ParamField>
+
+<ParamField path="params" type="any">
+  Parameters for the request function.
+</ParamField>
+
+<ParamField path="debounceTime" type="number" default="10">
+  Debounce time for request in milliseconds.
+</ParamField>
+
+## RequestData
+
+Return type for the request function.
+
+```typescript
+type RequestData<T> = {
+  data: T[];
+  success?: boolean;
+  total?: number;
+} & Record<string, any>;
+```
+
+<ParamField path="data" type="T[]" required>
+  Array of data items.
+</ParamField>
+
+<ParamField path="success" type="boolean">
+  Whether the request was successful.
+</ParamField>
+
+<ParamField path="total" type="number">
+  Total number of items (for pagination).
+</ParamField>
+
+## Usage Examples
+
+<Tabs>
+  <Tab title="Basic Usage">
+    ```tsx
+    import { ProTable } from '@ant-design/pro-components';
+
+    const columns = [
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        valueType: 'text',
+      },
+      {
+        title: 'Age',
+        dataIndex: 'age',
+        valueType: 'digit',
+      },
+    ];
+
+    export default () => {
+      return (
+        <ProTable
+          columns={columns}
+          request={async (params, sort, filter) => {
+            const response = await fetch('/api/users');
+            const data = await response.json();
+            return {
+              data: data.list,
+              success: true,
+              total: data.total,
+            };
+          }}
+        />
+      );
+    };
+    ```
+  </Tab>
+  <Tab title="With Search Form">
+    ```tsx
+    <ProTable
+      columns={[
+        {
+          title: 'Name',
+          dataIndex: 'name',
+          search: true,
+        },
+        {
+          title: 'Status',
+          dataIndex: 'status',
+          valueType: 'select',
+          valueEnum: {
+            active: { text: 'Active', status: 'Success' },
+            inactive: { text: 'Inactive', status: 'Default' },
+          },
+        },
+      ]}
+      search={{
+        labelWidth: 'auto',
+      }}
+      request={async (params) => {
+        // params includes search form values
+        return fetchData(params);
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="With ActionRef">
+    ```tsx
+    import { useRef } from 'react';
+
+    const actionRef = useRef();
+
+    return (
+      <>
+        <Button onClick={() => actionRef.current?.reload()}>
+          Reload
+        </Button>
+        <ProTable
+          actionRef={actionRef}
+          columns={columns}
+          request={fetchData}
+        />
+      </>
+    );
+    ```
+  </Tab>
+</Tabs>

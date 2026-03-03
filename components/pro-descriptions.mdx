@@ -1,0 +1,523 @@
+---
+title: ProDescriptions
+description: Display key-value data in a structured format with editing support
+---
+
+ProDescriptions is a powerful component for displaying detailed information in a key-value format. It extends Ant Design's Descriptions with automatic value rendering, request handling, and inline editing capabilities.
+
+## Features
+
+- **Automatic Rendering**: Rich value types with automatic formatting
+- **Request Integration**: Load data asynchronously
+- **Inline Editing**: Edit fields directly in the descriptions view
+- **Column Configuration**: ProTable-compatible column definitions
+- **Copy Support**: Built-in copy-to-clipboard
+- **Responsive Layout**: Automatic layout adjustment
+
+## Basic Usage
+
+```tsx
+import { ProDescriptions } from '@ant-design/pro-components';
+
+export default () => {
+  return (
+    <ProDescriptions
+      column={2}
+      title="订单详情"
+      tooltip="展示订单的详细信息"
+    >
+      <ProDescriptions.Item
+        label="订单编号"
+        valueType="text"
+      >
+        20240315001
+      </ProDescriptions.Item>
+      
+      <ProDescriptions.Item
+        label="合同金额"
+        valueType="money"
+      >
+        128000
+      </ProDescriptions.Item>
+      
+      <ProDescriptions.Item
+        label="完成进度"
+        valueType="percent"
+      >
+        75
+      </ProDescriptions.Item>
+      
+      <ProDescriptions.Item
+        label="订单状态"
+        valueEnum={{
+          pending: { text: '待审核', status: 'Warning' },
+          processing: { text: '处理中', status: 'Processing' },
+          completed: { text: '已完成', status: 'Success' },
+        }}
+      >
+        processing
+      </ProDescriptions.Item>
+      
+      <ProDescriptions.Item
+        label="下单时间"
+        valueType="dateTime"
+      >
+        {Date.now()}
+      </ProDescriptions.Item>
+      
+      <ProDescriptions.Item
+        span={2}
+        label="订单备注"
+        valueType="text"
+        ellipsis
+      >
+        客户要求在一季度内完成全部部署上线工作
+      </ProDescriptions.Item>
+    </ProDescriptions>
+  );
+};
+```
+
+## Using Columns
+
+Define descriptions using column configuration:
+
+```tsx
+import type { ProDescriptionsItemProps } from '@ant-design/pro-components';
+
+const columns: ProDescriptionsItemProps[] = [
+  {
+    title: '订单编号',
+    dataIndex: 'orderNo',
+    copyable: true,
+  },
+  {
+    title: '金额',
+    dataIndex: 'amount',
+    valueType: 'money',
+  },
+  {
+    title: '状态',
+    dataIndex: 'status',
+    valueEnum: {
+      open: { text: '开放', status: 'Success' },
+      closed: { text: '关闭', status: 'Default' },
+    },
+  },
+  {
+    title: '创建时间',
+    dataIndex: 'createdAt',
+    valueType: 'dateTime',
+  },
+];
+
+<ProDescriptions
+  columns={columns}
+  dataSource={{
+    orderNo: '20240315001',
+    amount: 128000,
+    status: 'open',
+    createdAt: Date.now(),
+  }}
+/>
+```
+
+## Request Integration
+
+Load data asynchronously:
+
+```tsx
+<ProDescriptions
+  columns={columns}
+  request={async () => {
+    const response = await fetch('/api/order/123');
+    const data = await response.json();
+    return {
+      data,
+      success: true,
+    };
+  }}
+  params={{ id: '123' }} // Triggers reload when changed
+/>
+```
+
+## Value Types
+
+ProDescriptions supports all ProField value types:
+
+```tsx
+<ProDescriptions column={2}>
+  {/* Text */}
+  <ProDescriptions.Item label="文本" valueType="text">
+    普通文本
+  </ProDescriptions.Item>
+  
+  {/* Money */}
+  <ProDescriptions.Item label="金额" valueType="money">
+    128000
+  </ProDescriptions.Item>
+  
+  {/* Progress */}
+  <ProDescriptions.Item label="进度" valueType="progress">
+    75
+  </ProDescriptions.Item>
+  
+  {/* Date & Time */}
+  <ProDescriptions.Item label="日期" valueType="date">
+    {Date.now()}
+  </ProDescriptions.Item>
+  
+  <ProDescriptions.Item label="时间" valueType="dateTime">
+    {Date.now()}
+  </ProDescriptions.Item>
+  
+  <ProDescriptions.Item label="相对时间" valueType="fromNow">
+    {Date.now() - 3600000}
+  </ProDescriptions.Item>
+  
+  {/* Code */}
+  <ProDescriptions.Item
+    span={2}
+    label="配置"
+    valueType="jsonCode"
+  >
+    {JSON.stringify({ key: 'value' }, null, 2)}
+  </ProDescriptions.Item>
+  
+  {/* Avatar */}
+  <ProDescriptions.Item label="用户" valueType="avatar">
+    https://example.com/avatar.jpg
+  </ProDescriptions.Item>
+</ProDescriptions>
+```
+
+## Inline Editing
+
+Enable inline editing for fields:
+
+```tsx
+import { useRef } from 'react';
+import type { ProDescriptionsActionType } from '@ant-design/pro-components';
+
+const Demo = () => {
+  const actionRef = useRef<ProDescriptionsActionType>();
+  const [dataSource, setDataSource] = useState(initialData);
+  
+  return (
+    <ProDescriptions
+      actionRef={actionRef}
+      dataSource={dataSource}
+      onDataSourceChange={setDataSource}
+      editable={{
+        onSave: async (key, record) => {
+          await updateData(record);
+          message.success('保存成功');
+        },
+      }}
+      columns={[
+        {
+          title: '名称',
+          dataIndex: 'name',
+          editable: true, // Enable editing
+        },
+        {
+          title: '描述',
+          dataIndex: 'description',
+          valueType: 'textarea',
+          editable: true,
+        },
+        {
+          title: '状态',
+          dataIndex: 'status',
+          valueType: 'select',
+          valueEnum: {
+            active: '激活',
+            inactive: '非激活',
+          },
+          editable: true,
+        },
+      ]}
+    />
+  );
+};
+```
+
+### Edit Trigger
+
+Click the edit icon to enter edit mode:
+
+```tsx
+<ProDescriptions
+  editable={{
+    onSave: async (key, record) => {
+      await save(record);
+    },
+    // Custom edit icon
+    actionRender: (row, config, defaultDom) => [
+      defaultDom.save,
+      defaultDom.cancel,
+    ],
+  }}
+  columns={columns.map(col => ({ ...col, editable: true }))}
+/>
+```
+
+## Copy Support
+
+```tsx
+<ProDescriptions>
+  <ProDescriptions.Item
+    label="订单编号"
+    copyable // Enable copy
+  >
+    20240315001
+  </ProDescriptions.Item>
+  
+  <ProDescriptions.Item
+    label="API Key"
+    copyable={{ text: 'sk-xxx-full-key' }} // Copy different text
+  >
+    sk-xxx...
+  </ProDescriptions.Item>
+</ProDescriptions>
+```
+
+## Ellipsis
+
+```tsx
+<ProDescriptions>
+  <ProDescriptions.Item
+    span={2}
+    label="长文本"
+    ellipsis // Enable ellipsis
+  >
+    这是一段非常非常长的文本...
+  </ProDescriptions.Item>
+  
+  <ProDescriptions.Item
+    label="备注"
+    ellipsis={{ showTitle: true }} // Show full text on hover
+  >
+    这是备注内容...
+  </ProDescriptions.Item>
+</ProDescriptions>
+```
+
+## Span & Layout
+
+```tsx
+<ProDescriptions column={3}>
+  <ProDescriptions.Item label="字段 1">
+    内容 1
+  </ProDescriptions.Item>
+  
+  <ProDescriptions.Item label="字段 2" span={2}>
+    内容 2 (占两列)
+  </ProDescriptions.Item>
+  
+  <ProDescriptions.Item label="字段 3" span={3}>
+    内容 3 (占三列)
+  </ProDescriptions.Item>
+</ProDescriptions>
+```
+
+## Responsive Columns
+
+```tsx
+<ProDescriptions
+  column={{
+    xs: 1,
+    sm: 2,
+    md: 3,
+    lg: 3,
+    xl: 4,
+  }}
+>
+  {/* Items */}
+</ProDescriptions>
+```
+
+## Action Buttons
+
+Add action buttons to the descriptions:
+
+```tsx
+<ProDescriptions>
+  <ProDescriptions.Item valueType="option">
+    <Button type="primary">编辑</Button>
+    <Button>删除</Button>
+  </ProDescriptions.Item>
+  
+  {/* Other items */}
+</ProDescriptions>
+```
+
+## Custom Render
+
+```tsx
+const columns: ProDescriptionsItemProps[] = [
+  {
+    title: '用户',
+    dataIndex: 'user',
+    render: (_, record) => (
+      <Space>
+        <Avatar src={record.user.avatar} />
+        <span>{record.user.name}</span>
+      </Space>
+    ),
+  },
+  {
+    title: '标签',
+    dataIndex: 'tags',
+    render: (_, record) => (
+      <Space>
+        {record.tags.map(tag => (
+          <Tag key={tag}>{tag}</Tag>
+        ))}
+      </Space>
+    ),
+  },
+];
+```
+
+## Array DataIndex
+
+Access nested data:
+
+```tsx
+const columns: ProDescriptionsItemProps[] = [
+  {
+    title: '用户名',
+    dataIndex: ['user', 'name'], // Access nested property
+  },
+  {
+    title: '城市',
+    dataIndex: ['address', 'city'],
+  },
+];
+
+<ProDescriptions
+  columns={columns}
+  dataSource={{
+    user: { name: '张三' },
+    address: { city: '北京' },
+  }}
+/>
+```
+
+## Empty Text
+
+Customize empty value display:
+
+```tsx
+<ProDescriptions emptyText="-">
+  <ProDescriptions.Item label="备注">
+    {null} {/* Will display "-" */}
+  </ProDescriptions.Item>
+</ProDescriptions>
+```
+
+## ActionRef
+
+```tsx
+import { useRef } from 'react';
+import type { ProDescriptionsActionType } from '@ant-design/pro-components';
+
+const Demo = () => {
+  const actionRef = useRef<ProDescriptionsActionType>();
+  
+  return (
+    <>
+      <Button onClick={() => actionRef.current?.reload()}>
+        刷新
+      </Button>
+      
+      <ProDescriptions
+        actionRef={actionRef}
+        request={request}
+        columns={columns}
+      />
+    </>
+  );
+};
+```
+
+## Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `columns` | `ProDescriptionsItemProps[]` | Column configuration |
+| `dataSource` | `Record<string, any>` | Data source |
+| `request` | `(params) => Promise<RequestData>` | Async data fetching |
+| `params` | `Record<string, any>` | Request params |
+| `editable` | `RowEditableConfig` | Editable configuration |
+| `onDataSourceChange` | `(data) => void` | Data source change handler |
+| `actionRef` | `React.MutableRefObject<ActionType>` | Action reference |
+| `column` | `number \| ResponsiveColumn` | Number of columns |
+| `title` | `ReactNode` | Title |
+| `tooltip` | `string \| LabelTooltipType` | Tooltip |
+| `emptyText` | `ReactNode` | Empty value placeholder |
+| `loading` | `boolean` | Loading state |
+
+## ProDescriptions.Item Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `label` | `ReactNode` | Field label |
+| `dataIndex` | `string \| string[]` | Data field key |
+| `valueType` | `ProFieldValueType` | Value type |
+| `valueEnum` | `ValueEnum` | Value enum mapping |
+| `render` | `(text, record, index) => ReactNode` | Custom render |
+| `copyable` | `boolean \| { text: string }` | Enable copy |
+| `ellipsis` | `boolean \| { showTitle: boolean }` | Enable ellipsis |
+| `span` | `number` | Column span |
+| `editable` | `boolean \| function` | Enable editing |
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use appropriate value types">
+    Choose the correct valueType for automatic formatting:
+    - Use `money` for currency
+    - Use `percent` for percentages
+    - Use `dateTime` for timestamps
+    - Use `progress` for completion status
+  </Accordion>
+  
+  <Accordion title="Enable copyable for IDs and keys">
+    Make it easy for users to copy important identifiers:
+    ```tsx
+    <ProDescriptions.Item label="Order ID" copyable>
+      {orderId}
+    </ProDescriptions.Item>
+    ```
+  </Accordion>
+  
+  <Accordion title="Use ellipsis for long text">
+    Prevent layout issues with long content:
+    ```tsx
+    <ProDescriptions.Item label="Description" ellipsis>
+      {longDescription}
+    </ProDescriptions.Item>
+    ```
+  </Accordion>
+  
+  <Accordion title="Organize with column span">
+    Use span to control visual hierarchy:
+    ```tsx
+    <ProDescriptions column={3}>
+      <ProDescriptions.Item label="Title" span={3}>
+        {/* Full width title */}
+      </ProDescriptions.Item>
+      {/* Other items */}
+    </ProDescriptions>
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Components
+
+- [ProTable](/components/pro-table) - Tabular data display
+- [ProForm](/components/pro-form) - Form editing
+- [ProCard](/components/pro-card) - Card container
+- [ProField](/components/pro-field) - Field rendering

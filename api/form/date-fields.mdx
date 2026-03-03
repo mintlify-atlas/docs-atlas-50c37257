@@ -1,0 +1,649 @@
+---
+title: Date Fields
+description: Date and time picker components for ProForm
+---
+
+Date field components provide various date and time selection options.
+
+## ProFormDatePicker
+
+Date picker component for selecting a single date.
+
+### Import
+
+```tsx
+import { ProFormDatePicker } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormDatePicker
+      name="birthDate"
+      label="Birth Date"
+      placeholder="Select date"
+    />
+    ```
+  </Tab>
+  <Tab title="With Format">
+    ```tsx
+    <ProFormDatePicker
+      name="startDate"
+      label="Start Date"
+      fieldProps={{
+        format: 'YYYY/MM/DD'
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Disabled Dates">
+    ```tsx
+    <ProFormDatePicker
+      name="appointmentDate"
+      label="Appointment Date"
+      fieldProps={{
+        disabledDate: (current) => {
+          // Disable dates before today
+          return current && current < dayjs().startOf('day');
+        }
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+Extends ProFormText props and Ant Design [DatePicker](https://ant.design/components/date-picker) props.
+
+<ParamField path="fieldProps.format" type="string | string[]" default="'YYYY-MM-DD'">
+  Date format for display and parsing. Common formats:
+  - `YYYY-MM-DD`: 2024-03-15
+  - `MM/DD/YYYY`: 03/15/2024
+  - `DD-MM-YYYY`: 15-03-2024
+  - `YYYY年MM月DD日`: Chinese format
+</ParamField>
+
+<ParamField path="fieldProps.picker" type="'date' | 'week' | 'month' | 'quarter' | 'year'" default="'date'">
+  Type of picker. Use sub-components for other types (see below).
+</ParamField>
+
+<ParamField path="fieldProps.showTime" type="boolean | TimePickerProps">
+  Whether to show time picker. Can provide time picker configuration.
+</ParamField>
+
+<ParamField path="fieldProps.showToday" type="boolean" default="true">
+  Whether to show "Today" button.
+</ParamField>
+
+<ParamField path="fieldProps.showNow" type="boolean" default="true">
+  Whether to show "Now" button (when showTime is enabled).
+</ParamField>
+
+<ParamField path="fieldProps.disabledDate" type="(currentDate: Dayjs) => boolean">
+  Function to determine if a date should be disabled. Return true to disable the date.
+</ParamField>
+
+<ParamField path="fieldProps.defaultValue" type="Dayjs">
+  Default date value.
+</ParamField>
+
+<ParamField path="fieldProps.allowClear" type="boolean" default="true">
+  Whether to show clear button.
+</ParamField>
+
+<ParamField path="fieldProps.placeholder" type="string">
+  Placeholder text when no date is selected.
+</ParamField>
+
+<ParamField path="fieldProps.onChange" type="(date: Dayjs | null, dateString: string) => void">
+  Callback when selected date changes.
+</ParamField>
+
+<ParamField path="fieldProps.onOk" type="(date: Dayjs) => void">
+  Callback when OK button is clicked (when showTime is enabled).
+</ParamField>
+
+---
+
+## ProFormDatePicker.Week
+
+Week picker component.
+
+### Import
+
+```tsx
+import { ProFormDatePicker } from '@ant-design/pro-components';
+```
+
+### Usage
+
+```tsx
+<ProFormDatePicker.Week
+  name="reportWeek"
+  label="Report Week"
+  fieldProps={{
+    format: 'YYYY-wo'
+  }}
+/>
+```
+
+### Props
+
+Extends ProFormDatePicker props with week-specific settings.
+
+<ParamField path="fieldProps.format" type="string" default="'YYYY-wo'">
+  Week format. Common formats:
+  - `YYYY-wo`: 2024-11th
+  - `GGGG[W]WW`: 2024W11
+</ParamField>
+
+---
+
+## ProFormDatePicker.Month
+
+Month picker component.
+
+### Import
+
+```tsx
+import { ProFormDatePicker } from '@ant-design/pro-components';
+```
+
+### Usage
+
+```tsx
+<ProFormDatePicker.Month
+  name="reportMonth"
+  label="Report Month"
+  fieldProps={{
+    format: 'YYYY-MM'
+  }}
+/>
+```
+
+### Props
+
+Extends ProFormDatePicker props with month-specific settings.
+
+<ParamField path="fieldProps.format" type="string" default="'YYYY-MM'">
+  Month format. Common formats:
+  - `YYYY-MM`: 2024-03
+  - `MMM YYYY`: Mar 2024
+  - `MMMM YYYY`: March 2024
+</ParamField>
+
+---
+
+## ProFormDatePicker.Quarter
+
+Quarter picker component.
+
+### Import
+
+```tsx
+import { ProFormDatePicker } from '@ant-design/pro-components';
+```
+
+### Usage
+
+```tsx
+<ProFormDatePicker.Quarter
+  name="reportQuarter"
+  label="Report Quarter"
+  fieldProps={{
+    format: 'YYYY-[Q]Q'
+  }}
+/>
+```
+
+### Props
+
+Extends ProFormDatePicker props with quarter-specific settings.
+
+<ParamField path="fieldProps.format" type="string" default="'YYYY-[Q]Q'">
+  Quarter format. Common formats:
+  - `YYYY-[Q]Q`: 2024-Q1
+  - `YYYY-Qo`: 2024-1st
+</ParamField>
+
+---
+
+## ProFormDatePicker.Year
+
+Year picker component.
+
+### Import
+
+```tsx
+import { ProFormDatePicker } from '@ant-design/pro-components';
+```
+
+### Usage
+
+```tsx
+<ProFormDatePicker.Year
+  name="graduationYear"
+  label="Graduation Year"
+  fieldProps={{
+    format: 'YYYY'
+  }}
+/>
+```
+
+### Props
+
+Extends ProFormDatePicker props with year-specific settings.
+
+<ParamField path="fieldProps.format" type="string" default="'YYYY'">
+  Year format. Common formats:
+  - `YYYY`: 2024
+  - `YY`: 24
+</ParamField>
+
+---
+
+## ProFormDateRangePicker
+
+Date range picker for selecting start and end dates.
+
+### Import
+
+```tsx
+import { ProFormDateRangePicker } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormDateRangePicker
+      name="dateRange"
+      label="Date Range"
+      placeholder={['Start date', 'End date']}
+    />
+    ```
+  </Tab>
+  <Tab title="With Presets">
+    ```tsx
+    <ProFormDateRangePicker
+      name="reportRange"
+      label="Report Period"
+      fieldProps={{
+        presets: [
+          { label: 'Last 7 Days', value: [dayjs().subtract(7, 'd'), dayjs()] },
+          { label: 'Last 30 Days', value: [dayjs().subtract(30, 'd'), dayjs()] },
+          { label: 'Last Month', value: [dayjs().subtract(1, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')] },
+          { label: 'This Month', value: [dayjs().startOf('month'), dayjs().endOf('month')] }
+        ]
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="With Time">
+    ```tsx
+    <ProFormDateRangePicker
+      name="eventRange"
+      label="Event Time Range"
+      fieldProps={{
+        showTime: {
+          format: 'HH:mm'
+        },
+        format: 'YYYY-MM-DD HH:mm'
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+Extends ProFormText props and Ant Design [RangePicker](https://ant.design/components/date-picker#rangepicker) props.
+
+<ParamField path="fieldProps.format" type="string | string[]" default="'YYYY-MM-DD'">
+  Date format for display and parsing.
+</ParamField>
+
+<ParamField path="fieldProps.showTime" type="boolean | TimeRangePickerProps">
+  Whether to show time picker. Can provide time picker configuration:
+  ```tsx
+  showTime={{
+    format: 'HH:mm:ss',
+    defaultValue: [dayjs('00:00:00', 'HH:mm:ss'), dayjs('23:59:59', 'HH:mm:ss')]
+  }}
+  ```
+</ParamField>
+
+<ParamField path="fieldProps.placeholder" type="[string, string]">
+  Placeholder for start and end date inputs.
+</ParamField>
+
+<ParamField path="fieldProps.disabledDate" type="(currentDate: Dayjs, info: { from?: Dayjs, type: 'start' | 'end' }) => boolean">
+  Function to determine if a date should be disabled.
+</ParamField>
+
+<ParamField path="fieldProps.presets" type="{ label: string, value: [Dayjs, Dayjs] }[]">
+  Preset date ranges for quick selection:
+  ```tsx
+  presets={[
+    { label: 'Today', value: [dayjs(), dayjs()] },
+    { label: 'This Week', value: [dayjs().startOf('week'), dayjs().endOf('week')] }
+  ]}
+  ```
+</ParamField>
+
+<ParamField path="fieldProps.separator" type="ReactNode" default="'~'">
+  Separator between start and end date inputs.
+</ParamField>
+
+<ParamField path="fieldProps.allowEmpty" type="[boolean, boolean]">
+  Whether to allow clearing start or end date independently.
+</ParamField>
+
+<ParamField path="fieldProps.onChange" type="(dates: [Dayjs | null, Dayjs | null], dateStrings: [string, string]) => void">
+  Callback when date range changes.
+</ParamField>
+
+<ParamField path="fieldProps.onCalendarChange" type="(dates: [Dayjs | null, Dayjs | null]) => void">
+  Callback when date is selected in calendar (before clicking OK).
+</ParamField>
+
+<ParamField path="fieldProps.minDate" type="Dayjs">
+  Minimum selectable date.
+</ParamField>
+
+<ParamField path="fieldProps.maxDate" type="Dayjs">
+  Maximum selectable date.
+</ParamField>
+
+---
+
+## ProFormDateTimePicker
+
+Date and time picker component.
+
+### Import
+
+```tsx
+import { ProFormDateTimePicker } from '@ant-design/pro-components';
+```
+
+### Usage
+
+```tsx
+<ProFormDateTimePicker
+  name="eventTime"
+  label="Event Time"
+  fieldProps={{
+    format: 'YYYY-MM-DD HH:mm:ss'
+  }}
+/>
+```
+
+### Props
+
+Extends ProFormDatePicker props with `showTime={true}` by default.
+
+<ParamField path="fieldProps.format" type="string" default="'YYYY-MM-DD HH:mm:ss'">
+  Date and time format.
+</ParamField>
+
+<ParamField path="fieldProps.showTime" type="boolean | TimePickerProps" default="true">
+  Time picker configuration:
+  ```tsx
+  showTime={{
+    format: 'HH:mm',
+    minuteStep: 15,
+    disabledHours: () => [0, 1, 2, 3, 4, 5]
+  }}
+  ```
+</ParamField>
+
+---
+
+## ProFormTimePicker
+
+Time picker component for selecting time.
+
+### Import
+
+```tsx
+import { ProFormTimePicker } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormTimePicker
+      name="meetingTime"
+      label="Meeting Time"
+      fieldProps={{
+        format: 'HH:mm'
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="With Seconds">
+    ```tsx
+    <ProFormTimePicker
+      name="preciseTime"
+      label="Precise Time"
+      fieldProps={{
+        format: 'HH:mm:ss'
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="12 Hour Format">
+    ```tsx
+    <ProFormTimePicker
+      name="time12h"
+      label="Time (12h)"
+      fieldProps={{
+        format: 'hh:mm A',
+        use12Hours: true
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+Extends ProFormText props and Ant Design [TimePicker](https://ant.design/components/time-picker) props.
+
+<ParamField path="fieldProps.format" type="string" default="'HH:mm:ss'">
+  Time format. Common formats:
+  - `HH:mm:ss`: 14:30:00 (24-hour)
+  - `HH:mm`: 14:30 (24-hour, no seconds)
+  - `hh:mm A`: 02:30 PM (12-hour)
+</ParamField>
+
+<ParamField path="fieldProps.use12Hours" type="boolean" default="false">
+  Whether to use 12-hour time format with AM/PM.
+</ParamField>
+
+<ParamField path="fieldProps.hourStep" type="number" default="1">
+  Hour selection interval.
+</ParamField>
+
+<ParamField path="fieldProps.minuteStep" type="number" default="1">
+  Minute selection interval.
+</ParamField>
+
+<ParamField path="fieldProps.secondStep" type="number" default="1">
+  Second selection interval.
+</ParamField>
+
+<ParamField path="fieldProps.disabledTime" type="() => { disabledHours?: () => number[], disabledMinutes?: (hour: number) => number[], disabledSeconds?: (hour: number, minute: number) => number[] }">
+  Function to disable specific time ranges:
+  ```tsx
+  disabledTime={() => ({
+    disabledHours: () => [0, 1, 2, 3, 4, 5, 22, 23],
+    disabledMinutes: (hour) => hour === 12 ? [0, 30] : [],
+  })}
+  ```
+</ParamField>
+
+<ParamField path="fieldProps.hideDisabledOptions" type="boolean" default="false">
+  Whether to hide disabled options in the time selection panel.
+</ParamField>
+
+<ParamField path="fieldProps.showNow" type="boolean" default="true">
+  Whether to show "Now" button.
+</ParamField>
+
+<ParamField path="fieldProps.onChange" type="(time: Dayjs | null, timeString: string) => void">
+  Callback when selected time changes.
+</ParamField>
+
+---
+
+## ProFormTimeRangePicker
+
+Time range picker for selecting start and end times.
+
+### Import
+
+```tsx
+import { ProFormTimeRangePicker } from '@ant-design/pro-components';
+```
+
+### Usage
+
+```tsx
+<ProFormTimeRangePicker
+  name="workingHours"
+  label="Working Hours"
+  fieldProps={{
+    format: 'HH:mm'
+  }}
+  placeholder={['Start time', 'End time']}
+/>
+```
+
+### Props
+
+Extends ProFormTimePicker props for time range selection.
+
+<ParamField path="fieldProps.onChange" type="(times: [Dayjs | null, Dayjs | null], timeStrings: [string, string]) => void">
+  Callback when time range changes.
+</ParamField>
+
+## Common Features
+
+<Expandable title="Date Format with Day.js">
+  All date components use [Day.js](https://day.js.org/) for date manipulation. The value type is `Dayjs` object:
+  
+  ```tsx
+  import dayjs from 'dayjs';
+  
+  // Set initial value
+  <ProFormDatePicker
+    initialValue={dayjs('2024-03-15')}
+  />
+  
+  // Handle onChange
+  <ProFormDatePicker
+    fieldProps={{
+      onChange: (date, dateString) => {
+        console.log('Dayjs object:', date);
+        console.log('Formatted string:', dateString);
+        console.log('Unix timestamp:', date?.unix());
+      }
+    }}
+  />
+  ```
+</Expandable>
+
+<Expandable title="Disable Past/Future Dates">
+  Use `disabledDate` to control selectable dates:
+  
+  ```tsx
+  // Disable past dates
+  <ProFormDatePicker
+    fieldProps={{
+      disabledDate: (current) => current && current < dayjs().startOf('day')
+    }}
+  />
+  
+  // Disable future dates
+  <ProFormDatePicker
+    fieldProps={{
+      disabledDate: (current) => current && current > dayjs().endOf('day')
+    }}
+  />
+  
+  // Allow only weekdays
+  <ProFormDatePicker
+    fieldProps={{
+      disabledDate: (current) => {
+        const day = current.day();
+        return day === 0 || day === 6; // Disable Sunday(0) and Saturday(6)
+      }
+    }}
+  />
+  ```
+</Expandable>
+
+<Expandable title="Value Transformation">
+  Transform date values between form and submission formats:
+  
+  ```tsx
+  <ProFormDatePicker
+    name="birthDate"
+    // Convert string to Dayjs when loading form
+    convertValue={(value) => value ? dayjs(value) : undefined}
+    // Convert Dayjs to string when submitting
+    transform={(value) => value ? value.format('YYYY-MM-DD') : undefined}
+  />
+  
+  // For date range
+  <ProFormDateRangePicker
+    name="dateRange"
+    transform={(value) => ({
+      startDate: value?.[0]?.format('YYYY-MM-DD'),
+      endDate: value?.[1]?.format('YYYY-MM-DD')
+    })}
+  />
+  ```
+</Expandable>
+
+<Expandable title="Read-only Mode">
+  In read-only mode, dates display as formatted text:
+  
+  ```tsx
+  <ProFormDatePicker
+    readonly
+    name="createdAt"
+    label="Created At"
+  />
+  
+  <ProFormDateRangePicker
+    readonly
+    name="period"
+    label="Period"
+  />
+  ```
+</Expandable>
+
+<Expandable title="Localization">
+  Date components respect the locale setting from ProConfigProvider:
+  
+  ```tsx
+  import { ConfigProvider } from 'antd';
+  import enUS from 'antd/locale/en_US';
+  import zhCN from 'antd/locale/zh_CN';
+  
+  <ConfigProvider locale={zhCN}>
+    <ProForm>
+      <ProFormDatePicker name="date" />
+    </ProForm>
+  </ConfigProvider>
+  ```
+</Expandable>

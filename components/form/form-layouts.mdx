@@ -1,0 +1,443 @@
+---
+title: Form Layouts
+description: Explore different form layout components in ProComponents
+---
+
+ProComponents provides multiple form layout components to suit different use cases, from basic forms to complex multi-step wizards and modal/drawer forms.
+
+## ProForm
+
+The base form component with vertical layout. All other form layouts extend from this component.
+
+```tsx
+import { ProForm, ProFormText } from '@ant-design/pro-components';
+
+const BasicForm = () => {
+  return (
+    <ProForm
+      onFinish={async (values) => {
+        console.log(values);
+        return true;
+      }}
+    >
+      <ProFormText name="name" label="Name" />
+      <ProFormText name="email" label="Email" />
+    </ProForm>
+  );
+};
+```
+
+### Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `onFinish` | `(values: T) => Promise<boolean \| void>` | Form submission handler. Return `true` to indicate success |
+| `loading` | `boolean` | Show loading state on submit button |
+| `submitter` | `SubmitterProps \| false` | Configure or hide submit/reset buttons |
+| `initialValues` | `T` | Initial form values |
+| `request` | `(params: U) => Promise<T>` | Async data loader for initial values |
+| `readonly` | `boolean` | Set all form fields to read-only mode |
+
+### Static Methods
+
+```tsx
+// Access Form utilities
+ProForm.useForm(); // Get form instance
+ProForm.Item; // Access ProFormItem
+ProForm.Group; // Access ProForm.Group
+ProForm.useWatch; // Watch form field changes
+```
+
+## ModalForm
+
+A form displayed inside a modal dialog. Perfect for create/edit operations that don't require full-page navigation.
+
+```tsx
+import { ModalForm, ProFormText } from '@ant-design/pro-components';
+import { Button } from 'antd';
+
+const CreateUser = () => {
+  return (
+    <ModalForm
+      title="Create New User"
+      trigger={<Button type="primary">New User</Button>}
+      onFinish={async (values) => {
+        await createUser(values);
+        return true; // Close modal on success
+      }}
+    >
+      <ProFormText name="username" label="Username" required />
+      <ProFormText.Password name="password" label="Password" required />
+    </ModalForm>
+  );
+};
+```
+
+### Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `trigger` | `React.JSX.Element` | Element that triggers modal to open |
+| `open` | `boolean` | Controlled visibility state |
+| `onOpenChange` | `(open: boolean) => void` | Callback when visibility changes |
+| `modalProps` | `Omit<ModalProps, 'open'>` | Additional Ant Design Modal props |
+| `title` | `ModalProps['title']` | Modal title |
+| `width` | `ModalProps['width']` | Modal width (default: 800) |
+| `submitTimeout` | `number` | Disable cancel button during submit (milliseconds) |
+
+<Note>
+  The `onFinish` handler should return `true` to close the modal, or `false` to keep it open (e.g., if validation fails).
+</Note>
+
+### Behavior
+
+- Form resets automatically when modal closes (with `destroyOnHidden` in modalProps)
+- Submit button shows loading state during async operations
+- Cancel button is disabled during `submitTimeout` period
+
+## DrawerForm
+
+A form displayed in a side drawer. Great for forms with many fields or when you need more space.
+
+```tsx
+import { DrawerForm, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
+import { Button } from 'antd';
+
+const EditProfile = () => {
+  return (
+    <DrawerForm
+      title="Edit Profile"
+      trigger={<Button>Edit Profile</Button>}
+      drawerProps={{
+        destroyOnHidden: true,
+      }}
+      onFinish={async (values) => {
+        await updateProfile(values);
+        return true;
+      }}
+    >
+      <ProFormText name="name" label="Name" />
+      <ProFormText name="email" label="Email" />
+      <ProFormTextArea name="bio" label="Bio" />
+    </DrawerForm>
+  );
+};
+```
+
+### Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `trigger` | `React.JSX.Element` | Element that triggers drawer to open |
+| `open` | `boolean` | Controlled visibility state |
+| `drawerProps` | `Omit<DrawerProps, 'open'>` | Additional Ant Design Drawer props |
+| `width` | `DrawerProps['size']` | Drawer width |
+| `resize` | `CustomizeResizeType \| boolean` | Enable drawer resizing |
+| `submitTimeout` | `number` | Disable cancel during submit |
+
+### Resizable Drawer
+
+```tsx
+<DrawerForm
+  resize={{
+    minWidth: 300,
+    maxWidth: 800,
+    onResize: () => console.log('Resized'),
+  }}
+  // ... other props
+/>
+```
+
+Or simply:
+
+```tsx
+<DrawerForm resize // Use default resize settings
+  // ... other props
+/>
+```
+
+## StepsForm
+
+A multi-step wizard form for complex data entry workflows.
+
+```tsx
+import { StepsForm, ProFormText, ProFormDatePicker } from '@ant-design/pro-components';
+
+const MultiStepForm = () => {
+  return (
+    <StepsForm
+      onFinish={async (values) => {
+        console.log('All steps completed:', values);
+        return true; // Reset to step 0
+      }}
+    >
+      <StepsForm.StepForm name="basic" title="Basic Info">
+        <ProFormText name="name" label="Name" required />
+        <ProFormText name="email" label="Email" required />
+      </StepsForm.StepForm>
+      
+      <StepsForm.StepForm name="address" title="Address">
+        <ProFormText name="street" label="Street" />
+        <ProFormText name="city" label="City" />
+      </StepsForm.StepForm>
+      
+      <StepsForm.StepForm name="confirm" title="Confirm">
+        <ProFormDatePicker name="startDate" label="Start Date" />
+      </StepsForm.StepForm>
+    </StepsForm>
+  );
+};
+```
+
+### Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `current` | `number` | Controlled current step (0-based) |
+| `onCurrentChange` | `(current: number) => void` | Callback when step changes |
+| `stepsProps` | `StepsProps` | Props for Ant Design Steps component |
+| `stepsRender` | `(steps, defaultDom) => React.ReactNode` | Custom steps renderer |
+| `formRef` | `React.MutableRefObject` | Ref to current step's form |
+| `formMapRef` | `React.MutableRefObject` | Ref to all form instances |
+| `submitter` | `SubmitterProps \| false` | Button configuration |
+
+### StepForm Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `name` | `string` | Unique name for this step |
+| `title` | `React.ReactNode` | Step title in progress indicator |
+| `stepProps` | `StepProps` | Props for individual step item |
+
+### Layout Options
+
+<Tabs>
+  <Tab title="Horizontal">
+    ```tsx
+    <StepsForm
+      stepsProps={{
+        direction: 'horizontal',
+      }}
+    >
+      {/* Steps */}
+    </StepsForm>
+    ```
+  </Tab>
+  <Tab title="Vertical">
+    ```tsx
+    <StepsForm
+      stepsProps={{
+        direction: 'vertical',
+      }}
+    >
+      {/* Steps */}
+    </StepsForm>
+    ```
+  </Tab>
+</Tabs>
+
+### Custom Layout
+
+```tsx
+<StepsForm
+  layoutRender={({ stepsDom, formDom }) => (
+    <div>
+      <div style={{ width: 200 }}>{stepsDom}</div>
+      <div style={{ flex: 1 }}>{formDom}</div>
+    </div>
+  )}
+>
+  {/* Steps */}
+</StepsForm>
+```
+
+## QueryFilter
+
+A collapsible filter form typically used with ProTable or ProList.
+
+```tsx
+import { QueryFilter, ProFormText, ProFormSelect } from '@ant-design/pro-components';
+
+const SearchFilter = () => {
+  return (
+    <QueryFilter
+      onFinish={async (values) => {
+        console.log('Filter values:', values);
+      }}
+      defaultCollapsed={false}
+    >
+      <ProFormText name="name" label="Name" />
+      <ProFormSelect
+        name="status"
+        label="Status"
+        options={[
+          { label: 'Active', value: 'active' },
+          { label: 'Inactive', value: 'inactive' },
+        ]}
+      />
+      <ProFormText name="email" label="Email" />
+    </QueryFilter>
+  );
+};
+```
+
+### Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `defaultCollapsed` | `boolean` | Initial collapsed state (default: true) |
+| `collapsed` | `boolean` | Controlled collapsed state |
+| `onCollapse` | `(collapsed: boolean) => void` | Collapse state change callback |
+| `span` | `SpanConfig` | Grid span configuration |
+| `labelWidth` | `number \| 'auto'` | Label width (default: 80) |
+| `split` | `boolean` | Show divider between rows |
+| `searchGutter` | `RowProps['gutter']` | Grid gutter spacing |
+| `defaultColsNumber` | `number` | Items per row when collapsed |
+| `searchText` | `string` | Custom search button text |
+| `resetText` | `string` | Custom reset button text |
+| `optionRender` | `(config, props, dom) => React.ReactNode[]` | Custom action buttons |
+
+### Responsive Grid
+
+```tsx
+<QueryFilter
+  span={{
+    xs: 24,
+    sm: 12,
+    md: 8,
+    lg: 6,
+    xl: 6,
+    xxl: 6,
+  }}
+>
+  {/* Form fields */}
+</QueryFilter>
+```
+
+## LightFilter
+
+A lightweight inline filter component with popover support.
+
+```tsx
+import { LightFilter, ProFormText, ProFormSelect } from '@ant-design/pro-components';
+
+const InlineFilter = () => {
+  return (
+    <LightFilter
+      onFinish={async (values) => {
+        console.log(values);
+      }}
+    >
+      <ProFormText name="name" label="Name" />
+      <ProFormSelect
+        name="status"
+        label="Status"
+        secondary // Show in "More" dropdown
+        options={[{ label: 'Active', value: 'active' }]}
+      />
+    </LightFilter>
+  );
+};
+```
+
+### Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `collapse` | `boolean` | Show all fields in dropdown |
+| `collapseLabel` | `React.ReactNode` | Custom collapse trigger label |
+| `variant` | `'outlined' \| 'filled' \| 'borderless'` | Style variant (default: 'borderless') |
+| `placement` | `TooltipPlacement` | Popover placement |
+| `footerRender` | `(onConfirm, onClear) => React.ReactNode` | Custom footer |
+
+<Note>
+  Fields with `secondary={true}` prop are grouped into a "More Filters" dropdown.
+</Note>
+
+## LoginForm
+
+A pre-styled form designed for authentication pages.
+
+```tsx
+import { LoginForm, ProFormText } from '@ant-design/pro-components';
+
+const Login = () => {
+  return (
+    <LoginForm
+      logo="https://example.com/logo.png"
+      title="My Application"
+      subTitle="Welcome back"
+      onFinish={async (values) => {
+        await login(values);
+      }}
+    >
+      <ProFormText name="username" placeholder="Username" />
+      <ProFormText.Password name="password" placeholder="Password" />
+    </LoginForm>
+  );
+};
+```
+
+### Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `logo` | `React.ReactNode` | Logo (URL string or ReactNode) |
+| `title` | `React.ReactNode \| false` | Application title |
+| `subTitle` | `React.ReactNode \| false` | Subtitle text |
+| `message` | `React.ReactNode \| false` | Error/info message area |
+| `actions` | `React.ReactNode` | Additional actions (e.g., social login) |
+| `contentStyle` | `React.CSSProperties` | Form content styles |
+| `containerStyle` | `React.CSSProperties` | Container styles |
+
+## Comparison
+
+| Layout | Use Case | Key Feature |
+|--------|----------|-------------|
+| **ProForm** | Standard forms | Basic vertical layout |
+| **ModalForm** | Quick edits | Opens in modal dialog |
+| **DrawerForm** | Detailed forms | Side panel with more space |
+| **StepsForm** | Complex workflows | Multi-step wizard |
+| **QueryFilter** | Data filtering | Collapsible with responsive grid |
+| **LightFilter** | Inline filtering | Compact with popover |
+| **LoginForm** | Authentication | Pre-styled login page |
+
+## Common Features
+
+### Form Submission
+
+All form layouts support async submission with loading states:
+
+```tsx
+onFinish={async (values) => {
+  await apiCall(values);
+  return true; // Indicates success
+}}
+```
+
+### Initial Data Loading
+
+```tsx
+<ProForm
+  request={async (params) => {
+    const data = await fetchData(params);
+    return data;
+  }}
+  params={{ id: 1 }}
+/>
+```
+
+### Form Instance
+
+```tsx
+const formRef = useRef<ProFormInstance>();
+
+<ProForm
+  formRef={formRef}
+  onFinish={async () => {
+    // Access form methods
+    const values = formRef.current?.getFieldsValue();
+    formRef.current?.resetFields();
+  }}
+/>
+```

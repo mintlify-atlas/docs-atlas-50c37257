@@ -1,0 +1,597 @@
+---
+title: Select Fields
+description: Selection field components for ProForm
+---
+
+Select field components provide dropdown selection with support for single, multiple, and hierarchical data.
+
+## ProFormSelect
+
+Dropdown select component with support for remote data loading.
+
+### Import
+
+```tsx
+import { ProFormSelect } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormSelect
+      name="status"
+      label="Status"
+      options={[
+        { label: 'Active', value: 'active' },
+        { label: 'Inactive', value: 'inactive' },
+        { label: 'Pending', value: 'pending' }
+      ]}
+      placeholder="Please select status"
+    />
+    ```
+  </Tab>
+  <Tab title="Multiple">
+    ```tsx
+    <ProFormSelect
+      name="tags"
+      label="Tags"
+      mode="multiple"
+      options={[
+        { label: 'Frontend', value: 'frontend' },
+        { label: 'Backend', value: 'backend' },
+        { label: 'DevOps', value: 'devops' }
+      ]}
+      placeholder="Select tags"
+    />
+    ```
+  </Tab>
+  <Tab title="Remote Data">
+    ```tsx
+    <ProFormSelect
+      name="userId"
+      label="User"
+      request={async () => {
+        const response = await fetch('/api/users');
+        const data = await response.json();
+        return data.map(user => ({
+          label: user.name,
+          value: user.id
+        }));
+      }}
+      placeholder="Select user"
+    />
+    ```
+  </Tab>
+  <Tab title="With Search">
+    ```tsx
+    <ProFormSelect
+      name="country"
+      label="Country"
+      showSearch
+      options={countries}
+      fieldProps={{
+        filterOption: (input, option) =>
+          (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+      }}
+      placeholder="Search and select country"
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+Extends ProFormText props and Ant Design [Select](https://ant.design/components/select) props.
+
+<ParamField path="options" type="SelectOption[] | string[]">
+  Options for the select. Can be:
+  - Array of objects: `{ label: string, value: any, disabled?: boolean }`
+  - Array of strings: Will be used as both label and value
+</ParamField>
+
+<ParamField path="mode" type="'single' | 'multiple' | 'tags'">
+  Selection mode:
+  - `single`: Default, select single option
+  - `multiple`: Allow selecting multiple options
+  - `tags`: Allow creating new options by typing
+</ParamField>
+
+<ParamField path="showSearch" type="boolean" default="false">
+  Whether to show search input for filtering options.
+</ParamField>
+
+<ParamField path="request" type="(params: any) => Promise<SelectOption[]>">
+  Async function to load options from remote source. Called when component mounts.
+</ParamField>
+
+<ParamField path="params" type="Record<string, any>">
+  Parameters passed to `request` function. When params change, request is triggered again.
+</ParamField>
+
+<ParamField path="valueEnum" type="Record<string, { text: string, status?: string }>">
+  Enum mapping for options. Alternative to `options` prop:
+  ```tsx
+  valueEnum={{
+    active: { text: 'Active', status: 'Success' },
+    inactive: { text: 'Inactive', status: 'Default' }
+  }}
+  ```
+</ParamField>
+
+<ParamField path="fieldProps.allowClear" type="boolean">
+  Whether to show clear button when value is selected.
+</ParamField>
+
+<ParamField path="fieldProps.autoClearSearchValue" type="boolean" default="true">
+  Whether to clear search input after selecting an option.
+</ParamField>
+
+<ParamField path="fieldProps.defaultActiveFirstOption" type="boolean">
+  Whether to activate the first option by default when dropdown opens.
+</ParamField>
+
+<ParamField path="fieldProps.filterOption" type="boolean | ((input: string, option: SelectOption) => boolean)">
+  Custom filter function for search. Return false to hide option.
+</ParamField>
+
+<ParamField path="fieldProps.labelInValue" type="boolean" default="false">
+  Whether to return { label, value } object instead of just value.
+</ParamField>
+
+<ParamField path="fieldProps.maxTagCount" type="number | 'responsive'">
+  Maximum number of tags to show in multiple mode. Use 'responsive' for automatic calculation.
+</ParamField>
+
+<ParamField path="fieldProps.notFoundContent" type="ReactNode">
+  Content displayed when no options match or data is empty.
+</ParamField>
+
+<ParamField path="fieldProps.optionFilterProp" type="string" default="'value'">
+  Which property to filter when using search (e.g., 'label', 'value').
+</ParamField>
+
+<ParamField path="fieldProps.placeholder" type="string">
+  Placeholder text shown when no value is selected.
+</ParamField>
+
+<ParamField path="fieldProps.searchValue" type="string">
+  Controlled search value.
+</ParamField>
+
+<ParamField path="fieldProps.onSearch" type="(value: string) => void">
+  Callback when search input changes.
+</ParamField>
+
+<ParamField path="fieldProps.onSelect" type="(value: any, option: SelectOption) => void">
+  Callback when an option is selected.
+</ParamField>
+
+<ParamField path="fieldProps.onDeselect" type="(value: any, option: SelectOption) => void">
+  Callback when an option is deselected (multiple mode).
+</ParamField>
+
+<ParamField path="fieldProps.onChange" type="(value: any, option: SelectOption | SelectOption[]) => void">
+  Callback when selected value changes.
+</ParamField>
+
+<ParamField path="searchOnFocus" type="boolean" default="false">
+  Whether to trigger search when input is focused.
+</ParamField>
+
+<ParamField path="resetAfterSelect" type="boolean" default="false">
+  Whether to clear search value after selecting an option.
+</ParamField>
+
+<ParamField path="fetchDataOnSearch" type="boolean" default="true">
+  Whether to call `request` when search keyword changes.
+</ParamField>
+
+<ParamField path="optionItemRender" type="(item: any) => ReactNode">
+  Custom render function for each option item.
+</ParamField>
+
+---
+
+## ProFormSelect.SearchSelect
+
+Enhanced select with optimized search behavior for large datasets.
+
+### Import
+
+```tsx
+import { ProFormSelect } from '@ant-design/pro-components';
+```
+
+### Usage
+
+```tsx
+<ProFormSelect.SearchSelect
+  name="products"
+  label="Products"
+  mode="multiple"
+  request={async ({ keyWords }) => {
+    const response = await fetch(`/api/products?search=${keyWords}`);
+    const data = await response.json();
+    return data.map(product => ({
+      label: product.name,
+      value: product.id
+    }));
+  }}
+  placeholder="Search products"
+  fieldProps={{
+    labelInValue: true
+  }}
+/>
+```
+
+### Props
+
+Extends ProFormSelect props with enhanced search features:
+
+- Defaults to `showSearch={true}`
+- Defaults to `labelInValue={true}`
+- Optimized for remote search scenarios
+- Auto-clears search value after selection
+- No suffix icon by default
+
+---
+
+## ProFormTreeSelect
+
+Tree structure select component for hierarchical data.
+
+### Import
+
+```tsx
+import { ProFormTreeSelect } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormTreeSelect
+      name="department"
+      label="Department"
+      fieldProps={{
+        treeData: [
+          {
+            title: 'Engineering',
+            value: 'eng',
+            children: [
+              { title: 'Frontend', value: 'eng-fe' },
+              { title: 'Backend', value: 'eng-be' }
+            ]
+          },
+          {
+            title: 'Marketing',
+            value: 'mkt',
+            children: [
+              { title: 'Content', value: 'mkt-content' },
+              { title: 'Social', value: 'mkt-social' }
+            ]
+          }
+        ]
+      }}
+      placeholder="Select department"
+    />
+    ```
+  </Tab>
+  <Tab title="Multiple">
+    ```tsx
+    <ProFormTreeSelect
+      name="permissions"
+      label="Permissions"
+      fieldProps={{
+        treeData: permissionsTree,
+        multiple: true,
+        treeCheckable: true,
+        showCheckedStrategy: 'SHOW_PARENT'
+      }}
+      placeholder="Select permissions"
+    />
+    ```
+  </Tab>
+  <Tab title="Remote Data">
+    ```tsx
+    <ProFormTreeSelect
+      name="category"
+      label="Category"
+      request={async () => {
+        const response = await fetch('/api/categories/tree');
+        return response.json();
+      }}
+      placeholder="Select category"
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+Extends ProFormText props and Ant Design [TreeSelect](https://ant.design/components/tree-select) props.
+
+<ParamField path="fieldProps.treeData" type="TreeNode[]">
+  Tree data structure. Each node:
+  ```typescript
+  interface TreeNode {
+    title: string;
+    value: string | number;
+    children?: TreeNode[];
+    disabled?: boolean;
+    selectable?: boolean;
+    checkable?: boolean;
+  }
+  ```
+</ParamField>
+
+<ParamField path="request" type="(params: any) => Promise<TreeNode[]>">
+  Async function to load tree data from remote source.
+</ParamField>
+
+<ParamField path="params" type="Record<string, any>">
+  Parameters passed to `request` function.
+</ParamField>
+
+<ParamField path="fieldProps.multiple" type="boolean" default="false">
+  Whether to allow selecting multiple nodes.
+</ParamField>
+
+<ParamField path="fieldProps.treeCheckable" type="boolean" default="false">
+  Whether to show checkbox on each tree node.
+</ParamField>
+
+<ParamField path="fieldProps.showCheckedStrategy" type="'SHOW_ALL' | 'SHOW_PARENT' | 'SHOW_CHILD'">
+  Strategy for displaying selected nodes:
+  - `SHOW_ALL`: Show all checked nodes
+  - `SHOW_PARENT`: Show only parent nodes when all children are checked
+  - `SHOW_CHILD`: Show only child nodes
+</ParamField>
+
+<ParamField path="fieldProps.treeDefaultExpandAll" type="boolean" default="false">
+  Whether to expand all tree nodes by default.
+</ParamField>
+
+<ParamField path="fieldProps.treeDefaultExpandedKeys" type="(string | number)[]">
+  Array of keys for nodes to expand by default.
+</ParamField>
+
+<ParamField path="fieldProps.treeNodeFilterProp" type="string" default="'title'">
+  Which property to filter when searching.
+</ParamField>
+
+<ParamField path="fieldProps.showSearch" type="boolean" default="false">
+  Whether to show search input.
+</ParamField>
+
+<ParamField path="fieldProps.treeNodeLabelProp" type="string" default="'title'">
+  Which property to use as label for selected value display.
+</ParamField>
+
+<ParamField path="fieldProps.allowClear" type="boolean">
+  Whether to show clear button.
+</ParamField>
+
+<ParamField path="fieldProps.onChange" type="(value: any, label: string[], extra: any) => void">
+  Callback when selected value changes.
+</ParamField>
+
+<ParamField path="fetchDataOnSearch" type="boolean" default="true">
+  Whether to call `request` when search keyword changes.
+</ParamField>
+
+---
+
+## ProFormCascader
+
+Cascading select component for multi-level related data.
+
+### Import
+
+```tsx
+import { ProFormCascader } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormCascader
+      name="location"
+      label="Location"
+      fieldProps={{
+        options: [
+          {
+            value: 'usa',
+            label: 'United States',
+            children: [
+              {
+                value: 'ca',
+                label: 'California',
+                children: [
+                  { value: 'sf', label: 'San Francisco' },
+                  { value: 'la', label: 'Los Angeles' }
+                ]
+              },
+              {
+                value: 'ny',
+                label: 'New York',
+                children: [
+                  { value: 'nyc', label: 'New York City' }
+                ]
+              }
+            ]
+          }
+        ]
+      }}
+      placeholder="Select location"
+    />
+    ```
+  </Tab>
+  <Tab title="Remote Data">
+    ```tsx
+    <ProFormCascader
+      name="category"
+      label="Category"
+      request={async () => {
+        const response = await fetch('/api/categories/cascader');
+        return response.json();
+      }}
+      placeholder="Select category"
+    />
+    ```
+  </Tab>
+  <Tab title="Dynamic Load">
+    ```tsx
+    <ProFormCascader
+      name="region"
+      label="Region"
+      fieldProps={{
+        options: initialOptions,
+        loadData: async (selectedOptions) => {
+          const targetOption = selectedOptions[selectedOptions.length - 1];
+          targetOption.loading = true;
+          
+          const response = await fetch(`/api/regions/${targetOption.value}/children`);
+          const children = await response.json();
+          
+          targetOption.loading = false;
+          targetOption.children = children;
+        }
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+Extends ProFormText props and Ant Design [Cascader](https://ant.design/components/cascader) props.
+
+<ParamField path="fieldProps.options" type="CascaderOption[]">
+  Cascading options data. Each option:
+  ```typescript
+  interface CascaderOption {
+    value: string | number;
+    label: string;
+    children?: CascaderOption[];
+    disabled?: boolean;
+    loading?: boolean;
+    isLeaf?: boolean;
+  }
+  ```
+</ParamField>
+
+<ParamField path="request" type="(params: any) => Promise<CascaderOption[]>">
+  Async function to load options from remote source.
+</ParamField>
+
+<ParamField path="params" type="Record<string, any>">
+  Parameters passed to `request` function.
+</ParamField>
+
+<ParamField path="fieldProps.changeOnSelect" type="boolean" default="false">
+  Whether to change value on each selection in the cascade path.
+</ParamField>
+
+<ParamField path="fieldProps.displayRender" type="(label: string[], selectedOptions: CascaderOption[]) => ReactNode">
+  Custom render function for displaying selected value.
+</ParamField>
+
+<ParamField path="fieldProps.expandTrigger" type="'click' | 'hover'" default="'click'">
+  How to trigger expanding of next level options.
+</ParamField>
+
+<ParamField path="fieldProps.fieldNames" type="{ label: string, value: string, children: string }">
+  Custom field names for options:
+  ```tsx
+  fieldNames={{ label: 'name', value: 'code', children: 'items' }}
+  ```
+</ParamField>
+
+<ParamField path="fieldProps.loadData" type="(selectedOptions: CascaderOption[]) => void">
+  Function to load options dynamically. Called when expanding a node.
+</ParamField>
+
+<ParamField path="fieldProps.showSearch" type="boolean | ShowSearchType">
+  Whether to show search input. Can be boolean or search configuration:
+  ```typescript
+  showSearch={{
+    filter: (inputValue, path) => 
+      path.some(option => option.label.includes(inputValue)),
+    limit: 50,
+    matchInputWidth: true,
+    render: (inputValue, path) => path.map(o => o.label).join(' / ')
+  }}
+  ```
+</ParamField>
+
+<ParamField path="fieldProps.allowClear" type="boolean">
+  Whether to show clear button.
+</ParamField>
+
+<ParamField path="fieldProps.placeholder" type="string">
+  Placeholder text when no value is selected.
+</ParamField>
+
+<ParamField path="fieldProps.onChange" type="(value: any[], selectedOptions: CascaderOption[]) => void">
+  Callback when selected value changes.
+</ParamField>
+
+## Common Features
+
+<Expandable title="Remote Data Loading">
+  All select components support loading options from remote sources using the `request` prop:
+  
+  ```tsx
+  <ProFormSelect
+    request={async (params) => {
+      const response = await fetch('/api/options', {
+        method: 'POST',
+        body: JSON.stringify(params)
+      });
+      return response.json();
+    }}
+    params={{ type: 'active' }} // Triggers request when changed
+  />
+  ```
+  
+  The request function is called:
+  - On component mount
+  - When `params` prop changes
+  - When search keyword changes (if `fetchDataOnSearch={true}`)
+</Expandable>
+
+<Expandable title="Value Enum">
+  Use `valueEnum` for simple option mapping with status indicators:
+  
+  ```tsx
+  <ProFormSelect
+    valueEnum={{
+      open: { text: 'Open', status: 'Processing' },
+      closed: { text: 'Closed', status: 'Success' },
+      cancelled: { text: 'Cancelled', status: 'Error' }
+    }}
+  />
+  ```
+</Expandable>
+
+<Expandable title="Popup Container">
+  All select components automatically handle popup container positioning to work correctly in modals and drawers.
+</Expandable>
+
+<Expandable title="Read-only Mode">
+  In read-only mode, selected values display as badges or text instead of dropdowns:
+  
+  ```tsx
+  <ProFormSelect
+    readonly
+    name="status"
+    valueEnum={{ active: { text: 'Active', status: 'Success' } }}
+  />
+  ```
+</Expandable>

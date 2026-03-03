@@ -1,0 +1,550 @@
+---
+title: Internationalization (i18n)
+description: Built-in multi-language support with 35+ locales and custom translation capabilities
+---
+
+ProComponents provides comprehensive internationalization (i18n) support out of the box, with built-in translations for 35+ languages and easy customization options.
+
+## Overview
+
+The i18n system in ProComponents:
+
+- Supports 35+ languages out of the box
+- Automatically syncs with Ant Design locale settings
+- Provides a simple API for accessing translations
+- Allows custom translation overrides
+- Uses a fallback mechanism (defaults to Chinese)
+
+<Tip>
+ProComponents automatically detects and uses the locale from Ant Design's `ConfigProvider`, so in most cases, you don't need to configure it separately.
+</Tip>
+
+## Built-in Locales
+
+ProComponents includes translations for:
+
+<Tabs>
+  <Tab title="European Languages">
+    - **English**: `en_US`, `en_GB`
+    - **Spanish**: `es_ES`
+    - **French**: `fr_FR`
+    - **German**: `de_DE`
+    - **Italian**: `it_IT`
+    - **Portuguese**: `pt_BR`
+    - **Dutch**: `nl_NL`
+    - **Polish**: `pl_PL`
+    - **Romanian**: `ro_RO`
+    - **Swedish**: `sv_SE`
+    - **Czech**: `cs_CZ`
+    - **Slovak**: `sk_SK`
+    - **Catalan**: `ca_ES`
+  </Tab>
+  <Tab title="Asian Languages">
+    - **Chinese Simplified**: `zh_CN`
+    - **Chinese Traditional**: `zh_TW`, `zh_HK`
+    - **Japanese**: `ja_JP`
+    - **Korean**: `ko_KR`
+    - **Vietnamese**: `vi_VN`
+    - **Thai**: `th_TH`
+    - **Indonesian**: `id_ID`
+    - **Malay**: `ms_MY`
+    - **Mongolian**: `mn_MN`
+  </Tab>
+  <Tab title="Other Languages">
+    - **Arabic**: `ar_EG`
+    - **Hebrew**: `he_IL`
+    - **Persian**: `fa_IR`
+    - **Turkish**: `tr_TR`
+    - **Russian**: `ru_RU`
+    - **Ukrainian**: `uk_UA`
+    - **Serbian**: `sr_RS`
+    - **Croatian**: `hr_HR`
+    - **Uzbek**: `uz_UZ`
+  </Tab>
+</Tabs>
+
+## Basic Usage
+
+### Automatic Locale Detection
+
+The simplest way to use i18n is to let ProComponents detect the locale from Ant Design:
+
+```tsx
+import { ConfigProvider } from 'antd';
+import { ProLayout } from '@ant-design/pro-components';
+import enUS from 'antd/locale/en_US';
+import zhCN from 'antd/locale/zh_CN';
+
+function App() {
+  return (
+    <ConfigProvider locale={enUS}>
+      {/* ProComponents automatically uses English translations */}
+      <ProLayout />
+    </ConfigProvider>
+  );
+}
+```
+
+### Explicit Locale Setting
+
+You can explicitly set the ProComponents locale:
+
+<CodeGroup>
+```tsx Using ProConfigProvider
+import { ProConfigProvider, enUSIntl } from '@ant-design/pro-components';
+
+function App() {
+  return (
+    <ProConfigProvider intl={enUSIntl}>
+      <YourApp />
+    </ProConfigProvider>
+  );
+}
+```
+
+```tsx Multiple Locales
+import { ProConfigProvider, zhCNIntl, enUSIntl, jaJPIntl } from '@ant-design/pro-components';
+import { useState } from 'react';
+
+function App() {
+  const [locale, setLocale] = useState(enUSIntl);
+
+  return (
+    <ProConfigProvider intl={locale}>
+      <select onChange={(e) => {
+        const locales = { en: enUSIntl, zh: zhCNIntl, ja: jaJPIntl };
+        setLocale(locales[e.target.value]);
+      }}>
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+        <option value="ja">日本語</option>
+      </select>
+      <YourApp />
+    </ProConfigProvider>
+  );
+}
+```
+</CodeGroup>
+
+## Using the useIntl Hook
+
+Access translations in your components with the `useIntl` hook:
+
+```tsx
+import { useIntl } from '@ant-design/pro-components';
+
+function MyComponent() {
+  const intl = useIntl();
+
+  return (
+    <div>
+      <button>
+        {intl.getMessage('tableForm.search', 'Search')}
+      </button>
+      <button>
+        {intl.getMessage('tableForm.reset', 'Reset')}
+      </button>
+    </div>
+  );
+}
+```
+
+### getMessage API
+
+The `getMessage` function accepts two parameters:
+
+```typescript
+getMessage(
+  id: string,           // Translation key path
+  defaultMessage: string // Fallback text if translation not found
+): string
+```
+
+<Note>
+The `defaultMessage` is required and will be used if:
+1. The translation key doesn't exist
+2. The current locale doesn't have a translation for that key
+3. The locale falls back to Chinese but the key still isn't found
+</Note>
+
+## Translation Keys
+
+Here are the available translation keys in ProComponents:
+
+### Common Keys
+
+```typescript
+// Money symbol
+intl.getMessage('moneySymbol', '$')  // '$' or '¥' depending on locale
+
+// Table actions
+intl.getMessage('deleteThisLine', 'Delete this line')
+intl.getMessage('copyThisLine', 'Copy this line')
+```
+
+### Form Keys
+
+<CodeGroup>
+```typescript Light Filter
+// src/provider/locale/en_US.tsx
+intl.getMessage('form.lightFilter.more', 'More')
+intl.getMessage('form.lightFilter.clear', 'Clear')
+intl.getMessage('form.lightFilter.confirm', 'Confirm')
+intl.getMessage('form.lightFilter.itemUnit', 'Items')
+```
+
+```typescript Table Form
+intl.getMessage('tableForm.search', 'Query')
+intl.getMessage('tableForm.reset', 'Reset')
+intl.getMessage('tableForm.submit', 'Submit')
+intl.getMessage('tableForm.collapsed', 'Expand')
+intl.getMessage('tableForm.expand', 'Collapse')
+intl.getMessage('tableForm.inputPlaceholder', 'Please enter')
+intl.getMessage('tableForm.selectPlaceholder', 'Please select')
+```
+
+```typescript Steps Form
+intl.getMessage('stepsForm.next', 'Next')
+intl.getMessage('stepsForm.prev', 'Previous')
+intl.getMessage('stepsForm.submit', 'Finish')
+```
+</CodeGroup>
+
+### Table Keys
+
+<Tabs>
+  <Tab title="Alert">
+    ```typescript
+    intl.getMessage('alert.clear', 'Clear')
+    intl.getMessage('alert.selected', 'Selected')
+    intl.getMessage('alert.item', 'Item')
+    ```
+  </Tab>
+  <Tab title="Pagination">
+    ```typescript
+    intl.getMessage('pagination.total.range', ' ')
+    intl.getMessage('pagination.total.total', 'of')
+    intl.getMessage('pagination.total.item', 'items')
+    ```
+  </Tab>
+  <Tab title="Toolbar">
+    ```typescript
+    intl.getMessage('tableToolBar.leftPin', 'Pin to left')
+    intl.getMessage('tableToolBar.rightPin', 'Pin to right')
+    intl.getMessage('tableToolBar.noPin', 'Unpinned')
+    intl.getMessage('tableToolBar.reset', 'Reset')
+    intl.getMessage('tableToolBar.columnDisplay', 'Column Display')
+    intl.getMessage('tableToolBar.columnSetting', 'Table Settings')
+    intl.getMessage('tableToolBar.fullScreen', 'Full Screen')
+    intl.getMessage('tableToolBar.reload', 'Refresh')
+    intl.getMessage('tableToolBar.density', 'Density')
+    ```
+  </Tab>
+</Tabs>
+
+### Editable Table Keys
+
+```typescript
+intl.getMessage('editableTable.onlyOneLineEditor', 'Only one line can be edited')
+intl.getMessage('editableTable.onlyAddOneLine', 'Only one line can be added')
+intl.getMessage('editableTable.action.save', 'Save')
+intl.getMessage('editableTable.action.cancel', 'Cancel')
+intl.getMessage('editableTable.action.delete', 'Delete')
+intl.getMessage('editableTable.action.add', 'add a row of data')
+```
+
+### Layout Keys (SettingDrawer)
+
+ProLayout includes a SettingDrawer with extensive i18n support:
+
+<CodeGroup>
+```typescript Theme Settings
+// From src/layout/locales/en-US/settingDrawer.ts
+intl.getMessage('app.setting.pagestyle', 'Page style setting')
+intl.getMessage('app.setting.pagestyle.dark', 'Dark Menu style')
+intl.getMessage('app.setting.pagestyle.light', 'Light Menu style')
+intl.getMessage('app.setting.themecolor', 'Theme Color')
+```
+
+```typescript Layout Settings
+intl.getMessage('app.setting.navigationmode', 'Navigation Mode')
+intl.getMessage('app.setting.sidemenu', 'Side Menu Layout')
+intl.getMessage('app.setting.topmenu', 'Top Menu Layout')
+intl.getMessage('app.setting.mixmenu', 'Mix Menu Layout')
+intl.getMessage('app.setting.splitMenus', 'Split Menus')
+```
+
+```typescript Display Settings
+intl.getMessage('app.setting.fixedheader', 'Fixed Header')
+intl.getMessage('app.setting.fixedsidebar', 'Fixed Sidebar')
+intl.getMessage('app.setting.hideheader', 'Hidden Header when scrolling')
+intl.getMessage('app.setting.weakmode', 'Weak Mode')
+```
+</CodeGroup>
+
+## Locale File Structure
+
+Here's the complete structure of a locale file:
+
+```typescript
+// src/provider/locale/en_US.tsx
+export default {
+  moneySymbol: '$',
+  deleteThisLine: 'Delete this line',
+  copyThisLine: 'Copy this line',
+  form: {
+    lightFilter: {
+      more: 'More',
+      clear: 'Clear',
+      confirm: 'Confirm',
+      itemUnit: 'Items',
+    },
+  },
+  tableForm: {
+    search: 'Query',
+    reset: 'Reset',
+    submit: 'Submit',
+    collapsed: 'Expand',
+    expand: 'Collapse',
+    inputPlaceholder: 'Please enter',
+    selectPlaceholder: 'Please select',
+  },
+  alert: {
+    clear: 'Clear',
+    selected: 'Selected',
+    item: 'Item',
+  },
+  pagination: {
+    total: {
+      range: ' ',
+      total: 'of',
+      item: 'items',
+    },
+  },
+  // ... more keys
+};
+```
+
+## Custom Translations
+
+Create custom locale objects for your application:
+
+<CodeGroup>
+```typescript Custom Locale
+import { createIntl } from '@ant-design/pro-components';
+
+const customLocale = {
+  moneySymbol: '€',
+  tableForm: {
+    search: 'Rechercher',
+    reset: 'Réinitialiser',
+  },
+  // Add your custom keys
+  myApp: {
+    welcome: 'Bienvenue',
+    logout: 'Se déconnecter',
+  },
+};
+
+const frFRCustom = createIntl('fr_FR', customLocale);
+
+export default frFRCustom;
+```
+
+```typescript Using Custom Locale
+import { ProConfigProvider } from '@ant-design/pro-components';
+import frFRCustom from './locales/fr_FR';
+
+function App() {
+  return (
+    <ProConfigProvider intl={frFRCustom}>
+      <YourApp />
+    </ProConfigProvider>
+  );
+}
+```
+
+```typescript Extending Existing Locale
+import { createIntl, enUSIntl } from '@ant-design/pro-components';
+
+const customEnUS = createIntl('en_US', {
+  ...enUSIntl,
+  // Override specific keys
+  tableForm: {
+    ...enUSIntl.getMessage('tableForm', {}),
+    search: 'Find',
+  },
+  // Add custom keys
+  myApp: {
+    welcome: 'Welcome to our app',
+  },
+});
+```
+</CodeGroup>
+
+## Locale Mapping
+
+ProComponents automatically maps Ant Design locale keys to ProComponents locales:
+
+```typescript
+// From src/provider/intl.ts
+export const findIntlKeyByAntdLocaleKey = (localeKey?: string) => {
+  const localeName = (localeKey || 'zh-CN').toLocaleLowerCase();
+  return intlMapKeys.find((intlKey) => {
+    const LowerCaseKey = intlKey.toLocaleLowerCase();
+    return LowerCaseKey.includes(localeName);
+  });
+};
+```
+
+This means `zh_CN`, `zh-CN`, and `zhCN` all map to the Chinese locale.
+
+## Fallback Mechanism
+
+The i18n system uses a graceful fallback:
+
+1. Try to get translation from current locale
+2. If not found, try Chinese (zh-CN) locale
+3. If still not found, use the provided default message
+
+```typescript
+getMessage: (id: string, defaultMessage: string) => {
+  const msg = get(localeMap, id.replace(/\[(\d+)\]/g, '.$1').split('.')) || '';
+  if (msg) return msg;
+  
+  // Fallback to Chinese for non-Chinese locales
+  const localKey = locale.replace('_', '-');
+  if (localKey === 'zh-CN') {
+    return defaultMessage;
+  }
+  
+  const intl = intlMap['zh-CN'];
+  return intl ? intl.getMessage(id, defaultMessage) : defaultMessage;
+}
+```
+
+<Note>
+Always provide a meaningful `defaultMessage`. It's not just a fallback—it also serves as documentation for what the translation should say.
+</Note>
+
+## Dynamic Locale Switching
+
+Build a complete locale switcher:
+
+```tsx
+import { ProConfigProvider, enUSIntl, zhCNIntl, jaJPIntl, frFRIntl } from '@ant-design/pro-components';
+import { ConfigProvider } from 'antd';
+import enUS from 'antd/locale/en_US';
+import zhCN from 'antd/locale/zh_CN';
+import jaJP from 'antd/locale/ja_JP';
+import frFR from 'antd/locale/fr_FR';
+import { useState } from 'react';
+import { Select } from 'antd';
+
+const locales = {
+  'en-US': { antd: enUS, intl: enUSIntl, label: 'English' },
+  'zh-CN': { antd: zhCN, intl: zhCNIntl, label: '简体中文' },
+  'ja-JP': { antd: jaJP, intl: jaJPIntl, label: '日本語' },
+  'fr-FR': { antd: frFR, intl: frFRIntl, label: 'Français' },
+};
+
+function App() {
+  const [locale, setLocale] = useState('en-US');
+  const currentLocale = locales[locale];
+
+  return (
+    <ConfigProvider locale={currentLocale.antd}>
+      <ProConfigProvider intl={currentLocale.intl}>
+        <Select
+          value={locale}
+          onChange={setLocale}
+          style={{ width: 120 }}
+        >
+          {Object.entries(locales).map(([key, { label }]) => (
+            <Select.Option key={key} value={key}>
+              {label}
+            </Select.Option>
+          ))}
+        </Select>
+        <YourApp />
+      </ProConfigProvider>
+    </ConfigProvider>
+  );
+}
+```
+
+## TypeScript Support
+
+ProComponents provides full TypeScript support for i18n:
+
+```typescript
+import type { IntlType } from '@ant-design/pro-components';
+
+const myIntl: IntlType = {
+  locale: 'en-US',
+  getMessage: (id: string, defaultMessage: string) => {
+    // Your custom implementation
+    return defaultMessage;
+  },
+};
+```
+
+## Real-World Example
+
+Here's a complete example with locale persistence:
+
+```tsx
+import { ProConfigProvider, enUSIntl, zhCNIntl } from '@ant-design/pro-components';
+import { ConfigProvider } from 'antd';
+import enUS from 'antd/locale/en_US';
+import zhCN from 'antd/locale/zh_CN';
+import { useState, useEffect } from 'react';
+
+const locales = {
+  'en-US': { antd: enUS, pro: enUSIntl },
+  'zh-CN': { antd: zhCN, pro: zhCNIntl },
+};
+
+function App() {
+  const [locale, setLocale] = useState(() => {
+    // Load from localStorage
+    return localStorage.getItem('locale') || 'en-US';
+  });
+
+  useEffect(() => {
+    // Persist to localStorage
+    localStorage.setItem('locale', locale);
+  }, [locale]);
+
+  const currentLocale = locales[locale];
+
+  return (
+    <ConfigProvider locale={currentLocale.antd}>
+      <ProConfigProvider intl={currentLocale.pro}>
+        <YourApp onLocaleChange={setLocale} currentLocale={locale} />
+      </ProConfigProvider>
+    </ConfigProvider>
+  );
+}
+```
+
+## Best Practices
+
+<Tip>
+1. **Always provide defaultMessage**: It serves as both fallback and documentation
+2. **Use nested keys**: Organize translations by component/feature (e.g., `tableForm.search`)
+3. **Sync with Ant Design**: Use the same locale for both ConfigProvider and ProConfigProvider
+4. **Test fallbacks**: Ensure your app works even if translations are missing
+5. **Persist locale choice**: Save user's language preference to localStorage or cookies
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Architecture Overview" icon="book" href="/concepts/overview">
+    Learn about ProComponents architecture and design
+  </Card>
+  <Card title="Theming System" icon="palette" href="/concepts/theming">
+    Customize appearance with design tokens
+  </Card>
+</CardGroup>

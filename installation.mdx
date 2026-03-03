@@ -1,0 +1,329 @@
+---
+title: Installation
+description: Install ProComponents in your React project with npm, yarn, or pnpm
+---
+
+## Prerequisites
+
+Before installing ProComponents, ensure your project meets these requirements:
+
+<CardGroup cols={2}>
+  <Card title="React" icon="react">
+    Version 18.0.0 or higher
+  </Card>
+  <Card title="Ant Design" icon="ant-design">
+    Version 6.0.0 or higher
+  </Card>
+</CardGroup>
+
+<Note>
+  ProComponents is built on top of Ant Design and requires it as a peer dependency. Both React and React DOM must be installed in your project.
+</Note>
+
+## Installation
+
+Install ProComponents using your preferred package manager:
+
+<CodeGroup>
+
+```bash npm
+npm install @ant-design/pro-components
+```
+
+```bash yarn
+yarn add @ant-design/pro-components
+```
+
+```bash pnpm
+pnpm install @ant-design/pro-components
+```
+
+</CodeGroup>
+
+## Installing Peer Dependencies
+
+If you haven't already installed Ant Design and React in your project, you'll need to install them as well:
+
+<CodeGroup>
+
+```bash npm
+npm install antd react react-dom
+```
+
+```bash yarn
+yarn add antd react react-dom
+```
+
+```bash pnpm
+pnpm install antd react react-dom
+```
+
+</CodeGroup>
+
+## Package Contents
+
+The `@ant-design/pro-components` package is an all-in-one bundle that includes:
+
+- **ProTable** - Advanced data table component
+- **ProForm** - Enhanced form components with multiple layouts
+- **ProLayout** - Complete page layout solution
+- **ProCard** - Statistics and checkable card components
+- **ProList** - Advanced list component with toolbar
+- **ProDescriptions** - Enhanced descriptions component
+- **ProField** - Unified field rendering component
+- **ProSkeleton** - Loading skeleton components
+- **ProProvider** - Global configuration provider
+- **Utilities** - Helper functions and hooks
+
+<Info>
+  ProComponents uses a monorepo structure, but you only need to install one package. All components are exported from `@ant-design/pro-components`.
+</Info>
+
+## TypeScript Support
+
+ProComponents is written in TypeScript and includes comprehensive type definitions out of the box. No additional `@types` packages are needed.
+
+```tsx
+import type { ProColumns } from '@ant-design/pro-components';
+import { ProTable } from '@ant-design/pro-components';
+
+interface DataType {
+  id: number;
+  name: string;
+  age: number;
+}
+
+const columns: ProColumns<DataType>[] = [
+  { title: 'Name', dataIndex: 'name' },
+  { title: 'Age', dataIndex: 'age', valueType: 'digit' },
+];
+```
+
+## Import Styles
+
+ProComponents automatically inherits Ant Design's styles. Make sure you import Ant Design's CSS in your application:
+
+```tsx
+import 'antd/dist/reset.css'; // For Ant Design 5.x+
+```
+
+<Warning>
+  If you're using Ant Design 4.x, import `antd/dist/antd.css` instead. However, ProComponents 3.x officially requires Ant Design 6.x.
+</Warning>
+
+## Module Formats
+
+ProComponents supports multiple module formats for different build tools:
+
+<Tabs>
+  <Tab title="ES Modules (Recommended)">
+    ```tsx
+    import { ProTable, ProForm } from '@ant-design/pro-components';
+    ```
+    
+    **Best for**: Modern build tools (Vite, Webpack 5, Rollup)
+    
+    **Location**: `es/index.js`
+    
+    **Benefits**: Tree-shaking support, smaller bundle size
+  </Tab>
+  
+  <Tab title="CommonJS">
+    ```tsx
+    const { ProTable, ProForm } = require('@ant-design/pro-components');
+    ```
+    
+    **Best for**: Node.js environments, older build setups
+    
+    **Location**: `lib/index.js`
+    
+    **Benefits**: Maximum compatibility
+  </Tab>
+  
+  <Tab title="UMD (Browser)">
+    ```html
+    <script src="https://unpkg.com/@ant-design/pro-components/dist/pro-components.min.js"></script>
+    <script>
+      const { ProTable } = window.ProComponents;
+    </script>
+    ```
+    
+    **Best for**: Direct browser usage without a build tool
+    
+    **Location**: `dist/pro-components.min.js`
+    
+    **Note**: Requires React, ReactDOM, and Ant Design to be loaded first
+  </Tab>
+</Tabs>
+
+## Bundle Size Optimization
+
+ProComponents supports tree-shaking when using ES modules with modern build tools:
+
+```tsx
+// This only bundles ProTable and its dependencies
+import { ProTable } from '@ant-design/pro-components';
+```
+
+For even better optimization, you can use import aliases if your project supports them:
+
+```tsx
+// Import specific components (works with some build configurations)
+import ProTable from '@ant-design/pro-components/es/table';
+import ProForm from '@ant-design/pro-components/es/form';
+```
+
+<Note>
+  Most modern bundlers (Vite, Webpack 5+) automatically tree-shake unused code when you import from the main package entry point.
+</Note>
+
+## Verification
+
+Verify your installation by creating a simple component:
+
+```tsx
+import { ProCard } from '@ant-design/pro-components';
+
+export default function App() {
+  return (
+    <ProCard title="Hello ProComponents">
+      <p>If you can see this, ProComponents is installed correctly!</p>
+    </ProCard>
+  );
+}
+```
+
+## Configuration Files
+
+Depending on your build tool, you may need additional configuration:
+
+<Tabs>
+  <Tab title="Vite">
+    ```ts vite.config.ts
+    import { defineConfig } from 'vite';
+    import react from '@vitejs/plugin-react';
+    
+    export default defineConfig({
+      plugins: [react()],
+      optimizeDeps: {
+        include: [
+          '@ant-design/pro-components',
+          'antd',
+        ],
+      },
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Next.js">
+    ```js next.config.js
+    module.exports = {
+      transpilePackages: [
+        '@ant-design/pro-components',
+        'antd',
+      ],
+    };
+    ```
+  </Tab>
+  
+  <Tab title="Create React App">
+    Create React App works out of the box with ProComponents. No additional configuration needed.
+    
+    <Note>
+      If you need to customize Ant Design's theme, consider using CRACO or ejecting.
+    </Note>
+  </Tab>
+  
+  <Tab title="Webpack">
+    ```js webpack.config.js
+    module.exports = {
+      module: {
+        rules: [
+          {
+            test: /\.(js|jsx|ts|tsx)$/,
+            include: [
+              /node_modules\/@ant-design\/pro-components/,
+            ],
+            use: 'babel-loader',
+          },
+        ],
+      },
+    };
+    ```
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Module not found: @ant-design/pro-components">
+    Make sure you've installed the package correctly:
+    
+    ```bash
+    npm list @ant-design/pro-components
+    ```
+    
+    If it's not listed, reinstall:
+    
+    ```bash
+    npm install @ant-design/pro-components --force
+    ```
+  </Accordion>
+  
+  <Accordion title="React version mismatch errors">
+    ProComponents requires React 18+. Check your React version:
+    
+    ```bash
+    npm list react react-dom
+    ```
+    
+    If needed, upgrade:
+    
+    ```bash
+    npm install react@latest react-dom@latest
+    ```
+  </Accordion>
+  
+  <Accordion title="Ant Design peer dependency warnings">
+    ProComponents requires Ant Design 6.x. Install the correct version:
+    
+    ```bash
+    npm install antd@^6.0.0
+    ```
+  </Accordion>
+  
+  <Accordion title="CSS styles not loading">
+    Make sure you've imported Ant Design's CSS:
+    
+    ```tsx
+    import 'antd/dist/reset.css';
+    ```
+    
+    Place this import at the top of your main entry file (e.g., `main.tsx` or `App.tsx`).
+  </Accordion>
+  
+  <Accordion title="TypeScript errors">
+    If you encounter TypeScript errors, ensure your `tsconfig.json` includes:
+    
+    ```json
+    {
+      "compilerOptions": {
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "jsx": "react-jsx"
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="bolt" href="/quickstart">
+    Build your first ProComponents application
+  </Card>
+  <Card title="Components Overview" icon="grid" href="/components/overview">
+    Explore all available components
+  </Card>
+</CardGroup>

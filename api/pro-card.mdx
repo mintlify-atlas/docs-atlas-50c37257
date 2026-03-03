@@ -1,0 +1,402 @@
+---
+title: ProCard
+description: Complete API reference for ProCard component
+---
+
+# ProCard API
+
+ProCard provides an enhanced card component with features like collapsible sections, tabs, nested layouts, and grid support.
+
+## ProCardProps
+
+<ParamField path="title" type="React.ReactNode">
+  Card title.
+</ParamField>
+
+<ParamField path="subTitle" type="React.ReactNode">
+  Card subtitle displayed next to the title.
+</ParamField>
+
+<ParamField path="tooltip" type="string | LabelTooltipType">
+  Tooltip for the title.
+  
+  ```typescript
+  type LabelTooltipType = {
+    icon?: React.ReactNode;
+    tooltip?: string | React.ReactNode;
+  }
+  ```
+</ParamField>
+
+<ParamField path="extra" type="React.ReactNode">
+  Extra content in the card header (top right corner).
+</ParamField>
+
+<ParamField path="headerBordered" type="boolean" default="false">
+  Whether the header has a divider line.
+</ParamField>
+
+<ParamField path="type" type="'default' | 'inner'" default="default">
+  Card type.
+  
+  - `default` - Standard card
+  - `inner` - Inner card for nested layouts
+</ParamField>
+
+<ParamField path="variant" type="'outlined' | 'borderless'" default="borderless">
+  Card variant.
+  
+  - `outlined` - Card with border
+  - `borderless` - Card without border
+</ParamField>
+
+<ParamField path="size" type="'default' | 'small'" default="default">
+  Card size.
+</ParamField>
+
+<ParamField path="loading" type="boolean | React.ReactNode" default="false">
+  Loading state. Can be a boolean or custom loading component.
+</ParamField>
+
+<ParamField path="hoverable" type="boolean" default="false">
+  Whether card can be hovered (shows shadow effect).
+</ParamField>
+
+<ParamField path="ghost" type="boolean" default="false">
+  Ghost mode - removes padding and background.
+</ParamField>
+
+<ParamField path="boxShadow" type="boolean" default="false">
+  Whether to show box shadow.
+</ParamField>
+
+<ParamField path="actions" type="React.ReactNode[] | React.ReactNode">
+  Card action buttons displayed at the bottom.
+</ParamField>
+
+<ParamField path="cover" type="React.ReactNode">
+  Card cover image or content.
+</ParamField>
+
+## Collapsible
+
+<ParamField path="collapsible" type="boolean | 'icon' | 'header'" default="false">
+  Whether the card is collapsible.
+  
+  - `false` - Not collapsible
+  - `true` or `'icon'` - Collapse icon in header
+  - `'header'` - Entire header is clickable
+</ParamField>
+
+<ParamField path="collapsed" type="boolean">
+  Controlled collapsed state.
+</ParamField>
+
+<ParamField path="defaultCollapsed" type="boolean" default="false">
+  Default collapsed state.
+</ParamField>
+
+<ParamField path="onCollapse" type="function">
+  Callback when collapse state changes.
+  
+  ```typescript
+  (collapsed: boolean) => void
+  ```
+</ParamField>
+
+<ParamField path="collapsibleIconRender" type="function">
+  Custom render for the collapse icon.
+  
+  ```typescript
+  ({ collapsed }: { collapsed: boolean }) => React.ReactNode
+  ```
+</ParamField>
+
+## Layout & Grid
+
+<ParamField path="layout" type="'default' | 'center'" default="default">
+  Card layout.
+  
+  - `default` - Normal layout
+  - `center` - Vertically center content
+</ParamField>
+
+<ParamField path="direction" type="'column' | 'row'" default="row">
+  Flex direction for nested child cards.
+</ParamField>
+
+<ParamField path="wrap" type="boolean" default="false">
+  Whether child cards wrap to new lines.
+</ParamField>
+
+<ParamField path="gutter" type="number | [number, number]">
+  Gap between child cards.
+  
+  - `number` - Horizontal and vertical gap
+  - `[horizontal, vertical]` - Different horizontal and vertical gaps
+  
+  Can also be responsive:
+  ```typescript
+  gutter={{ xs: 8, sm: 16, md: 24 }}
+  ```
+</ParamField>
+
+<ParamField path="colSpan" type="number | string | object">
+  Column span in grid layout (24-column grid system).
+  
+  Can be responsive:
+  ```typescript
+  colSpan={{ xs: 24, sm: 12, md: 8, lg: 6 }}
+  ```
+</ParamField>
+
+<ParamField path="colStyle" type="React.CSSProperties">
+  Style for the column wrapper.
+</ParamField>
+
+<ParamField path="split" type="'vertical' | 'horizontal'">
+  Split child cards with divider lines.
+  
+  - `vertical` - Vertical divider
+  - `horizontal` - Horizontal divider
+</ParamField>
+
+## Tabs
+
+<ParamField path="tabs" type="ProCardTabsProps">
+  Tab configuration for the card.
+  
+  <Expandable title="ProCardTabsProps">
+    Extends Ant Design TabsProps with:
+    - `cardProps?: ProCardProps` - Props to pass through to card
+    
+    All standard Ant Design Tabs props:
+    - `activeKey?: string` - Current active tab key
+    - `defaultActiveKey?: string` - Default active tab key
+    - `onChange?: (key: string) => void` - Callback when tab changes
+    - `items?: TabItem[]` - Tab items
+    - `tabPosition?: 'top' | 'right' | 'bottom' | 'left'`
+    - `type?: 'line' | 'card' | 'editable-card'`
+  </Expandable>
+</ParamField>
+
+## Selectable
+
+<ParamField path="checked" type="boolean">
+  Whether the card is selected (shows border highlight).
+</ParamField>
+
+<ParamField path="onChecked" type="function">
+  Callback when card is clicked (for selectable cards).
+  
+  ```typescript
+  (e: React.MouseEvent) => void
+  ```
+</ParamField>
+
+## Styling
+
+<ParamField path="styles" type="ProCardStyles">
+  Semantic styles object (aligned with Ant Design 5 Card).
+  
+  ```typescript
+  type ProCardStyles = {
+    root?: React.CSSProperties;
+    header?: React.CSSProperties;
+    body?: React.CSSProperties;
+    extra?: React.CSSProperties;
+    title?: React.CSSProperties;
+    actions?: React.CSSProperties;
+    cover?: React.CSSProperties;
+  }
+  ```
+</ParamField>
+
+<ParamField path="classNames" type="ProCardClassNames">
+  Semantic class names (aligned with Ant Design 5 Card).
+  
+  ```typescript
+  type ProCardClassNames = {
+    root?: string;
+    header?: string;
+    body?: string;
+    extra?: string;
+    title?: string;
+    actions?: string;
+    cover?: string;
+  }
+  ```
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS class name.
+</ParamField>
+
+<ParamField path="rootClassName" type="string">
+  Root element CSS class name.
+</ParamField>
+
+<ParamField path="style" type="React.CSSProperties">
+  Inline styles for the card.
+</ParamField>
+
+<ParamField path="bodyStyle" type="React.CSSProperties">
+  Inline styles for the card body (deprecated, use `styles.body`).
+</ParamField>
+
+<ParamField path="headStyle" type="React.CSSProperties">
+  Inline styles for the card header (deprecated, use `styles.header`).
+</ParamField>
+
+<ParamField path="prefixCls" type="string">
+  CSS class prefix.
+</ParamField>
+
+## ProCard.TabPane
+
+Tab pane component for use with ProCard tabs.
+
+<ParamField path="key" type="string" required>
+  Unique key for the tab.
+</ParamField>
+
+<ParamField path="tab" type="React.ReactNode">
+  Tab label.
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  Disable the tab.
+</ParamField>
+
+<ParamField path="cardProps" type="ProCardProps">
+  Props to pass through to the ProCard for this tab.
+</ParamField>
+
+## ProCard.Group
+
+Group multiple ProCards together.
+
+<ParamField path="title" type="React.ReactNode">
+  Group title.
+</ParamField>
+
+<ParamField path="direction" type="'column' | 'row'" default="row">
+  Flex direction for cards in the group.
+</ParamField>
+
+<ParamField path="gutter" type="number | [number, number]">
+  Gap between cards.
+</ParamField>
+
+<ParamField path="ghost" type="boolean" default="false">
+  Ghost mode for the group.
+</ParamField>
+
+## ProCard.Divider
+
+Divider for splitting card sections.
+
+<ParamField path="type" type="'horizontal' | 'vertical'">
+  Divider orientation.
+</ParamField>
+
+## Usage Examples
+
+<Tabs>
+  <Tab title="Basic Usage">
+    ```tsx
+    import { ProCard } from '@ant-design/pro-components';
+
+    export default () => (
+      <ProCard
+        title="Card Title"
+        extra={<Button type="link">More</Button>}
+        headerBordered
+      >
+        Card content
+      </ProCard>
+    );
+    ```
+  </Tab>
+  <Tab title="Collapsible">
+    ```tsx
+    <ProCard
+      title="Collapsible Card"
+      collapsible
+      defaultCollapsed={false}
+    >
+      Card content
+    </ProCard>
+    ```
+  </Tab>
+  <Tab title="Grid Layout">
+    ```tsx
+    <ProCard gutter={16} ghost>
+      <ProCard colSpan={12} title="Card 1">
+        Content 1
+      </ProCard>
+      <ProCard colSpan={12} title="Card 2">
+        Content 2
+      </ProCard>
+    </ProCard>
+    ```
+  </Tab>
+  <Tab title="With Tabs">
+    ```tsx
+    <ProCard
+      tabs={{
+        activeKey: tab,
+        onChange: setTab,
+        items: [
+          {
+            key: 'tab1',
+            label: 'Tab 1',
+            children: <div>Tab 1 content</div>,
+          },
+          {
+            key: 'tab2',
+            label: 'Tab 2',
+            children: <div>Tab 2 content</div>,
+          },
+        ],
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Split Layout">
+    ```tsx
+    <ProCard split="vertical">
+      <ProCard title="Left" colSpan="40%">
+        Left content
+      </ProCard>
+      <ProCard title="Right">
+        Right content
+      </ProCard>
+    </ProCard>
+    ```
+  </Tab>
+  <Tab title="Responsive Grid">
+    ```tsx
+    <ProCard ghost gutter={[16, 16]}>
+      <ProCard
+        colSpan={{ xs: 24, sm: 12, md: 8, lg: 6 }}
+        title="Responsive Card 1"
+      >
+        Content
+      </ProCard>
+      <ProCard
+        colSpan={{ xs: 24, sm: 12, md: 8, lg: 6 }}
+        title="Responsive Card 2"
+      >
+        Content
+      </ProCard>
+      <ProCard
+        colSpan={{ xs: 24, sm: 12, md: 8, lg: 6 }}
+        title="Responsive Card 3"
+      >
+        Content
+      </ProCard>
+    </ProCard>
+    ```
+  </Tab>
+</Tabs>

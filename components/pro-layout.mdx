@@ -1,0 +1,538 @@
+---
+title: ProLayout
+description: Complete page layout solution with navigation, header, footer, and breadcrumbs
+---
+
+ProLayout provides a comprehensive page layout system for enterprise applications, including top navigation, side menus, breadcrumbs, page headers, and responsive design out of the box.
+
+## Features
+
+- **Multiple Layout Modes**: Side menu, top menu, and mixed layouts
+- **Responsive Design**: Automatic adaptation for mobile and desktop
+- **Menu Management**: Dynamic menu generation from route configuration
+- **Breadcrumbs**: Automatic breadcrumb navigation
+- **Theme Customization**: Light, dark, and custom themes
+- **Header Actions**: User info, notifications, settings
+- **Page Container**: Built-in page header with tabs and actions
+
+## Basic Usage
+
+```tsx
+import { ProLayout } from '@ant-design/pro-components';
+import { useState } from 'react';
+
+export default () => {
+  const [pathname, setPathname] = useState('/welcome');
+  
+  return (
+    <ProLayout
+      title="My Application"
+      logo="https://example.com/logo.svg"
+      route={{
+        path: '/',
+        routes: [
+          {
+            path: '/welcome',
+            name: '欢迎',
+            icon: <SmileOutlined />,
+          },
+          {
+            path: '/admin',
+            name: '管理页',
+            icon: <CrownOutlined />,
+            routes: [
+              {
+                path: '/admin/users',
+                name: '用户管理',
+              },
+              {
+                path: '/admin/roles',
+                name: '角色管理',
+              },
+            ],
+          },
+        ],
+      }}
+      location={{ pathname }}
+      menuItemRender={(item, dom) => (
+        <a onClick={() => setPathname(item.path || '/')}>{dom}</a>
+      )}
+    >
+      <PageContainer>
+        {/* Your page content */}
+      </PageContainer>
+    </ProLayout>
+  );
+};
+```
+
+## Layout Modes
+
+<Tabs>
+  <Tab title="Side Menu">
+    Default layout with side navigation:
+    
+    ```tsx
+    <ProLayout
+      layout="side"
+      // Side menu configuration
+    >
+      {children}
+    </ProLayout>
+    ```
+  </Tab>
+  
+  <Tab title="Top Menu">
+    Horizontal top navigation:
+    
+    ```tsx
+    <ProLayout
+      layout="top"
+      // Top menu configuration
+    >
+      {children}
+    </ProLayout>
+    ```
+  </Tab>
+  
+  <Tab title="Mixed">
+    Combined top and side navigation:
+    
+    ```tsx
+    <ProLayout
+      layout="mix"
+      splitMenus
+      // Mixed layout configuration
+    >
+      {children}
+    </ProLayout>
+    ```
+  </Tab>
+</Tabs>
+
+## Menu Configuration
+
+Define your application's menu structure using route configuration:
+
+```tsx
+const route = {
+  path: '/',
+  routes: [
+    {
+      path: '/dashboard',
+      name: '仪表盘',
+      icon: <DashboardOutlined />,
+    },
+    {
+      path: '/users',
+      name: '用户管理',
+      icon: <UserOutlined />,
+      routes: [
+        {
+          path: '/users/list',
+          name: '用户列表',
+        },
+        {
+          path: '/users/create',
+          name: '新建用户',
+        },
+      ],
+    },
+    {
+      name: '外部链接',
+      icon: <LinkOutlined />,
+      path: 'https://ant.design',
+      target: '_blank',
+    },
+  ],
+};
+
+<ProLayout route={route}>{/* Content */}</ProLayout>
+```
+
+## Dynamic Menu
+
+Load menu configuration from API:
+
+```tsx
+import { useState, useEffect } from 'react';
+
+const Demo = () => {
+  const [menuData, setMenuData] = useState([]);
+  
+  useEffect(() => {
+    // Fetch menu from API
+    fetch('/api/menu')
+      .then(res => res.json())
+      .then(data => setMenuData(data));
+  }, []);
+  
+  return (
+    <ProLayout
+      route={{
+        path: '/',
+        routes: menuData,
+      }}
+    >
+      {/* Content */}
+    </ProLayout>
+  );
+};
+```
+
+## PageContainer
+
+PageContainer provides a consistent page header with breadcrumbs, title, and actions:
+
+```tsx
+import { PageContainer } from '@ant-design/pro-components';
+import { Button } from 'antd';
+
+export default () => {
+  return (
+    <PageContainer
+      header={{
+        title: '页面标题',
+        breadcrumb: {
+          items: [
+            { path: '/', breadcrumbName: '首页' },
+            { breadcrumbName: '当前页' },
+          ],
+        },
+        extra: [
+          <Button key="1">次要按钮</Button>,
+          <Button key="2" type="primary">主要按钮</Button>,
+        ],
+      }}
+      tabList={[
+        { tab: '基本信息', key: 'base' },
+        { tab: '详细信息', key: 'detail' },
+      ]}
+      onTabChange={(key) => console.log(key)}
+    >
+      <ProCard>
+        {/* Page content */}
+      </ProCard>
+    </PageContainer>
+  );
+};
+```
+
+## Header Configuration
+
+### Custom Header Content
+
+```tsx
+<ProLayout
+  headerContentRender={() => (
+    <div>
+      <h1>自定义标题</h1>
+    </div>
+  )}
+  rightContentRender={() => (
+    <Space>
+      <Avatar icon={<UserOutlined />} />
+      <span>用户名</span>
+    </Space>
+  )}
+/>
+```
+
+### Header Actions
+
+```tsx
+import { QuestionCircleOutlined, BellOutlined } from '@ant-design/icons';
+
+<ProLayout
+  actionsRender={() => [
+    <QuestionCircleOutlined key="help" />,
+    <BellOutlined key="notification" />,
+  ]}
+  avatarProps={{
+    src: 'https://example.com/avatar.jpg',
+    title: '用户名',
+    render: (props, dom) => (
+      <Dropdown
+        menu={{
+          items: [
+            { key: 'profile', label: '个人中心' },
+            { key: 'settings', label: '设置' },
+            { type: 'divider' },
+            { key: 'logout', label: '退出登录' },
+          ],
+        }}
+      >
+        {dom}
+      </Dropdown>
+    ),
+  }}
+/>
+```
+
+## Footer
+
+```tsx
+import { DefaultFooter } from '@ant-design/pro-components';
+
+<ProLayout
+  footerRender={() => (
+    <DefaultFooter
+      copyright="2024 Ant Design"
+      links={[
+        { key: 'terms', title: '服务条款', href: '/terms' },
+        { key: 'privacy', title: '隐私政策', href: '/privacy' },
+      ]}
+    />
+  )}
+/>
+```
+
+## Theme Customization
+
+### Built-in Themes
+
+```tsx
+<ProLayout
+  navTheme="light" // 'light' | 'dark' | 'realDark'
+  colorPrimary="#1890ff"
+  layout="mix"
+/>
+```
+
+### Token Customization
+
+```tsx
+<ProLayout
+  token={{
+    header: {
+      colorBgHeader: '#001529',
+      colorHeaderTitle: '#fff',
+      colorTextMenu: '#dfdfdf',
+      colorTextMenuSecondary: '#dfdfdf',
+      colorTextMenuSelected: '#fff',
+      colorBgMenuItemSelected: '#1890ff',
+    },
+    sider: {
+      colorMenuBackground: '#fff',
+      colorTextMenu: '#595959',
+      colorTextMenuSelected: '#1890ff',
+      colorBgMenuItemSelected: '#e6f7ff',
+    },
+  }}
+/>
+```
+
+## Settings Drawer
+
+Provide a settings panel for users to customize the layout:
+
+```tsx
+import { ProLayout, SettingDrawer } from '@ant-design/pro-components';
+import { useState } from 'react';
+
+export default () => {
+  const [settings, setSettings] = useState({
+    navTheme: 'light',
+    layout: 'side',
+    contentWidth: 'Fluid',
+    fixedHeader: false,
+    fixSiderbar: true,
+  });
+  
+  return (
+    <>
+      <ProLayout {...settings}>
+        {/* Content */}
+      </ProLayout>
+      
+      <SettingDrawer
+        pathname="/"
+        settings={settings}
+        onSettingChange={(newSettings) => setSettings(newSettings)}
+      />
+    </>
+  );
+};
+```
+
+## Mobile Support
+
+ProLayout automatically adapts to mobile screens:
+
+```tsx
+<ProLayout
+  // Collapse sidebar on mobile
+  breakpoint="lg"
+  collapsed={collapsed}
+  onCollapse={setCollapsed}
+  
+  // Mobile menu configuration
+  menuProps={{
+    onClick: () => {
+      // Auto-close menu on mobile after selection
+      if (window.innerWidth < 768) {
+        setCollapsed(true);
+      }
+    },
+  }}
+/>
+```
+
+## Breadcrumbs
+
+Automatic breadcrumb generation:
+
+```tsx
+// Breadcrumbs are automatically generated from route config
+<ProLayout
+  route={routeConfig}
+  // Custom breadcrumb rendering
+  breadcrumbRender={(routers = []) => [
+    { path: '/', breadcrumbName: '首页' },
+    ...routers,
+  ]}
+  // Custom breadcrumb item rendering
+  itemRender={(route, params, routes, paths) => {
+    const first = routes.indexOf(route) === 0;
+    return first ? (
+      <Link to={paths.join('/')}>{route.breadcrumbName}</Link>
+    ) : (
+      <span>{route.breadcrumbName}</span>
+    );
+  }}
+/>
+```
+
+## Multi-tab Pages
+
+Implement multi-tab functionality:
+
+```tsx
+import { useState } from 'react';
+
+const Demo = () => {
+  const [tabs, setTabs] = useState([
+    { key: '1', tab: '页面 1', closable: false },
+  ]);
+  const [activeKey, setActiveKey] = useState('1');
+  
+  return (
+    <ProLayout>
+      <PageContainer
+        tabList={tabs}
+        tabActiveKey={activeKey}
+        onTabChange={setActiveKey}
+        tabBarExtraContent={
+          <Button
+            onClick={() => {
+              const newKey = String(tabs.length + 1);
+              setTabs([...tabs, {
+                key: newKey,
+                tab: `页面 ${newKey}`,
+                closable: true,
+              }]);
+              setActiveKey(newKey);
+            }}
+          >
+            添加标签
+          </Button>
+        }
+      >
+        {/* Tab content */}
+      </PageContainer>
+    </ProLayout>
+  );
+};
+```
+
+## Integration with React Router
+
+```tsx
+import { ProLayout } from '@ant-design/pro-components';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+
+export default () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  return (
+    <ProLayout
+      route={routeConfig}
+      location={location}
+      menuItemRender={(item, dom) => (
+        <a onClick={() => navigate(item.path || '/')}>{dom}</a>
+      )}
+    >
+      <Outlet />
+    </ProLayout>
+  );
+};
+```
+
+## Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `title` | `ReactNode` | Application title |
+| `logo` | `ReactNode` | Logo image or component |
+| `route` | `RouteConfig` | Menu route configuration |
+| `layout` | `'side' \| 'top' \| 'mix'` | Layout mode |
+| `navTheme` | `'light' \| 'dark' \| 'realDark'` | Navigation theme |
+| `location` | `{ pathname: string }` | Current location |
+| `menuItemRender` | `(item, dom) => ReactNode` | Custom menu item render |
+| `rightContentRender` | `() => ReactNode` | Header right content |
+| `footerRender` | `() => ReactNode` | Footer render |
+| `collapsed` | `boolean` | Sidebar collapsed state |
+| `onCollapse` | `(collapsed) => void` | Collapse change handler |
+
+## PageContainer Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `title` | `ReactNode` | Page title |
+| `subTitle` | `ReactNode` | Page subtitle |
+| `extra` | `ReactNode` | Extra actions |
+| `content` | `ReactNode` | Content area |
+| `breadcrumb` | `BreadcrumbProps` | Breadcrumb config |
+| `tabList` | `TabItem[]` | Tab list |
+| `tabActiveKey` | `string` | Active tab key |
+| `onTabChange` | `(key) => void` | Tab change handler |
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use route-based menu configuration">
+    Define menu structure in a centralized route config file for consistency across your app.
+  </Accordion>
+  
+  <Accordion title="Implement permission control">
+    Filter menu items based on user permissions:
+    ```tsx
+    const filteredRoutes = filterRoutesByPermissions(routes, userPermissions);
+    <ProLayout route={{ routes: filteredRoutes }} />
+    ```
+  </Accordion>
+  
+  <Accordion title="Optimize for mobile">
+    Test your layout on mobile devices and adjust breakpoints and collapsed behavior accordingly.
+  </Accordion>
+  
+  <Accordion title="Persist layout settings">
+    Save user's layout preferences to localStorage:
+    ```tsx
+    const [settings, setSettings] = useState(
+      () => JSON.parse(localStorage.getItem('layout-settings')) || defaults
+    );
+    
+    useEffect(() => {
+      localStorage.setItem('layout-settings', JSON.stringify(settings));
+    }, [settings]);
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Components
+
+- [ProTable](/components/pro-table) - Table component
+- [ProCard](/components/pro-card) - Card component
+- [ProForm](/components/pro-form) - Form component

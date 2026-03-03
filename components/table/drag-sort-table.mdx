@@ -1,0 +1,462 @@
+---
+title: DragSortTable
+description: Table with drag-and-drop row sorting functionality
+---
+
+DragSortTable extends ProTable with drag-and-drop functionality, allowing users to reorder table rows by dragging. It's perfect for priority lists, task ordering, and custom sorting scenarios.
+
+## Basic Usage
+
+```tsx
+import { DragSortTable } from '@ant-design/pro-components';
+import type { ProColumns } from '@ant-design/pro-components';
+import { useState } from 'react';
+
+type DataType = {
+  key: string;
+  name: string;
+  age: number;
+  address: string;
+};
+
+const Demo = () => {
+  const [dataSource, setDataSource] = useState<DataType[]>([
+    {
+      key: 'key1',
+      name: 'John Brown',
+      age: 32,
+      address: 'New York No. 1 Lake Park',
+    },
+    {
+      key: 'key2',
+      name: 'Jim Green',
+      age: 42,
+      address: 'London No. 1 Lake Park',
+    },
+    {
+      key: 'key3',
+      name: 'Joe Black',
+      age: 32,
+      address: 'Sidney No. 1 Lake Park',
+    },
+  ]);
+
+  const columns: ProColumns<DataType>[] = [
+    {
+      title: '排序',
+      dataIndex: 'sort',
+    },
+    {
+      title: '姓名',
+      dataIndex: 'name',
+    },
+    {
+      title: '年龄',
+      dataIndex: 'age',
+    },
+    {
+      title: '地址',
+      dataIndex: 'address',
+    },
+  ];
+
+  const handleDragSortEnd = (
+    beforeIndex: number,
+    afterIndex: number,
+    newDataSource: DataType[],
+  ) => {
+    console.log('排序后的数据', newDataSource);
+    setDataSource(newDataSource);
+  };
+
+  return (
+    <DragSortTable
+      headerTitle="拖拽排序"
+      columns={columns}
+      rowKey="key"
+      search={false}
+      pagination={false}
+      dataSource={dataSource}
+      dragSortKey="sort"
+      onDragSortEnd={handleDragSortEnd}
+    />
+  );
+};
+```
+
+## Core Props
+
+### dragSortKey
+
+Specifies which column should display the drag handle:
+
+```tsx
+<DragSortTable
+  dragSortKey="sort" // Column key that shows drag handle
+  columns={[
+    {
+      title: '排序',
+      dataIndex: 'sort', // Must match dragSortKey
+    },
+    // ... other columns
+  ]}
+/>
+```
+
+<Note>
+The column with `dataIndex` matching `dragSortKey` will automatically display a drag handle icon. You don't need to render anything in that column.
+</Note>
+
+### onDragSortEnd
+
+Callback fired when drag sorting completes:
+
+```tsx
+onDragSortEnd={(beforeIndex, afterIndex, newDataSource) => {
+  // beforeIndex: original position of the dragged row
+  // afterIndex: new position of the dragged row
+  // newDataSource: complete array with new order
+  
+  console.log(`Moved from ${beforeIndex} to ${afterIndex}`);
+  setDataSource(newDataSource);
+  
+  // Optionally save to server
+  await saveOrder(newDataSource);
+}}
+```
+
+## Custom Drag Handle
+
+Customize the appearance of the drag handle:
+
+```tsx
+import { MenuOutlined } from '@ant-design/icons';
+
+const dragHandleRender = (rowData: DataType, index: number) => (
+  <>
+    <MenuOutlined style={{ cursor: 'grab', color: 'gold' }} />
+    &nbsp;{index + 1} - {rowData.name}
+  </>
+);
+
+<DragSortTable
+  columns={columns}
+  dragSortKey="sort"
+  dragSortHandlerRender={dragHandleRender}
+  onDragSortEnd={handleDragSortEnd}
+/>
+```
+
+<Tip>
+The drag handle render function receives `rowData` and `index`, allowing you to create context-aware drag handles.
+</Tip>
+
+## Working with Remote Data
+
+Integrate drag sorting with server data:
+
+```tsx
+import type { ActionType } from '@ant-design/pro-components';
+import { useRef } from 'react';
+
+const Demo = () => {
+  const actionRef = useRef<ActionType>();
+  
+  const handleDragSortEnd = async (
+    beforeIndex: number,
+    afterIndex: number,
+    newDataSource: DataType[],
+  ) => {
+    console.log('Updating server with new order...');
+    
+    try {
+      // Send new order to server
+      await fetch('/api/update-order', {
+        method: 'POST',
+        body: JSON.stringify(newDataSource),
+      });
+      
+      // Reload table data from server
+      actionRef.current?.reload();
+      message.success('排序已保存');
+    } catch (error) {
+      message.error('保存失败');
+    }
+  };
+
+  return (
+    <DragSortTable
+      actionRef={actionRef}
+      headerTitle="使用 request 获取数据源"
+      columns={columns}
+      rowKey="key"
+      request={async () => {
+        const response = await fetch('/api/data');
+        const data = await response.json();
+        return {
+          data: data.list,
+          success: true,
+          total: data.total,
+        };
+      }}
+      dragSortKey="sort"
+      onDragSortEnd={handleDragSortEnd}
+    />
+  );
+};
+```
+
+<Steps>
+
+### User Drags Row
+
+The user drags a row to a new position in the table.
+
+### onDragSortEnd Called
+
+The callback receives the new order and you can update local state or send to server.
+
+### Reload Data
+
+Optionally reload data from the server to ensure consistency.
+
+</Steps>
+
+## Styling the Drag Handle
+
+The drag handle uses the default `HolderOutlined` icon. You can style it using CSS:
+
+```tsx
+import { HolderOutlined } from '@ant-design/icons';
+
+const dragHandleRender = () => (
+  <HolderOutlined 
+    style={{ 
+      cursor: 'grab',
+      color: '#999',
+      fontSize: 16,
+    }} 
+  />
+);
+```
+
+Or use a completely custom component:
+
+```tsx
+const dragHandleRender = (rowData: DataType, index: number) => (
+  <div
+    style={{
+      cursor: 'grab',
+      padding: '4px 8px',
+      background: '#f0f0f0',
+      borderRadius: 4,
+    }}
+  >
+    ⋮⋮ {index + 1}
+  </div>
+);
+```
+
+## Custom Render in Sort Column
+
+If you want to render custom content alongside the drag handle:
+
+```tsx
+const columns: ProColumns<DataType>[] = [
+  {
+    title: '排序',
+    dataIndex: 'sort',
+    render: (dom, rowData, index) => {
+      return (
+        <span className="customRender">
+          自定义Render[{rowData.name}-{index}]
+        </span>
+      );
+    },
+  },
+  // ... other columns
+];
+
+<DragSortTable
+  columns={columns}
+  dragSortKey="sort"
+/>
+```
+
+<Note>
+When you provide a custom `render` function for the drag sort column, your custom content will be displayed instead of the default drag handle, but the drag functionality remains active.
+</Note>
+
+## Common Use Cases
+
+### Priority Task List
+
+```tsx
+type Task = {
+  id: string;
+  priority: number;
+  title: string;
+  status: string;
+};
+
+const TaskList = () => {
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+
+  const columns: ProColumns<Task>[] = [
+    {
+      title: '优先级',
+      dataIndex: 'priority',
+      width: 80,
+    },
+    {
+      title: '任务名称',
+      dataIndex: 'title',
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      valueEnum: {
+        pending: { text: '待处理', status: 'Default' },
+        processing: { text: '进行中', status: 'Processing' },
+        done: { text: '已完成', status: 'Success' },
+      },
+    },
+  ];
+
+  const handleDragEnd = (before, after, newDataSource) => {
+    // Update priority based on new position
+    const updated = newDataSource.map((item, index) => ({
+      ...item,
+      priority: index + 1,
+    }));
+    setTasks(updated);
+    savePriorities(updated);
+  };
+
+  return (
+    <DragSortTable
+      headerTitle="任务优先级管理"
+      columns={columns}
+      dataSource={tasks}
+      rowKey="id"
+      dragSortKey="priority"
+      onDragSortEnd={handleDragEnd}
+      pagination={false}
+    />
+  );
+};
+```
+
+### Menu Item Ordering
+
+```tsx
+type MenuItem = {
+  key: string;
+  label: string;
+  icon?: string;
+  order: number;
+};
+
+const MenuManager = () => {
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
+  const columns: ProColumns<MenuItem>[] = [
+    {
+      title: '排序',
+      dataIndex: 'order',
+      width: 60,
+    },
+    {
+      title: '图标',
+      dataIndex: 'icon',
+      width: 60,
+      render: (icon) => <Icon type={icon} />,
+    },
+    {
+      title: '菜单名称',
+      dataIndex: 'label',
+    },
+  ];
+
+  return (
+    <DragSortTable
+      headerTitle="菜单排序"
+      columns={columns}
+      dataSource={menuItems}
+      rowKey="key"
+      dragSortKey="order"
+      onDragSortEnd={(before, after, newData) => {
+        setMenuItems(newData);
+        updateMenuOrder(newData);
+      }}
+    />
+  );
+};
+```
+
+## Combining with Other Features
+
+DragSortTable supports most ProTable features:
+
+```tsx
+<DragSortTable
+  columns={columns}
+  dragSortKey="sort"
+  onDragSortEnd={handleDragSortEnd}
+  
+  // Search (though usually disabled for drag tables)
+  search={false}
+  
+  // Toolbar
+  toolBarRender={() => [
+    <Button key="save">保存排序</Button>,
+  ]}
+  
+  // Selection
+  rowSelection={{
+    onChange: (keys) => console.log(keys),
+  }}
+  
+  // Actions
+  options={{
+    reload: true,
+    density: true,
+  }}
+/>
+```
+
+<Tip>
+For the best user experience with drag sorting, consider disabling pagination or using it with smaller datasets. Dragging across pages can be confusing.
+</Tip>
+
+## Accessibility
+
+The drag handle is keyboard accessible by default. Users can:
+
+1. Tab to focus the drag handle
+2. Press Space to grab the row
+3. Use arrow keys to move the row
+4. Press Space again to drop
+5. Press Escape to cancel
+
+## Performance Considerations
+
+For large datasets:
+
+```tsx
+const handleDragEnd = useCallback(
+  (before, after, newDataSource) => {
+    // Use callback to avoid recreating function
+    setDataSource(newDataSource);
+  },
+  [],
+);
+
+<DragSortTable
+  dataSource={dataSource}
+  onDragSortEnd={handleDragEnd}
+  // Enable virtualization for large lists
+  scroll={{ y: 600 }}
+  pagination={false}
+/>
+```

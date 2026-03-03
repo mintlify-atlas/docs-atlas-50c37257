@@ -1,0 +1,375 @@
+---
+title: Text Fields
+description: Text input field components for ProForm
+---
+
+Text field components provide various input types for text, numbers, and password fields.
+
+## ProFormText
+
+Basic text input field component.
+
+### Import
+
+```tsx
+import { ProFormText } from '@ant-design/pro-components';
+```
+
+### Usage
+
+```tsx
+<ProFormText
+  name="username"
+  label="Username"
+  placeholder="Please enter username"
+  rules={[{ required: true }]}
+/>
+```
+
+### Props
+
+Extends all Ant Design [Input](https://ant.design/components/input) props.
+
+<ParamField path="name" type="string | string[]">
+  Field name for form submission and data binding.
+</ParamField>
+
+<ParamField path="label" type="ReactNode">
+  Label text displayed above the input field.
+</ParamField>
+
+<ParamField path="placeholder" type="string | string[]">
+  Placeholder text shown when the input is empty.
+</ParamField>
+
+<ParamField path="fieldProps" type="InputProps">
+  Props passed directly to the underlying Ant Design Input component. Supports all Input props including:
+  - `maxLength`: Maximum character length
+  - `prefix`: Prefix icon or element
+  - `suffix`: Suffix icon or element
+  - `addonBefore`: Element before input
+  - `addonAfter`: Element after input
+  - `disabled`: Whether the input is disabled
+  - `readOnly`: Whether the input is read-only
+</ParamField>
+
+<ParamField path="width" type="'xs' | 'sm' | 'md' | 'lg' | 'xl' | number">
+  Width of the input field:
+  - `xs`: 104px - Short numbers, short text
+  - `sm`: 216px - Names, phone, ID
+  - `md`: 328px - Standard fields (default)
+  - `lg`: 440px - Longer fields, URLs, tags
+  - `xl`: 552px - Long text, descriptions
+  - `number`: Custom pixel width
+</ParamField>
+
+<ParamField path="rules" type="Rule[]">
+  Validation rules from Ant Design Form. Common rules:
+  - `required`: Field is required
+  - `pattern`: Regular expression validation
+  - `min` / `max`: Length validation
+  - `validator`: Custom validation function
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  Whether the input is disabled.
+</ParamField>
+
+<ParamField path="readonly" type="boolean" default="false">
+  Whether the field is in read-only mode. In read-only mode, displays value as text instead of input.
+</ParamField>
+
+<ParamField path="tooltip" type="string | TooltipProps">
+  Tooltip displayed next to the label. Can be a string or Ant Design Tooltip props.
+</ParamField>
+
+<ParamField path="convertValue" type="(value: any, field: NamePath) => any">
+  Transform value when getting from form. Used to format data from form to component format.
+</ParamField>
+
+<ParamField path="transform" type="(value: any, field: NamePath) => any">
+  Transform value when submitting form. Used to format data from component to submission format.
+</ParamField>
+
+<ParamField path="colProps" type="ColProps">
+  Grid column props when used in grid layout. Accepts Ant Design [Col](https://ant.design/components/grid#col) props.
+</ParamField>
+
+<ParamField path="formItemProps" type="FormItemProps">
+  Additional props passed to Form.Item wrapper. Supports all Ant Design Form.Item props.
+</ParamField>
+
+<ParamField path="proFieldProps" type="ProFieldProps">
+  Internal props for ProField component. Controls field rendering behavior:
+  - `mode`: Display mode ('read' | 'edit' | 'update')
+</ParamField>
+
+---
+
+## ProFormText.Password
+
+Password input field with visibility toggle and optional strength indicator.
+
+### Import
+
+```tsx
+import { ProFormText } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormText.Password
+      name="password"
+      label="Password"
+      placeholder="Please enter password"
+      rules={[{ required: true, min: 8 }]}
+    />
+    ```
+  </Tab>
+  <Tab title="With Strength">
+    ```tsx
+    <ProFormText.Password
+      name="password"
+      label="Password"
+      fieldProps={{
+        statusRender: (value) => {
+          const strength = calculateStrength(value);
+          return (
+            <div>
+              Strength: {strength === 'ok' ? 'Strong' : 
+                        strength === 'pass' ? 'Medium' : 'Weak'}
+            </div>
+          );
+        },
+        strengthText: 'Password should contain letters, numbers, and symbols'
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+Extends ProFormText props and Ant Design [Input.Password](https://ant.design/components/input#inputpassword) props.
+
+<ParamField path="fieldProps.statusRender" type="(value?: string) => ReactNode">
+  Custom render function for password strength indicator. Displays in a popover when focused.
+</ParamField>
+
+<ParamField path="fieldProps.strengthText" type="ReactNode">
+  Additional hint text displayed below the strength indicator in the popover.
+</ParamField>
+
+<ParamField path="fieldProps.popoverProps" type="PopoverProps">
+  Props for the strength indicator popover. Accepts Ant Design Popover props.
+</ParamField>
+
+<ParamField path="fieldProps.visibilityToggle" type="boolean" default="true">
+  Whether to show the password visibility toggle icon.
+</ParamField>
+
+<ParamField path="fieldProps.iconRender" type="(visible: boolean) => ReactNode">
+  Custom render function for the visibility toggle icon.
+</ParamField>
+
+---
+
+## ProFormTextArea
+
+Multi-line text input component.
+
+### Import
+
+```tsx
+import { ProFormTextArea } from '@ant-design/pro-components';
+```
+
+### Usage
+
+```tsx
+<ProFormTextArea
+  name="description"
+  label="Description"
+  placeholder="Please enter description"
+  fieldProps={{
+    rows: 4,
+    maxLength: 500,
+    showCount: true
+  }}
+/>
+```
+
+### Props
+
+Extends ProFormText props and Ant Design [Input.TextArea](https://ant.design/components/input#inputtextarea) props.
+
+<ParamField path="fieldProps.rows" type="number" default="4">
+  Number of visible text lines.
+</ParamField>
+
+<ParamField path="fieldProps.autoSize" type="boolean | { minRows: number, maxRows: number }">
+  Auto-resize height based on content. Can specify min and max rows.
+</ParamField>
+
+<ParamField path="fieldProps.maxLength" type="number">
+  Maximum character length.
+</ParamField>
+
+<ParamField path="fieldProps.showCount" type="boolean | ((args: { value: string, count: number, maxLength?: number }) => ReactNode)">
+  Whether to show character count. Can provide custom render function.
+</ParamField>
+
+<ParamField path="fieldProps.allowClear" type="boolean">
+  Whether to show clear button when input has value.
+</ParamField>
+
+---
+
+## ProFormDigit
+
+Numeric input component with format support.
+
+### Import
+
+```tsx
+import { ProFormDigit } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormDigit
+      name="age"
+      label="Age"
+      min={0}
+      max={120}
+      fieldProps={{
+        precision: 0
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Decimal">
+    ```tsx
+    <ProFormDigit
+      name="price"
+      label="Price"
+      min={0}
+      fieldProps={{
+        precision: 2,
+        prefix: '$',
+        formatter: (value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+        parser: (value) => value.replace(/\$\s?|(,*)/g, '')
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+Extends ProFormText props and Ant Design [InputNumber](https://ant.design/components/input-number) props.
+
+<ParamField path="min" type="number">
+  Minimum value allowed.
+</ParamField>
+
+<ParamField path="max" type="number">
+  Maximum value allowed.
+</ParamField>
+
+<ParamField path="fieldProps.precision" type="number">
+  Number of decimal places. Set to 0 for integers only.
+</ParamField>
+
+<ParamField path="fieldProps.step" type="number | string" default="1">
+  Increment/decrement step when using arrow buttons.
+</ParamField>
+
+<ParamField path="fieldProps.formatter" type="(value: number | string | undefined) => string">
+  Custom format function for display value.
+</ParamField>
+
+<ParamField path="fieldProps.parser" type="(displayValue: string | undefined) => number | string">
+  Parse function to convert display value back to number.
+</ParamField>
+
+<ParamField path="fieldProps.prefix" type="ReactNode">
+  Prefix content displayed before the number.
+</ParamField>
+
+<ParamField path="fieldProps.suffix" type="ReactNode">
+  Suffix content displayed after the number.
+</ParamField>
+
+<ParamField path="fieldProps.controls" type="boolean | { upIcon: ReactNode, downIcon: ReactNode }" default="true">
+  Whether to show increment/decrement controls. Can customize icons.
+</ParamField>
+
+<ParamField path="fieldProps.keyboard" type="boolean" default="true">
+  Whether to enable keyboard behavior for up/down keys.
+</ParamField>
+
+<ParamField path="fieldProps.stringMode" type="boolean" default="false">
+  Enable high precision decimals support. Returns string value instead of number.
+</ParamField>
+
+## Common Features
+
+All text field components share these common features:
+
+<Expandable title="Form Integration">
+  All components integrate seamlessly with ProForm and Ant Design Form:
+  - Automatic form value binding
+  - Built-in validation
+  - Support for field dependencies
+  - Reset and initial values
+</Expandable>
+
+<Expandable title="Read-only Mode">
+  When `readonly={true}` or `proFieldProps={{ mode: 'read' }}`, fields display as formatted text instead of inputs.
+  
+  ```tsx
+  <ProFormText
+    readonly
+    name="username"
+    label="Username"
+  />
+  ```
+</Expandable>
+
+<Expandable title="Grid Layout">
+  Use `colProps` to control field layout in grid mode:
+  
+  ```tsx
+  <ProForm grid>
+    <ProFormText
+      name="name"
+      colProps={{ span: 12 }}
+    />
+    <ProFormText
+      name="email"
+      colProps={{ span: 12 }}
+    />
+  </ProForm>
+  ```
+</Expandable>
+
+<Expandable title="Value Transform">
+  Use `convertValue` and `transform` for data format conversion:
+  
+  ```tsx
+  <ProFormText
+    name="tags"
+    // Convert array to comma-separated string for display
+    convertValue={(value) => value?.join(',')}
+    // Convert comma-separated string back to array on submit
+    transform={(value) => value?.split(',')}
+  />
+  ```
+</Expandable>

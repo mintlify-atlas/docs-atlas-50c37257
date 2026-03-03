@@ -1,0 +1,462 @@
+---
+title: EditableProTable
+description: A fully-featured editable table with inline editing capabilities
+---
+
+EditableProTable provides inline editing functionality, allowing users to edit table data directly without modal dialogs. It supports both cell-level and row-level editing modes.
+
+## Basic Usage
+
+```tsx
+import { EditableProTable } from '@ant-design/pro-components';
+import type { ProColumns } from '@ant-design/pro-components';
+import { useState } from 'react';
+
+type DataSourceType = {
+  id: React.Key;
+  title?: string;
+  status?: string;
+  description?: string;
+  created_at?: number;
+};
+
+const Demo = () => {
+  const [editableKeys, setEditableRowKeys] = useState<React.Key[]>([]);
+  const [dataSource, setDataSource] = useState<DataSourceType[]>([]);
+
+  const columns: ProColumns<DataSourceType>[] = [
+    {
+      title: '任务名称',
+      dataIndex: 'title',
+      formItemProps: {
+        rules: [{ required: true, message: '此项为必填项' }],
+      },
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      valueType: 'select',
+      valueEnum: {
+        open: { text: '待处理', status: 'Error' },
+        closed: { text: '已完成', status: 'Success' },
+      },
+    },
+    {
+      title: '描述',
+      dataIndex: 'description',
+    },
+    {
+      title: '操作',
+      valueType: 'option',
+      render: (text, record, _, action) => [
+        <a
+          key="editable"
+          onClick={() => {
+            action?.startEditable?.(record.id);
+          }}
+        >
+          编辑
+        </a>,
+        <a
+          key="delete"
+          onClick={() => {
+            setDataSource(dataSource.filter((item) => item.id !== record.id));
+          }}
+        >
+          删除
+        </a>,
+      ],
+    },
+  ];
+
+  return (
+    <EditableProTable<DataSourceType>
+      rowKey="id"
+      columns={columns}
+      value={dataSource}
+      onChange={setDataSource}
+      recordCreatorProps={{
+        record: () => ({ id: Date.now() }),
+      }}
+      editable={{
+        type: 'multiple',
+        editableKeys,
+        onChange: setEditableRowKeys,
+        onSave: async (key, data) => {
+          console.log('Saved:', key, data);
+        },
+      }}
+    />
+  );
+};
+```
+
+## Editing Modes
+
+EditableProTable supports two editing modes:
+
+<Steps>
+
+### Single Row Editing
+
+Only one row can be edited at a time:
+
+```tsx
+<EditableProTable
+  editable={{
+    type: 'single',
+    editableKeys,
+    onChange: setEditableRowKeys,
+  }}
+/>
+```
+
+### Multiple Row Editing
+
+Multiple rows can be edited simultaneously:
+
+```tsx
+<EditableProTable
+  editable={{
+    type: 'multiple',
+    editableKeys,
+    onChange: setEditableRowKeys,
+  }}
+/>
+```
+
+</Steps>
+
+## Editable Configuration
+
+The `editable` prop accepts a configuration object:
+
+```tsx
+editable={{
+  type: 'multiple',
+  editableKeys: ['1', '2'],        // Currently editing row keys
+  onChange: (keys) => { },          // Called when editing keys change
+  onSave: async (key, row) => { },  // Called when saving a row
+  onDelete: async (key) => { },     // Called when deleting a row
+  onCancel: (key) => { },           // Called when canceling edit
+  actionRender: (row, config) => [], // Custom action buttons
+  form: formInstance,               // Form instance for advanced control
+}}
+```
+
+### onSave Callback
+
+Handle save operations:
+
+```tsx
+onSave: async (rowKey, data, row) => {
+  // rowKey: the key of the row being saved
+  // data: the new data after editing
+  // row: the original row data
+  
+  try {
+    await saveToServer(data);
+    message.success('保存成功');
+  } catch (error) {
+    message.error('保存失败');
+    return false; // Return false to prevent row from exiting edit mode
+  }
+}
+```
+
+<Note>
+If `onSave` returns `false` or a rejected promise, the row will remain in edit mode.
+</Note>
+
+## Record Creator
+
+Add new rows with the `recordCreatorProps`:
+
+```tsx
+<EditableProTable
+  recordCreatorProps={{
+    position: 'bottom',              // 'top' or 'bottom'
+    record: () => ({ id: Date.now() }), // New record template
+    creatorButtonText: '添加一行数据',  // Custom button text
+    newRecordType: 'dataSource',     // 'dataSource' or 'cache'
+  }}
+  maxLength={10} // Maximum number of rows
+/>
+```
+
+### Record Creator Position
+
+<CodeGroup>
+
+```tsx Top
+<EditableProTable
+  recordCreatorProps={{
+    position: 'top',
+    record: () => ({ id: Date.now() }),
+  }}
+/>
+```
+
+```tsx Bottom
+<EditableProTable
+  recordCreatorProps={{
+    position: 'bottom',
+    record: () => ({ id: Date.now() }),
+  }}
+/>
+```
+
+```tsx Hidden
+<EditableProTable
+  recordCreatorProps={false}
+/>
+```
+
+</CodeGroup>
+
+## Column Configuration
+
+### Form Item Props
+
+Configure form validation and behavior for each column:
+
+```tsx
+{
+  title: '任务名称',
+  dataIndex: 'title',
+  formItemProps: (form, { rowIndex, rowKey }) => {
+    return {
+      rules: [
+        { required: true, message: '此项为必填项' },
+        { max: 30, message: '最长为 30 位' },
+      ],
+    };
+  },
+}
+```
+
+### Field Props
+
+Control input field properties:
+
+```tsx
+{
+  title: '描述',
+  dataIndex: 'description',
+  fieldProps: (form, { rowKey }) => {
+    const title = form.getFieldValue([rowKey, 'title']);
+    return {
+      disabled: title === '暂不处理',
+      placeholder: '请输入描述',
+    };
+  },
+}
+```
+
+### Editable Control
+
+Control which cells are editable:
+
+```tsx
+{
+  title: '任务名称',
+  dataIndex: 'title',
+  editable: (text, record, index) => {
+    // First row is not editable
+    return index !== 0;
+  },
+}
+```
+
+### Readonly Columns
+
+Mark columns as readonly:
+
+```tsx
+{
+  title: '创建时间',
+  dataIndex: 'created_at',
+  valueType: 'date',
+  readonly: true, // Always readonly
+}
+```
+
+## Form Integration
+
+Use EditableProTable inside a ProForm:
+
+```tsx
+import { ProForm, EditableProTable } from '@ant-design/pro-components';
+
+<ProForm
+  onFinish={async (values) => {
+    console.log('Form values:', values);
+  }}
+>
+  <EditableProTable
+    name="dataSource" // Form field name
+    columns={columns}
+    recordCreatorProps={{
+      record: () => ({ id: Date.now() }),
+    }}
+  />
+</ProForm>
+```
+
+## Advanced: EditableFormRef
+
+Access and manipulate form data programmatically:
+
+```tsx
+import type { EditableFormInstance } from '@ant-design/pro-components';
+
+const editableFormRef = useRef<EditableFormInstance>();
+
+// Get row data
+const rowData = editableFormRef.current?.getRowData(rowKey);
+
+// Get all rows data
+const allData = editableFormRef.current?.getRowsData();
+
+// Set row data
+editableFormRef.current?.setRowData(rowKey, { title: 'New Title' });
+
+<EditableProTable
+  editableFormRef={editableFormRef}
+  columns={columns}
+/>
+```
+
+<Tip>
+Use `editableFormRef` to access form methods like validation and data manipulation without managing state manually.
+</Tip>
+
+## Value Change Handler
+
+Listen to value changes:
+
+```tsx
+<EditableProTable
+  onValuesChange={(values, record) => {
+    // values: all table data
+    // record: the changed record
+    console.log('Table data changed:', values, record);
+  }}
+/>
+```
+
+## Controlled Mode
+
+For fully controlled behavior:
+
+```tsx
+const [dataSource, setDataSource] = useState<DataSourceType[]>([]);
+
+<EditableProTable
+  value={dataSource}
+  onChange={setDataSource}
+  controlled={true} // Ensure all updates go through onChange
+/>
+```
+
+## CellEditorTable
+
+Edit individual cells instead of entire rows:
+
+```tsx
+import { CellEditorTable } from '@ant-design/pro-components';
+
+const Demo = () => {
+  const [dataSource, setDataSource] = useState([]);
+
+  return (
+    <CellEditorTable
+      headerTitle="任务管理（单元格编辑）"
+      columns={columns}
+      rowKey="id"
+      value={dataSource}
+      onChange={setDataSource}
+      recordCreatorProps={{
+        record: () => ({ id: Date.now() }),
+      }}
+    />
+  );
+};
+```
+
+## RowEditorTable
+
+Edit entire rows with save/cancel buttons:
+
+```tsx
+import { RowEditorTable } from '@ant-design/pro-components';
+
+const Demo = () => {
+  const [dataSource, setDataSource] = useState([]);
+
+  return (
+    <RowEditorTable
+      headerTitle="任务管理（整行编辑）"
+      columns={columns}
+      rowKey="id"
+      value={dataSource}
+      onChange={setDataSource}
+      recordCreatorProps={{
+        record: () => ({ id: Date.now() }),
+      }}
+    />
+  );
+};
+```
+
+<Note>
+Both `CellEditorTable` and `RowEditorTable` are pre-configured versions of `EditableProTable` optimized for specific editing patterns.
+</Note>
+
+## Common Patterns
+
+### Dynamic Validation
+
+Validation rules based on other field values:
+
+```tsx
+formItemProps: (form, { rowKey }) => {
+  const status = form.getFieldValue([rowKey, 'status']);
+  
+  return {
+    rules: status === 'open' 
+      ? [{ required: true, message: '待处理状态必填' }]
+      : [],
+  };
+}
+```
+
+### Cascading Fields
+
+Update fields based on other field changes:
+
+```tsx
+fieldProps: (form, { rowKey }) => {
+  return {
+    onChange: (value) => {
+      // Update other fields when this field changes
+      form.setFieldValue([rowKey, 'relatedField'], value + '_suffix');
+    },
+  };
+}
+```
+
+### Maximum Row Limit
+
+Limit the number of rows:
+
+```tsx
+<EditableProTable
+  maxLength={5}
+  recordCreatorProps={{
+    record: () => ({ id: Date.now() }),
+  }}
+/>
+```
+
+The add button will be hidden when the limit is reached.

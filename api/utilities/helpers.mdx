@@ -1,0 +1,515 @@
+---
+title: Helper Functions
+description: Utility functions for validation, transformation, and common operations
+---
+
+ProComponents provides a comprehensive set of helper functions for common operations like validation, object manipulation, and data transformation.
+
+## Validation Functions
+
+### isNil
+
+Checks if a value is `null` or `undefined`.
+
+```tsx
+import { isNil } from '@ant-design/pro-components';
+
+const value = null;
+if (isNil(value)) {
+  console.log('Value is null or undefined');
+}
+```
+
+<ParamField path="value" type="any" required>
+  The value to check
+</ParamField>
+
+<ResponseField name="result" type="boolean">
+  `true` if the value is `null` or `undefined`, otherwise `false`
+</ResponseField>
+
+### isUrl
+
+Checks if a string is a valid URL.
+
+```tsx
+import { isUrl } from '@ant-design/pro-components';
+
+const link = 'https://example.com';
+if (isUrl(link)) {
+  console.log('Valid URL');
+}
+```
+
+<ParamField path="path" type="string | undefined" required>
+  The string to validate
+</ParamField>
+
+<ResponseField name="result" type="boolean">
+  `true` if the string is a valid URL starting with `http`, otherwise `false`
+</ResponseField>
+
+### isImg
+
+Checks if a path points to an image file based on extension.
+
+```tsx
+import { isImg } from '@ant-design/pro-components';
+
+const path = 'avatar.png';
+if (isImg(path)) {
+  console.log('This is an image');
+}
+```
+
+<ParamField path="path" type="string" required>
+  The file path to check
+</ParamField>
+
+<ResponseField name="result" type="boolean">
+  `true` if the path ends with an image extension (png, jpg, jpeg, svg, webp, gif, bmp)
+</ResponseField>
+
+### isBrowser
+
+Checks if the code is running in a browser environment.
+
+```tsx
+import { isBrowser } from '@ant-design/pro-components';
+
+if (isBrowser()) {
+  // Safe to use window, document, etc.
+  localStorage.setItem('key', 'value');
+}
+```
+
+<ResponseField name="result" type="boolean">
+  `true` if running in a browser environment with `window`, `document`, and `matchMedia` available
+</ResponseField>
+
+### isDeepEqualReact
+
+Performs deep equality comparison of two values, with React-specific optimizations.
+
+```tsx
+import { isDeepEqualReact } from '@ant-design/pro-components';
+
+const obj1 = { name: 'John', age: 30, tags: ['dev', 'react'] };
+const obj2 = { name: 'John', age: 30, tags: ['dev', 'react'] };
+
+if (isDeepEqualReact(obj1, obj2)) {
+  console.log('Objects are deeply equal');
+}
+
+// With ignored keys
+const config1 = { theme: 'dark', _internalId: 123 };
+const config2 = { theme: 'dark', _internalId: 456 };
+
+if (isDeepEqualReact(config1, config2, ['_internalId'])) {
+  console.log('Equal when ignoring _internalId');
+}
+```
+
+<ParamField path="a" type="any" required>
+  First value to compare
+</ParamField>
+
+<ParamField path="b" type="any" required>
+  Second value to compare
+</ParamField>
+
+<ParamField path="ignoreKeys" type="string[]">
+  Keys to ignore during comparison
+</ParamField>
+
+<ResponseField name="result" type="boolean">
+  `true` if values are deeply equal, including support for Arrays, Maps, Sets, RegExp, and React elements
+</ResponseField>
+
+## Object Manipulation
+
+### omitBoolean
+
+Filters out boolean `true` values from a union type.
+
+```tsx
+import { omitBoolean } from '@ant-design/pro-components';
+
+// Returns the object if it's not true, otherwise undefined
+const result = omitBoolean({ name: 'John' }); // { name: 'John' }
+const result2 = omitBoolean(true); // undefined
+const result3 = omitBoolean(false); // undefined
+```
+
+<ParamField path="obj" type="boolean | T" required>
+  The value to filter
+</ParamField>
+
+<ResponseField name="result" type="T | undefined">
+  Returns the value if it's not a boolean or is `false`, otherwise `undefined`
+</ResponseField>
+
+### omitUndefined
+
+Removes properties with `undefined` values from an object.
+
+```tsx
+import { omitUndefined } from '@ant-design/pro-components';
+
+const data = {
+  name: 'John',
+  age: undefined,
+  city: 'New York',
+  country: undefined,
+};
+
+const cleaned = omitUndefined(data);
+// { name: 'John', city: 'New York' }
+```
+
+<ParamField path="obj" type="T extends Record<string, any>" required>
+  The object to clean
+</ParamField>
+
+<ResponseField name="result" type="OmitUndefined<T>">
+  A new object with all `undefined` properties removed. Returns `undefined` if the result is empty.
+</ResponseField>
+
+### omitUndefinedAndEmptyArr
+
+Removes properties with `undefined` values or empty arrays from an object.
+
+```tsx
+import { omitUndefinedAndEmptyArr } from '@ant-design/pro-components';
+
+const data = {
+  name: 'John',
+  tags: [],
+  age: 30,
+  hobbies: undefined,
+  friends: ['Alice', 'Bob'],
+};
+
+const cleaned = omitUndefinedAndEmptyArr(data);
+// { name: 'John', age: 30, friends: ['Alice', 'Bob'] }
+```
+
+<ParamField path="obj" type="T extends Record<string, any>" required>
+  The object to clean
+</ParamField>
+
+<ResponseField name="result" type="T">
+  A new object with `undefined` values and empty arrays removed
+</ResponseField>
+
+### merge
+
+Merges multiple objects into one, with deep merging for nested objects.
+
+```tsx
+import { merge } from '@ant-design/pro-components';
+
+const defaults = { theme: 'light', colors: { primary: 'blue' } };
+const userConfig = { colors: { secondary: 'green' } };
+
+const config = merge(defaults, userConfig);
+// {
+//   theme: 'light',
+//   colors: { primary: 'blue', secondary: 'green' }
+// }
+```
+
+<ParamField path="...objects" type="any[]" required>
+  Objects to merge (later objects override earlier ones)
+</ParamField>
+
+<ResponseField name="result" type="T">
+  A new merged object. Nested objects are merged recursively, arrays and other values are replaced.
+</ResponseField>
+
+### pickProProps
+
+Filters out ProComponents-specific props from a props object.
+
+```tsx
+import { pickProProps } from '@ant-design/pro-components';
+
+const props = {
+  valueType: 'text',
+  request: async () => {},
+  fieldProps: {},
+  className: 'custom',
+  style: { color: 'red' },
+};
+
+const domProps = pickProProps(props);
+// { className: 'custom', style: { color: 'red' } }
+```
+
+<ParamField path="props" type="Record<string, any>" required>
+  The props object to filter
+</ParamField>
+
+<ParamField path="customValueType" type="boolean" default="false">
+  If `true`, includes `valueType` and other Pro props in the result
+</ParamField>
+
+<ResponseField name="result" type="Record<string, any>">
+  A new object with ProComponents-specific props removed
+</ResponseField>
+
+### pickProFormItemProps
+
+Extracts only Ant Design Form.Item props from a props object.
+
+```tsx
+import { pickProFormItemProps } from '@ant-design/pro-components';
+
+const props = {
+  name: 'username',
+  label: 'Username',
+  rules: [{ required: true }],
+  placeholder: 'Enter username',
+  onChange: () => {},
+};
+
+const formItemProps = pickProFormItemProps(props);
+// { name: 'username', label: 'Username', rules: [{ required: true }] }
+```
+
+<ParamField path="props" type="object" required>
+  The props object to filter
+</ParamField>
+
+<ResponseField name="result" type="Record<string, any>">
+  An object containing only valid Ant Design Form.Item props
+</ResponseField>
+
+## Data Transformation
+
+### transformKeySubmitValue
+
+Transforms object keys and values before form submission.
+
+```tsx
+import { transformKeySubmitValue } from '@ant-design/pro-components';
+
+// Transform specific fields
+const formValues = {
+  user: {
+    name: 'John',
+    birthDate: '2000-01-01',
+  },
+};
+
+const transformed = transformKeySubmitValue(formValues, {
+  'user.birthDate': (value) => new Date(value).getTime(),
+});
+// { user: { name: 'John', birthDate: 946684800000 } }
+
+// Transform with key renaming
+const data = { oldKey: 'value' };
+const result = transformKeySubmitValue(data, {
+  oldKey: (value) => ({ newKey: value }),
+});
+// { newKey: 'value' }
+```
+
+<ParamField path="values" type="T extends object" required>
+  The object to transform
+</ParamField>
+
+<ParamField path="dataFormatMap" type="Record<string, SearchTransformKeyFn | DataFormatMapType>" required>
+  Mapping of keys to transformation functions
+
+  ```tsx
+  type SearchTransformKeyFn = (
+    value: any,
+    key: string | string[],
+    allValues: any
+  ) => any
+  ```
+
+  Supports two formats:
+  - Dot notation: `'user.name'` for nested paths
+  - Nested objects: `{ user: { name: transformFn } }`
+</ParamField>
+
+<ResponseField name="result" type="T">
+  The transformed object. Transformation functions can return:
+  - A primitive value to replace the original value
+  - An object to merge into the parent object (removes original key)
+</ResponseField>
+
+### stringify
+
+Safely stringifies objects with circular references and BigInt support.
+
+```tsx
+import { stringify } from '@ant-design/pro-components';
+
+const obj = { name: 'John', age: 30 };
+obj.self = obj; // Circular reference
+
+const json = stringify(obj);
+// Safely handles circular reference
+```
+
+<ParamField path="value" type="any" required>
+  The value to stringify
+</ParamField>
+
+<ResponseField name="result" type="string">
+  JSON string with support for:
+  - Circular references (replaced with `'Magic circle!'`)
+  - BigInt values
+  - Maximum depth of 4 levels
+</ResponseField>
+
+## ID Generation
+
+### nanoid
+
+Generates a unique ID using crypto.randomUUID or a fallback.
+
+```tsx
+import { nanoid } from '@ant-design/pro-components';
+
+const id = nanoid();
+// 'a3d5e6f7-8901-2345-6789-0abcdef12345' or custom ID
+
+const rowKey = nanoid();
+<Table rowKey={() => nanoid()} />
+```
+
+<ResponseField name="result" type="string">
+  A unique identifier string. Uses `crypto.randomUUID()` if available, otherwise generates a custom nano ID.
+</ResponseField>
+
+## Function Utilities
+
+### runFunction
+
+Executes a value if it's a function, otherwise returns the value.
+
+```tsx
+import { runFunction } from '@ant-design/pro-components';
+
+// With function
+const result1 = runFunction(() => 'computed', 'arg1', 'arg2');
+// 'computed'
+
+// With value
+const result2 = runFunction('static value', 'arg1', 'arg2');
+// 'static value'
+
+// Practical example
+const title = runFunction(titleConfig, record, index);
+```
+
+<ParamField path="valueEnum" type="any" required>
+  A value or function to execute
+</ParamField>
+
+<ParamField path="...args" type="T" required>
+  Arguments to pass to the function if `valueEnum` is a function
+</ParamField>
+
+<ResponseField name="result" type="any">
+  The result of calling the function (if it's a function), or the value itself
+</ResponseField>
+
+## Record Key Utilities
+
+### recordKeyToString
+
+Converts a record key (which can be a single key or array of keys) to a string.
+
+```tsx
+import { recordKeyToString } from '@ant-design/pro-components';
+
+const key1 = recordKeyToString('user-123');
+// 'user-123'
+
+const key2 = recordKeyToString(['user', '123', 'profile']);
+// 'user,123,profile'
+```
+
+<ParamField path="rowKey" type="RecordKey (React.Key | React.Key[])" required>
+  A single key or array of keys
+</ParamField>
+
+<ResponseField name="result" type="React.Key">
+  String representation of the key. Arrays are joined with commas.
+</ResponseField>
+
+### editableRowByKey
+
+Updates, adds, or deletes a row in a data array by key, supporting nested children.
+
+```tsx
+import { editableRowByKey } from '@ant-design/pro-components';
+
+const data = [
+  { id: 1, name: 'John', children: [{ id: 2, name: 'Jane' }] },
+];
+
+// Update a row
+const updated = editableRowByKey(
+  {
+    data,
+    getRowKey: (row) => row.id,
+    key: 2,
+    row: { id: 2, name: 'Jane Doe' },
+    childrenColumnName: 'children',
+  },
+  'update'
+);
+
+// Delete a row
+const deleted = editableRowByKey(
+  {
+    data,
+    getRowKey: (row) => row.id,
+    key: 2,
+    row: {},
+    childrenColumnName: 'children',
+  },
+  'delete'
+);
+```
+
+<ParamField path="keyProps" type="object" required>
+  Configuration object
+</ParamField>
+
+<ParamField path="keyProps.data" type="RecordType[]" required>
+  Array of records
+</ParamField>
+
+<ParamField path="keyProps.getRowKey" type="GetRowKey<RecordType>" required>
+  Function to get row key
+</ParamField>
+
+<ParamField path="keyProps.key" type="RecordKey" required>
+  Key of the row to modify
+</ParamField>
+
+<ParamField path="keyProps.row" type="RecordType" required>
+  Row data
+</ParamField>
+
+<ParamField path="keyProps.childrenColumnName" type="string" required>
+  Name of the children property
+</ParamField>
+
+<ParamField path="action" type="'update' | 'top' | 'delete'" required>
+  Action to perform:
+  - `'update'`: Update existing row or add at bottom
+  - `'top'`: Add new row at top
+  - `'delete'`: Remove the row
+</ParamField>
+
+<ResponseField name="result" type="RecordType[]">
+  Updated array with the modification applied
+</ResponseField>

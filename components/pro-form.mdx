@@ -1,0 +1,638 @@
+---
+title: ProForm
+description: Enhanced form component with multiple layouts, validation, and submission handling
+---
+
+ProForm is a comprehensive form solution that extends Ant Design's Form with powerful layouts, field components, and submission workflows designed for enterprise applications.
+
+## Features
+
+- **Multiple Layouts**: ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter, LightFilter
+- **Rich Field Types**: 30+ field components with automatic rendering based on `valueType`
+- **Form Schemas**: Define forms using schema configuration
+- **Async Operations**: Built-in loading states and request handling
+- **Form Composition**: Group, FieldSet, Dependency, FormList support
+- **Validation**: Integration with Ant Design Form validation
+
+## Form Layouts
+
+<Tabs>
+  <Tab title="ProForm">
+    Standard form layout with automatic layout management:
+    
+    ```tsx
+    import { ProForm, ProFormText } from '@ant-design/pro-components';
+    
+    export default () => {
+      return (
+        <ProForm
+          onFinish={async (values) => {
+            await submitForm(values);
+            message.success('提交成功');
+          }}
+        >
+          <ProFormText
+            name="name"
+            label="用户名"
+            rules={[{ required: true }]}
+          />
+          <ProFormText.Password
+            name="password"
+            label="密码"
+            rules={[{ required: true }]}
+          />
+        </ProForm>
+      );
+    };
+    ```
+  </Tab>
+  
+  <Tab title="ModalForm">
+    Form displayed in a modal dialog:
+    
+    ```tsx
+    import { ModalForm, ProFormText } from '@ant-design/pro-components';
+    
+    export default () => {
+      return (
+        <ModalForm
+          title="新建用户"
+          trigger={<Button type="primary">新建</Button>}
+          onFinish={async (values) => {
+            await createUser(values);
+            return true; // Close modal on success
+          }}
+        >
+          <ProFormText name="name" label="姓名" />
+          <ProFormText name="email" label="邮箱" />
+        </ModalForm>
+      );
+    };
+    ```
+  </Tab>
+  
+  <Tab title="DrawerForm">
+    Form displayed in a drawer:
+    
+    ```tsx
+    import { DrawerForm, ProFormText } from '@ant-design/pro-components';
+    
+    export default () => {
+      return (
+        <DrawerForm
+          title="编辑用户"
+          trigger={<Button>编辑</Button>}
+          onFinish={async (values) => {
+            await updateUser(values);
+            return true;
+          }}
+        >
+          <ProFormText name="name" label="姓名" />
+          <ProFormTextArea name="bio" label="简介" />
+        </DrawerForm>
+      );
+    };
+    ```
+  </Tab>
+  
+  <Tab title="StepsForm">
+    Multi-step form wizard:
+    
+    ```tsx
+    import { StepsForm } from '@ant-design/pro-components';
+    
+    export default () => {
+      return (
+        <StepsForm
+          onFinish={async (values) => {
+            await submitAllSteps(values);
+          }}
+        >
+          <StepsForm.StepForm name="basic" title="基本信息">
+            <ProFormText name="name" label="名称" />
+          </StepsForm.StepForm>
+          
+          <StepsForm.StepForm name="detail" title="详细信息">
+            <ProFormTextArea name="description" label="描述" />
+          </StepsForm.StepForm>
+          
+          <StepsForm.StepForm name="confirm" title="确认">
+            {/* Review step */}
+          </StepsForm.StepForm>
+        </StepsForm>
+      );
+    };
+    ```
+  </Tab>
+</Tabs>
+
+## Form Fields
+
+ProForm provides field components for all common data types:
+
+### Text Input Fields
+
+```tsx
+import {
+  ProFormText,
+  ProFormTextArea,
+  ProFormDigit,
+  ProFormMoney,
+  ProFormPassword,
+} from '@ant-design/pro-components';
+
+<ProFormText
+  name="title"
+  label="标题"
+  placeholder="请输入标题"
+  rules={[{ required: true, message: '请输入标题' }]}
+/>
+
+<ProFormTextArea
+  name="description"
+  label="描述"
+  placeholder="请输入描述"
+  fieldProps={{ rows: 4 }}
+/>
+
+<ProFormDigit
+  name="age"
+  label="年龄"
+  min={0}
+  max={150}
+  fieldProps={{ precision: 0 }}
+/>
+
+<ProFormMoney
+  name="amount"
+  label="金额"
+  locale="zh-CN"
+  customSymbol="¥"
+/>
+```
+
+### Selection Fields
+
+```tsx
+import {
+  ProFormSelect,
+  ProFormRadio,
+  ProFormCheckbox,
+  ProFormSwitch,
+  ProFormRate,
+  ProFormSlider,
+} from '@ant-design/pro-components';
+
+<ProFormSelect
+  name="status"
+  label="状态"
+  valueEnum={{
+    open: '开放',
+    closed: '关闭',
+    pending: '待定',
+  }}
+  placeholder="请选择状态"
+  rules={[{ required: true }]}
+/>
+
+<ProFormSelect
+  name="city"
+  label="城市"
+  request={async () => {
+    const response = await fetch('/api/cities');
+    return response.json();
+  }}
+  showSearch
+/>
+
+<ProFormRadio.Group
+  name="type"
+  label="类型"
+  options={[
+    { label: '类型A', value: 'a' },
+    { label: '类型B', value: 'b' },
+  ]}
+/>
+
+<ProFormCheckbox.Group
+  name="features"
+  label="功能"
+  options={['功能1', '功能2', '功能3']}
+/>
+```
+
+### Date & Time Fields
+
+```tsx
+import {
+  ProFormDatePicker,
+  ProFormDateTimePicker,
+  ProFormDateRangePicker,
+  ProFormDateTimeRangePicker,
+  ProFormTimePicker,
+} from '@ant-design/pro-components';
+
+<ProFormDatePicker
+  name="date"
+  label="日期"
+  placeholder="选择日期"
+/>
+
+<ProFormDateRangePicker
+  name="dateRange"
+  label="日期范围"
+  transform={(value) => ({
+    startDate: value[0],
+    endDate: value[1],
+  })}
+/>
+```
+
+### Advanced Fields
+
+```tsx
+import {
+  ProFormUploadButton,
+  ProFormUploadDragger,
+  ProFormTreeSelect,
+  ProFormCascader,
+  ProFormColorPicker,
+  ProFormSegmented,
+} from '@ant-design/pro-components';
+
+<ProFormUploadButton
+  name="files"
+  label="文件上传"
+  max={5}
+  fieldProps={{
+    name: 'file',
+    listType: 'picture-card',
+  }}
+  action="/api/upload"
+/>
+
+<ProFormTreeSelect
+  name="department"
+  label="部门"
+  request={async () => {
+    return await fetchDepartmentTree();
+  }}
+/>
+
+<ProFormCascader
+  name="region"
+  label="地区"
+  fieldProps={{
+    options: regionOptions,
+  }}
+/>
+```
+
+## Form Groups & Layouts
+
+### ProForm.Group
+
+Group multiple fields in a row:
+
+```tsx
+<ProForm>
+  <ProForm.Group>
+    <ProFormText name="firstName" label="名" width="md" />
+    <ProFormText name="lastName" label="姓" width="md" />
+  </ProForm.Group>
+  
+  <ProForm.Group title="联系方式">
+    <ProFormText name="email" label="邮箱" width="lg" />
+    <ProFormText name="phone" label="电话" width="md" />
+  </ProForm.Group>
+</ProForm>
+```
+
+### ProFormFieldSet
+
+Bundle multiple fields as a single form item:
+
+```tsx
+<ProFormFieldSet
+  name="range"
+  label="价格区间"
+  transform={(value) => ({
+    min: value[0],
+    max: value[1],
+  })}
+>
+  <ProFormDigit placeholder="最低价" />
+  <ProFormDigit placeholder="最高价" />
+</ProFormFieldSet>
+```
+
+### ProFormList
+
+Dynamic form list for arrays:
+
+```tsx
+import { ProFormList } from '@ant-design/pro-components';
+
+<ProFormList
+  name="contacts"
+  label="联系人"
+  creatorButtonProps={{
+    creatorButtonText: '添加联系人',
+  }}
+  itemRender={({ listDom, action }) => {
+    return (
+      <ProCard
+        bordered
+        extra={action}
+        style={{ marginBottom: 8 }}
+      >
+        {listDom}
+      </ProCard>
+    );
+  }}
+>
+  <ProFormText name="name" label="姓名" />
+  <ProFormText name="phone" label="电话" />
+</ProFormList>
+```
+
+### ProFormDependency
+
+Fields dependent on other field values:
+
+```tsx
+import { ProFormDependency } from '@ant-design/pro-components';
+
+<ProFormSelect
+  name="type"
+  label="类型"
+  options={[
+    { label: '个人', value: 'personal' },
+    { label: '企业', value: 'company' },
+  ]}
+/>
+
+<ProFormDependency name={['type']}>
+  {({ type }) => {
+    if (type === 'company') {
+      return (
+        <ProFormText
+          name="companyName"
+          label="公司名称"
+          rules={[{ required: true }]}
+        />
+      );
+    }
+    return null;
+  }}
+</ProFormDependency>
+```
+
+## QueryFilter
+
+Compact search form for tables:
+
+```tsx
+import { QueryFilter, ProFormText, ProFormSelect } from '@ant-design/pro-components';
+
+export default () => {
+  return (
+    <QueryFilter
+      onFinish={async (values) => {
+        await searchData(values);
+      }}
+      onReset={() => {
+        // Reset search
+      }}
+    >
+      <ProFormText name="name" label="名称" />
+      <ProFormSelect
+        name="status"
+        label="状态"
+        valueEnum={{
+          all: '全部',
+          open: '开放',
+          closed: '关闭',
+        }}
+      />
+      <ProFormDateRangePicker name="dateRange" label="日期" />
+    </QueryFilter>
+  );
+};
+```
+
+## LightFilter
+
+Inline lightweight filter:
+
+```tsx
+import { LightFilter, ProFormText, ProFormSelect } from '@ant-design/pro-components';
+
+export default () => {
+  return (
+    <LightFilter
+      onFinish={async (values) => {
+        await filterData(values);
+      }}
+    >
+      <ProFormText name="keyword" label="关键词" />
+      <ProFormSelect
+        name="category"
+        label="分类"
+        options={categoryOptions}
+      />
+    </LightFilter>
+  );
+};
+```
+
+## Form Submission
+
+### Basic Submission
+
+```tsx
+<ProForm
+  onFinish={async (values) => {
+    try {
+      await submitData(values);
+      message.success('提交成功');
+      return true; // Return true to trigger reset
+    } catch (error) {
+      message.error('提交失败');
+      return false;
+    }
+  }}
+>
+  {/* Form fields */}
+</ProForm>
+```
+
+### Custom Submitter
+
+```tsx
+<ProForm
+  submitter={{
+    render: (props, doms) => {
+      return [
+        <Button key="rest" onClick={() => props.form?.resetFields()}>
+          重置
+        </Button>,
+        <Button
+          type="primary"
+          key="submit"
+          onClick={() => props.form?.submit()}
+        >
+          提交并继续
+        </Button>,
+      ];
+    },
+  }}
+>
+  {/* Form fields */}
+</ProForm>
+```
+
+### Submitter Configuration
+
+```tsx
+<ProForm
+  submitter={{
+    searchConfig: {
+      submitText: '确认',
+      resetText: '取消',
+    },
+    resetButtonProps: {
+      style: { display: 'none' },
+    },
+    submitButtonProps: {
+      loading: submitting,
+    },
+  }}
+/>
+```
+
+## Form Validation
+
+```tsx
+<ProFormText
+  name="username"
+  label="用户名"
+  rules={[
+    { required: true, message: '请输入用户名' },
+    { min: 3, message: '用户名至少3个字符' },
+    { max: 20, message: '用户名最多20个字符' },
+    {
+      pattern: /^[a-zA-Z0-9_]+$/,
+      message: '只能包含字母、数字和下划线',
+    },
+  ]}
+/>
+
+<ProFormText
+  name="email"
+  label="邮箱"
+  rules={[
+    { required: true },
+    { type: 'email', message: '请输入有效的邮箱地址' },
+    {
+      validator: async (_, value) => {
+        const exists = await checkEmailExists(value);
+        if (exists) {
+          throw new Error('该邮箱已被使用');
+        }
+      },
+    },
+  ]}
+/>
+```
+
+## Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `onFinish` | `(values) => Promise<boolean \| void>` | Form submit handler |
+| `initialValues` | `Record<string, any>` | Initial form values |
+| `request` | `() => Promise<Record<string, any>>` | Async load initial values |
+| `submitter` | `false \| SubmitterProps` | Submit button config |
+| `layout` | `'horizontal' \| 'vertical' \| 'inline'` | Form layout |
+| `grid` | `boolean` | Enable grid layout |
+| `dateFormatter` | `'string' \| 'number' \| false` | Date value formatter |
+| `formRef` | `React.MutableRefObject<ProFormInstance>` | Form instance ref |
+
+## Form Instance Methods
+
+```tsx
+import { useRef } from 'react';
+import type { ProFormInstance } from '@ant-design/pro-components';
+
+const Demo = () => {
+  const formRef = useRef<ProFormInstance>();
+  
+  return (
+    <>
+      <Button onClick={() => formRef.current?.submit()}>提交</Button>
+      <Button onClick={() => formRef.current?.resetFields()}>重置</Button>
+      <Button
+        onClick={() => {
+          const values = formRef.current?.getFieldsValue();
+          console.log(values);
+        }}
+      >
+        获取值
+      </Button>
+      
+      <ProForm formRef={formRef}>
+        {/* Form fields */}
+      </ProForm>
+    </>
+  );
+};
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use transform for data conversion">
+    Convert form values to API format using the `transform` prop:
+    ```tsx
+    <ProFormDateRangePicker
+      transform={(value) => ({
+        startDate: value[0],
+        endDate: value[1],
+      })}
+    />
+    ```
+  </Accordion>
+  
+  <Accordion title="Set field width consistently">
+    Use width props for consistent field sizing:
+    ```tsx
+    <ProFormText width="xs" /> // ~104px
+    <ProFormText width="sm" /> // ~216px
+    <ProFormText width="md" /> // ~328px
+    <ProFormText width="lg" /> // ~440px
+    <ProFormText width="xl" /> // ~552px
+    ```
+  </Accordion>
+  
+  <Accordion title="Group related fields">
+    Use ProForm.Group to organize related fields visually and semantically.
+  </Accordion>
+  
+  <Accordion title="Handle async validation carefully">
+    Debounce async validators to prevent excessive API calls:
+    ```tsx
+    rules={[{
+      validator: debounce(async (_, value) => {
+        await checkAvailability(value);
+      }, 300)
+    }]}
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Components
+
+- [ProTable](/components/pro-table) - Use QueryFilter with ProTable
+- [ProDescriptions](/components/pro-descriptions) - Detail display
+- [ProCard](/components/pro-card) - Form container

@@ -1,0 +1,724 @@
+---
+title: Best Practices
+description: Best practices and patterns for building enterprise applications with ProComponents
+icon: "star"
+---
+
+## Overview
+
+This guide covers proven patterns and best practices for building scalable, maintainable enterprise applications with ProComponents.
+
+## Component Selection
+
+### When to Use ProComponents
+
+Choose ProComponents when you need:
+
+<CardGroup cols={2}>
+  <Card title="Complex Data Tables" icon="table">
+    ProTable for tables with search, filtering, pagination, and column management built-in.
+  </Card>
+  
+  <Card title="Enterprise Forms" icon="file-lines">
+    ProForm for multi-step forms, modal forms, and forms with complex validation.
+  </Card>
+  
+  <Card title="Admin Layouts" icon="table-columns">
+    ProLayout for applications needing sidebar navigation, header actions, and responsive layouts.
+  </Card>
+  
+  <Card title="Data Lists" icon="list">
+    ProList when you need table functionality in list format with built-in search.
+  </Card>
+</CardGroup>
+
+### When to Use Standard Ant Design
+
+Use base Ant Design components for:
+
+- Simple forms with 2-3 fields
+- Basic tables without search/filter requirements
+- Static layouts without navigation
+- Individual UI elements (buttons, inputs, cards)
+
+<Tip>
+  ProComponents extend Ant Design - you can mix both libraries in the same application.
+</Tip>
+
+## ProTable Best Practices
+
+### Define Clear Data Types
+
+Always define TypeScript interfaces for your data:
+
+```tsx
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'user' | 'guest';
+  createdAt: string;
+  status: 'active' | 'inactive';
+}
+
+<ProTable<User>
+  columns={columns}
+  request={fetchUsers}
+  rowKey="id"
+/>
+```
+
+<Note>
+  Strong typing helps catch errors early and provides better IDE autocomplete.
+</Note>
+
+### Use Request Pattern
+
+Prefer the `request` prop over manual `dataSource` management:
+
+```tsx
+// ✅ Good - ProTable handles loading and pagination
+const request = async (params, sort, filter) => {
+  const response = await fetch('/api/users', {
+    method: 'POST',
+    body: JSON.stringify({ ...params, sort, filter }),
+  });
+  
+  const data = await response.json();
+  
+  return {
+    data: data.list,
+    success: true,
+    total: data.total,
+  };
+};
+
+<ProTable request={request} />
+
+// ❌ Avoid - Manual state management
+const [dataSource, setDataSource] = useState([]);
+const [loading, setLoading] = useState(false);
+
+const fetchData = async () => {
+  setLoading(true);
+  // ... fetch logic
+  setLoading(false);
+};
+
+<ProTable dataSource={dataSource} loading={loading} />
+```
+
+### Leverage ValueType
+
+Use `valueType` to reduce custom rendering:
+
+```tsx
+const columns = [
+  {
+    title: 'Amount',
+    dataIndex: 'amount',
+    valueType: 'money',  // Automatic formatting
+  },
+  {
+    title: 'Created',
+    dataIndex: 'createdAt',
+    valueType: 'dateTime',  // Automatic date formatting
+    sorter: true,
+  },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    valueType: 'select',
+    valueEnum: {
+      active: { text: 'Active', status: 'Success' },
+      inactive: { text: 'Inactive', status: 'Error' },
+    },
+  },
+];
+```
+
+### Implement Search Transforms
+
+Transform search form values before sending to API:
+
+```tsx
+const columns = [
+  {
+    title: 'Date Range',
+    dataIndex: 'dateRange',
+    valueType: 'dateRange',
+    hideInTable: true,
+    search: {
+      transform: (value) => ({
+        startDate: value[0],
+        endDate: value[1],
+      }),
+    },
+  },
+];
+```
+
+### Use ActionRef for Programmatic Control
+
+```tsx
+import { useRef } from 'react';
+import type { ActionType } from '@ant-design/pro-components';
+
+const actionRef = useRef<ActionType>();
+
+const handleDelete = async (id: string) => {
+  await deleteUser(id);
+  actionRef.current?.reload();  // Refresh table
+};
+
+<ProTable
+  actionRef={actionRef}
+  toolBarRender={() => [
+    <Button key="refresh" onClick={() => actionRef.current?.reload()}>
+      Refresh
+    </Button>,
+  ]}
+/>
+```
+
+### Persist Column State
+
+```tsx
+<ProTable
+  columnsState={{
+    persistenceKey: 'user-table-columns',
+    persistenceType: 'localStorage',
+    defaultValue: {
+      option: { fixed: 'right' },
+    },
+  }}
+/>
+```
+
+## ProForm Best Practices
+
+### Use Layout Props Effectively
+
+```tsx
+<ProForm
+  layout="horizontal"
+  grid={true}
+  rowProps={{
+    gutter: [16, 16],
+  }}
+  colProps={{
+    xs: 24,
+    sm: 12,
+    md: 8,
+    lg: 6,
+  }}
+>
+  {/* Form fields */}
+</ProForm>
+```
+
+### Group Related Fields
+
+```tsx
+import { ProForm, ProFormGroup, ProFormText } from '@ant-design/pro-components';
+
+<ProForm>
+  <ProFormGroup title="Basic Information">
+    <ProFormText name="firstName" label="First Name" />
+    <ProFormText name="lastName" label="Last Name" />
+  </ProFormGroup>
+  
+  <ProFormGroup title="Contact Information">
+    <ProFormText name="email" label="Email" />
+    <ProFormText name="phone" label="Phone" />
+  </ProFormGroup>
+</ProForm>
+```
+
+### Handle Form Submission
+
+```tsx
+const onFinish = async (values: FormValues) => {
+  try {
+    await submitForm(values);
+    message.success('Saved successfully');
+    return true;  // Close modal/drawer if applicable
+  } catch (error) {
+    message.error('Save failed');
+    return false;  // Keep form open
+  }
+};
+
+<ProForm
+  onFinish={onFinish}
+  submitter={{
+    searchConfig: {
+      submitText: 'Save',
+      resetText: 'Cancel',
+    },
+  }}
+/>
+```
+
+### Use Modal and Drawer Forms
+
+```tsx
+import { ModalForm, ProFormText } from '@ant-design/pro-components';
+import { Button } from 'antd';
+
+<ModalForm
+  title="Create User"
+  trigger={<Button type="primary">New User</Button>}
+  onFinish={async (values) => {
+    await createUser(values);
+    message.success('User created');
+    return true;
+  }}
+>
+  <ProFormText name="name" label="Name" rules={[{ required: true }]} />
+  <ProFormText name="email" label="Email" rules={[{ required: true, type: 'email' }]} />
+</ModalForm>
+```
+
+### Implement Field Dependencies
+
+```tsx
+import { ProForm, ProFormDependency } from '@ant-design/pro-components';
+
+<ProForm>
+  <ProFormSelect
+    name="type"
+    label="Type"
+    options={[
+      { label: 'Individual', value: 'individual' },
+      { label: 'Company', value: 'company' },
+    ]}
+  />
+  
+  <ProFormDependency name={['type']}>
+    {({ type }) => {
+      if (type === 'company') {
+        return <ProFormText name="companyName" label="Company Name" />;
+      }
+      return <ProFormText name="fullName" label="Full Name" />;
+    }}
+  </ProFormDependency>
+</ProForm>
+```
+
+## ProLayout Best Practices
+
+### Configure Routes Properly
+
+```tsx
+const routes = [
+  {
+    path: '/',
+    name: 'Dashboard',
+    icon: <DashboardOutlined />,
+  },
+  {
+    path: '/users',
+    name: 'User Management',
+    icon: <UserOutlined />,
+    routes: [
+      {
+        path: '/users/list',
+        name: 'User List',
+      },
+      {
+        path: '/users/roles',
+        name: 'Roles & Permissions',
+      },
+    ],
+  },
+];
+
+<ProLayout
+  route={{ routes }}
+  location={{ pathname: window.location.pathname }}
+/>
+```
+
+### Handle Navigation
+
+```tsx
+import { useNavigate } from 'react-router-dom';
+
+const navigate = useNavigate();
+
+<ProLayout
+  menuItemRender={(item, dom) => (
+    <a onClick={() => navigate(item.path || '/')}>
+      {dom}
+    </a>
+  )}
+/>
+```
+
+### Customize Header Actions
+
+```tsx
+import { QuestionCircleOutlined, BellOutlined } from '@ant-design/icons';
+import { Badge, Tooltip } from 'antd';
+
+<ProLayout
+  actionsRender={() => [
+    <Tooltip key="docs" title="Documentation">
+      <QuestionCircleOutlined style={{ fontSize: 18 }} />
+    </Tooltip>,
+    <Badge key="notifications" count={5}>
+      <BellOutlined style={{ fontSize: 18 }} />
+    </Badge>,
+  ]}
+  avatarProps={{
+    src: currentUser.avatar,
+    title: currentUser.name,
+    render: (props, dom) => (
+      <Dropdown menu={{ items: userMenuItems }}>
+        {dom}
+      </Dropdown>
+    ),
+  }}
+/>
+```
+
+## Performance Optimization
+
+### Memoize Heavy Computations
+
+```tsx
+import { useMemo } from 'react';
+
+const columns = useMemo(() => [
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    render: (text) => <span>{text}</span>,
+  },
+  // ... more columns
+], []);
+
+<ProTable columns={columns} />
+```
+
+### Debounce Search Inputs
+
+```tsx
+import { ProTable } from '@ant-design/pro-components';
+
+<ProTable
+  search={{
+    searchText: 'Search',
+    resetText: 'Reset',
+    // ProTable handles debouncing automatically
+  }}
+/>
+```
+
+### Use Pagination Wisely
+
+```tsx
+<ProTable
+  pagination={{
+    defaultPageSize: 20,
+    showSizeChanger: true,
+    pageSizeOptions: ['10', '20', '50', '100'],
+    showTotal: (total) => `Total ${total} items`,
+  }}
+/>
+```
+
+### Lazy Load Heavy Components
+
+```tsx
+import { lazy, Suspense } from 'react';
+import { Spin } from 'antd';
+
+const HeavyTable = lazy(() => import('./HeavyTable'));
+
+<Suspense fallback={<Spin />}>
+  <HeavyTable />
+</Suspense>
+```
+
+## Error Handling
+
+### Handle Request Errors
+
+```tsx
+const request = async (params) => {
+  try {
+    const response = await fetchData(params);
+    return {
+      data: response.data,
+      success: true,
+      total: response.total,
+    };
+  } catch (error) {
+    message.error('Failed to load data');
+    return {
+      data: [],
+      success: false,
+      total: 0,
+    };
+  }
+};
+
+<ProTable request={request} />
+```
+
+### Form Validation Errors
+
+```tsx
+<ProForm
+  onFinish={async (values) => {
+    try {
+      await submitForm(values);
+      return true;
+    } catch (error) {
+      if (error.response?.data?.errors) {
+        // Display field-specific errors
+        return error.response.data.errors;
+      }
+      message.error('Submission failed');
+      return false;
+    }
+  }}
+/>
+```
+
+## Code Organization
+
+### Separate Column Definitions
+
+```tsx
+// columns/userColumns.tsx
+export const getUserColumns = (): ProColumns<User>[] => [
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    search: false,
+  },
+  // ... more columns
+];
+
+// pages/UserList.tsx
+import { getUserColumns } from './columns/userColumns';
+
+const UserList = () => {
+  const columns = getUserColumns();
+  return <ProTable columns={columns} />;
+};
+```
+
+### Extract Custom Hooks
+
+```tsx
+// hooks/useTableRequest.ts
+export const useTableRequest = () => {
+  const request = async (params, sort, filter) => {
+    const response = await fetchData({ ...params, sort, filter });
+    return {
+      data: response.data,
+      success: true,
+      total: response.total,
+    };
+  };
+  
+  return { request };
+};
+
+// Usage
+const { request } = useTableRequest();
+<ProTable request={request} />
+```
+
+### Create Reusable Components
+
+```tsx
+// components/UserStatusTag.tsx
+import { Tag } from 'antd';
+
+interface Props {
+  status: 'active' | 'inactive' | 'pending';
+}
+
+export const UserStatusTag: React.FC<Props> = ({ status }) => {
+  const config = {
+    active: { color: 'green', text: 'Active' },
+    inactive: { color: 'red', text: 'Inactive' },
+    pending: { color: 'orange', text: 'Pending' },
+  };
+  
+  const { color, text } = config[status];
+  return <Tag color={color}>{text}</Tag>;
+};
+
+// Use in columns
+const columns = [
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    render: (status) => <UserStatusTag status={status} />,
+  },
+];
+```
+
+## Testing
+
+### Test ProTable Components
+
+```tsx
+import { render, screen, waitFor } from '@testing-library/react';
+import { ProTable } from '@ant-design/pro-components';
+
+test('renders table with data', async () => {
+  const request = jest.fn().mockResolvedValue({
+    data: [{ id: '1', name: 'John' }],
+    success: true,
+    total: 1,
+  });
+  
+  render(
+    <ProTable
+      columns={[{ title: 'Name', dataIndex: 'name' }]}
+      request={request}
+      rowKey="id"
+    />
+  );
+  
+  await waitFor(() => {
+    expect(screen.getByText('John')).toBeInTheDocument();
+  });
+});
+```
+
+### Test Form Submissions
+
+```tsx
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { ProForm, ProFormText } from '@ant-design/pro-components';
+
+test('submits form with values', async () => {
+  const onFinish = jest.fn().mockResolvedValue(true);
+  
+  render(
+    <ProForm onFinish={onFinish}>
+      <ProFormText name="name" label="Name" />
+    </ProForm>
+  );
+  
+  fireEvent.change(screen.getByLabelText('Name'), {
+    target: { value: 'John' },
+  });
+  
+  fireEvent.click(screen.getByText('Submit'));
+  
+  await waitFor(() => {
+    expect(onFinish).toHaveBeenCalledWith({ name: 'John' });
+  });
+});
+```
+
+## Common Pitfalls to Avoid
+
+<Warning>
+  **Avoid These Common Mistakes**
+</Warning>
+
+### Don't Forget rowKey
+
+```tsx
+// ❌ Missing rowKey causes rendering issues
+<ProTable columns={columns} request={request} />
+
+// ✅ Always provide rowKey
+<ProTable columns={columns} request={request} rowKey="id" />
+```
+
+### Don't Mix dataSource and request
+
+```tsx
+// ❌ Don't use both together
+<ProTable dataSource={data} request={fetchData} />
+
+// ✅ Use one or the other
+<ProTable request={fetchData} />
+// or
+<ProTable dataSource={data} />
+```
+
+### Don't Mutate Params Directly
+
+```tsx
+// ❌ Mutating params
+const request = async (params) => {
+  params.extra = 'value';  // Don't do this
+  return await fetchData(params);
+};
+
+// ✅ Create new object
+const request = async (params) => {
+  return await fetchData({ ...params, extra: 'value' });
+};
+```
+
+### Don't Ignore Return Values
+
+```tsx
+// ❌ Not returning proper structure
+const request = async () => {
+  const data = await fetchData();
+  return data;  // Missing success and total
+};
+
+// ✅ Return complete structure
+const request = async () => {
+  const response = await fetchData();
+  return {
+    data: response.data,
+    success: true,
+    total: response.total,
+  };
+};
+```
+
+## Quick Reference
+
+<CardGroup cols={2}>
+  <Card title="ProTable" icon="table">
+    - Use `request` for data fetching
+    - Define `rowKey` for unique identification
+    - Leverage `valueType` for formatting
+    - Use `actionRef` for programmatic control
+  </Card>
+  
+  <Card title="ProForm" icon="file-lines">
+    - Use `ModalForm`/`DrawerForm` for dialogs
+    - Group related fields with `ProFormGroup`
+    - Return `true` to close modal after success
+    - Use `ProFormDependency` for conditional fields
+  </Card>
+  
+  <Card title="ProLayout" icon="table-columns">
+    - Define clear route structure
+    - Use `menuItemRender` for navigation
+    - Configure `actionsRender` for header actions
+    - Set up `avatarProps` for user menu
+  </Card>
+  
+  <Card title="Performance" icon="gauge-high">
+    - Memoize columns and callbacks
+    - Use pagination for large datasets
+    - Lazy load heavy components
+    - Implement proper error handling
+  </Card>
+</CardGroup>
+
+## Additional Resources
+
+- [ProTable Documentation](/components/pro-table)
+- [ProForm Documentation](/components/pro-form)
+- [ProLayout Documentation](/components/pro-layout)
+- [Ant Design Best Practices](https://ant.design/docs/react/practical-projects)

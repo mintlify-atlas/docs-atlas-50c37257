@@ -1,0 +1,460 @@
+---
+title: ProField
+description: Complete API reference for ProField component
+---
+
+# ProField API
+
+ProField is the foundational field component used by ProForm, ProTable, and ProDescriptions to render values based on their type.
+
+## ProFieldProps
+
+<ParamField path="text" type="React.ReactNode">
+  The value to display or edit.
+</ParamField>
+
+<ParamField path="valueType" type="ProFieldValueType" default="text">
+  Type of the value, determines how it's rendered.
+  
+  <Expandable title="All Value Types">
+    **Text & Input**
+    - `text` - Plain text
+    - `textarea` - Multi-line text
+    - `password` - Password input
+    
+    **Numbers**
+    - `digit` - Number input
+    - `digitRange` - Number range
+    - `money` - Money with currency
+    - `percent` - Percentage
+    - `second` - Seconds (formatted as time)
+    
+    **Date & Time**
+    - `date` - Date picker
+    - `dateWeek` - Week picker
+    - `dateMonth` - Month picker
+    - `dateQuarter` - Quarter picker
+    - `dateYear` - Year picker
+    - `dateRange` - Date range picker
+    - `dateTime` - Date time picker
+    - `dateTimeRange` - Date time range picker
+    - `time` - Time picker
+    - `timeRange` - Time range picker
+    - `fromNow` - Relative time (e.g., "2 hours ago")
+    
+    **Selection**
+    - `select` - Select dropdown
+    - `checkbox` - Checkbox
+    - `radio` - Radio buttons
+    - `radioButton` - Radio button style
+    - `rate` - Star rating
+    - `switch` - Toggle switch
+    - `slider` - Slider
+    - `segmented` - Segmented control
+    
+    **Tree & Cascade**
+    - `treeSelect` - Tree select
+    - `cascader` - Cascading select
+    
+    **Display**
+    - `progress` - Progress bar
+    - `image` - Image display
+    - `avatar` - Avatar
+    - `color` - Color picker
+    - `index` - Index number
+    - `indexBorder` - Index with border
+    
+    **Code**
+    - `code` - Code block
+    - `jsonCode` - JSON code editor
+    
+    **Special**
+    - `option` - Action buttons
+  </Expandable>
+</ParamField>
+
+<ParamField path="mode" type="'read' | 'edit' | 'update'" default="read">
+  Display mode.
+  
+  - `read` - Display value (readonly)
+  - `edit` - Show input for editing
+  - `update` - Same as edit
+</ParamField>
+
+<ParamField path="readonly" type="boolean" default="false">
+  Force readonly mode regardless of `mode` prop.
+</ParamField>
+
+<ParamField path="fieldProps" type="any">
+  Props passed to the underlying input component.
+  
+  <Expandable title="Examples">
+    ```tsx
+    // For Select
+    <ProField
+      valueType="select"
+      fieldProps={{
+        mode: 'multiple',
+        showSearch: true,
+      }}
+    />
+    
+    // For DatePicker
+    <ProField
+      valueType="date"
+      fieldProps={{
+        format: 'YYYY-MM-DD',
+        showTime: true,
+      }}
+    />
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField path="placeholder" type="string | string[]">
+  Placeholder text for inputs.
+</ParamField>
+
+<ParamField path="value" type="any">
+  Current value (for controlled mode).
+</ParamField>
+
+<ParamField path="onChange" type="function">
+  Callback when value changes.
+  
+  ```typescript
+  (value: any) => void
+  ```
+</ParamField>
+
+## Value Formatting
+
+<ParamField path="emptyText" type="React.ReactNode | false" default="-">
+  Text to display when value is empty (only in read mode).
+  
+  Set to `false` to show nothing.
+</ParamField>
+
+<ParamField path="valueEnum" type="Record<string, any> | Map<string, any>">
+  Enum mapping for select, radio, checkbox, and other selection components.
+  
+  <Expandable title="Example">
+    ```tsx
+    <ProField
+      text="processing"
+      valueType="select"
+      valueEnum={{
+        processing: { text: 'Processing', status: 'Processing' },
+        success: { text: 'Success', status: 'Success' },
+        error: { text: 'Error', status: 'Error' },
+      }}
+    />
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField path="request" type="function">
+  Load remote data for select/cascader/treeSelect fields.
+  
+  ```typescript
+  (params?: any) => Promise<{ label: React.ReactNode; value: any; [key: string]: any }[]>
+  ```
+</ParamField>
+
+<ParamField path="params" type="any">
+  Parameters passed to the request function.
+</ParamField>
+
+<ParamField path="proFieldKey" type="React.Key">
+  Unique key for the field (used for request caching).
+</ParamField>
+
+## Custom Rendering
+
+<ParamField path="render" type="function">
+  Custom render function for read mode.
+  
+  ```typescript
+  (text: any, props: ProFieldFCRenderProps, dom: React.ReactElement) => React.ReactNode
+  ```
+  
+  <Expandable title="Example">
+    ```tsx
+    <ProField
+      text="john@example.com"
+      render={(text, props, dom) => (
+        <a href={`mailto:${text}`}>{dom}</a>
+      )}
+    />
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField path="formItemRender" type="function">
+  Custom render function for edit mode.
+  
+  ```typescript
+  (text: any, props: ProFieldFCRenderProps, dom: React.ReactElement) => React.ReactNode
+  ```
+</ParamField>
+
+## Field-Specific Props
+
+### Money Field
+
+<ParamField path="fieldProps.locale" type="string" default="en-US">
+  Locale for currency formatting.
+</ParamField>
+
+<ParamField path="fieldProps.customSymbol" type="string">
+  Custom currency symbol.
+</ParamField>
+
+<ParamField path="fieldProps.moneySymbol" type="boolean | string" default="¥">
+  Currency symbol. Set to `false` to hide.
+</ParamField>
+
+### Percent Field
+
+<ParamField path="fieldProps.precision" type="number" default="2">
+  Number of decimal places.
+</ParamField>
+
+<ParamField path="fieldProps.showSymbol" type="boolean" default="true">
+  Whether to show the % symbol.
+</ParamField>
+
+### Progress Field
+
+<ParamField path="fieldProps.status" type="'success' | 'exception' | 'normal' | 'active'">
+  Progress status.
+</ParamField>
+
+### Image Field
+
+<ParamField path="fieldProps.width" type="number">
+  Image width.
+</ParamField>
+
+### Code Field
+
+<ParamField path="fieldProps.language" type="string" default="javascript">
+  Code language for syntax highlighting.
+</ParamField>
+
+## Light Mode
+
+<ParamField path="light" type="boolean" default="false">
+  Enable light mode (compact display for filters).
+</ParamField>
+
+<ParamField path="label" type="React.ReactNode">
+  Field label (used in light mode).
+</ParamField>
+
+## Available Field Components
+
+ProField exports individual field components that can be used directly:
+
+- `FieldText` - Text display and input
+- `FieldTextArea` - Multi-line text
+- `FieldPassword` - Password input
+- `FieldDigit` - Number input
+- `FieldDigitRange` - Number range
+- `FieldMoney` - Money with currency
+- `FieldPercent` - Percentage
+- `FieldProgress` - Progress bar
+- `FieldRate` - Star rating
+- `FieldSlider` - Slider
+- `FieldSwitch` - Toggle switch
+- `FieldSelect` - Select dropdown
+- `FieldCheckbox` - Checkbox
+- `FieldRadio` - Radio buttons
+- `FieldSegmented` - Segmented control
+- `FieldCascader` - Cascading select
+- `FieldTreeSelect` - Tree select
+- `FieldDatePicker` - Date picker
+- `FieldTimePicker` - Time picker
+- `FieldRangePicker` - Date range picker
+- `FieldTimeRangePicker` - Time range picker
+- `FieldFromNow` - Relative time
+- `FieldSecond` - Seconds formatter
+- `FieldImage` - Image display
+- `FieldAvatar` - Avatar
+- `FieldCode` - Code block
+- `FieldColorPicker` - Color picker
+- `FieldStatus` - Status badge
+- `FieldOptions` - Action options
+- `FieldIndexColumn` - Index column
+
+## Usage Examples
+
+<Tabs>
+  <Tab title="Basic Display">
+    ```tsx
+    import { ProField } from '@ant-design/pro-components';
+
+    // Text
+    <ProField text="Hello World" valueType="text" mode="read" />
+
+    // Money
+    <ProField
+      text={1000}
+      valueType="money"
+      mode="read"
+      fieldProps={{ locale: 'en-US' }}
+    />
+
+    // Date
+    <ProField
+      text="2024-03-01"
+      valueType="date"
+      mode="read"
+    />
+
+    // Progress
+    <ProField
+      text={75}
+      valueType="progress"
+      mode="read"
+    />
+    ```
+  </Tab>
+  <Tab title="Edit Mode">
+    ```tsx
+    import { ProField } from '@ant-design/pro-components';
+    import { useState } from 'react';
+
+    const [value, setValue] = useState('');
+
+    // Text input
+    <ProField
+      text={value}
+      valueType="text"
+      mode="edit"
+      fieldProps={{
+        onChange: (e) => setValue(e.target.value),
+      }}
+    />
+
+    // Select
+    <ProField
+      text={value}
+      valueType="select"
+      mode="edit"
+      valueEnum={{
+        a: 'Option A',
+        b: 'Option B',
+        c: 'Option C',
+      }}
+      fieldProps={{
+        onChange: setValue,
+      }}
+    />
+
+    // Date Picker
+    <ProField
+      text={value}
+      valueType="date"
+      mode="edit"
+      fieldProps={{
+        onChange: setValue,
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="With Request">
+    ```tsx
+    <ProField
+      valueType="select"
+      mode="edit"
+      request={async () => {
+        const response = await fetch('/api/options');
+        const data = await response.json();
+        return data.map(item => ({
+          label: item.name,
+          value: item.id,
+        }));
+      }}
+      fieldProps={{
+        showSearch: true,
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Custom Render">
+    ```tsx
+    // Custom read mode
+    <ProField
+      text="john@example.com"
+      mode="read"
+      render={(text) => (
+        <a href={`mailto:${text}`}>
+          <MailOutlined /> {text}
+        </a>
+      )}
+    />
+
+    // Custom edit mode
+    <ProField
+      text={value}
+      mode="edit"
+      formItemRender={(text, props, dom) => (
+        <div>
+          <div>Custom Label</div>
+          {dom}
+        </div>
+      )}
+    />
+    ```
+  </Tab>
+  <Tab title="Value Types">
+    ```tsx
+    // Money
+    <ProField
+      text={1000}
+      valueType="money"
+      fieldProps={{
+        locale: 'en-US',
+        moneySymbol: '$',
+      }}
+    />
+
+    // Percent
+    <ProField
+      text={0.75}
+      valueType="percent"
+      fieldProps={{ precision: 2 }}
+    />
+
+    // From Now
+    <ProField
+      text="2024-03-01 10:00:00"
+      valueType="fromNow"
+    />
+
+    // Avatar
+    <ProField
+      text="https://example.com/avatar.jpg"
+      valueType="avatar"
+    />
+
+    // Code
+    <ProField
+      text={`function hello() { return 'world'; }`}
+      valueType="code"
+      fieldProps={{ language: 'javascript' }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+## ProFieldEmptyText
+
+Type for the empty text configuration:
+
+```typescript
+type ProFieldEmptyText = string | false;
+```
+
+Set to a string to customize the empty text, or `false` to show nothing when the value is empty.

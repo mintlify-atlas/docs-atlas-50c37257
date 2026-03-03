@@ -1,0 +1,398 @@
+---
+title: ProProvider / ProConfigProvider
+description: Complete API reference for ProProvider and ProConfigProvider
+---
+
+# ProProvider API
+
+ProProvider (also exported as ProConfigProvider) is a configuration provider for all Pro components, allowing you to customize themes, internationalization, and global behaviors.
+
+## ProConfigProvider
+
+<ParamField path="children" type="React.ReactNode" required>
+  Child components to provide configuration to.
+</ParamField>
+
+<ParamField path="token" type="DeepPartial<ProAliasToken>">
+  Custom design tokens for theming.
+  
+  <Expandable title="Common Token Properties">
+    ```typescript
+    {
+      colorPrimary?: string;
+      borderRadius?: number;
+      fontSize?: number;
+      // Layout specific tokens
+      layout?: {
+        sider?: {
+          colorMenuBackground?: string;
+          colorTextMenu?: string;
+          colorTextMenuSelected?: string;
+        };
+        header?: {
+          colorBgHeader?: string;
+          colorHeaderTitle?: string;
+        };
+      };
+    }
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField path="dark" type="boolean" default="false">
+  Enable dark mode.
+  
+  When enabled, automatically applies Ant Design's dark algorithm to the theme.
+</ParamField>
+
+<ParamField path="hashed" type="boolean" default="true">
+  Whether to use hashed CSS class names.
+  
+  Set to `false` in development for easier debugging.
+</ParamField>
+
+<ParamField path="prefixCls" type="string" default="ant-pro">
+  CSS class prefix for Pro components.
+</ParamField>
+
+<ParamField path="intl" type="IntlType">
+  Internationalization configuration.
+  
+  <Expandable title="IntlType">
+    ```typescript
+    type IntlType = {
+      locale: string;
+      getMessage: (id: string, defaultMessage: string) => string;
+    }
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField path="valueTypeMap" type="Record<string, ProRenderFieldPropsType>">
+  Custom value type renderers.
+  
+  <Expandable title="Example: Custom Value Type">
+    ```tsx
+    <ProConfigProvider
+      valueTypeMap={{
+        link: {
+          render: (text) => <a href={text}>{text}</a>,
+          formItemRender: (text, props, dom) => dom,
+        },
+      }}
+    >
+      {children}
+    </ProConfigProvider>
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField path="autoClearCache" type="boolean" default="false">
+  Automatically clear SWR cache when component unmounts.
+  
+  Useful for preventing stale data in multi-tenant applications.
+</ParamField>
+
+<ParamField path="needDeps" type="boolean" default="false">
+  Whether to check dependencies before rendering provider.
+  
+  Internal optimization prop - not typically needed by users.
+</ParamField>
+
+## useIntl Hook
+
+Hook to access internationalization within Pro components.
+
+```tsx
+import { useIntl } from '@ant-design/pro-components';
+
+const MyComponent = () => {
+  const intl = useIntl();
+  
+  return (
+    <div>
+      {intl.getMessage('app.welcome', 'Welcome')}
+    </div>
+  );
+};
+```
+
+### IntlType
+
+<ParamField path="locale" type="string">
+  Current locale (e.g., 'en-US', 'zh-CN').
+</ParamField>
+
+<ParamField path="getMessage" type="function">
+  Get internationalized message.
+  
+  ```typescript
+  (id: string, defaultMessage?: string) => string
+  ```
+</ParamField>
+
+## ProRenderFieldPropsType
+
+Type for custom value type renderers.
+
+<ParamField path="render" type="function">
+  Render function for read mode.
+  
+  ```typescript
+  (text: any, props: ProFieldFCRenderProps, dom: React.JSX.Element) => React.JSX.Element
+  ```
+</ParamField>
+
+<ParamField path="formItemRender" type="function">
+  Render function for edit mode.
+  
+  ```typescript
+  (text: any, props: ProFieldFCRenderProps, dom: React.JSX.Element) => React.JSX.Element
+  ```
+</ParamField>
+
+## BaseProFieldFC
+
+Base type for field components.
+
+<ParamField path="text" type="React.ReactNode">
+  Value to display.
+</ParamField>
+
+<ParamField path="mode" type="'read' | 'edit' | 'update'">
+  Render mode.
+</ParamField>
+
+<ParamField path="fieldProps" type="any">
+  Props for the underlying component.
+</ParamField>
+
+<ParamField path="light" type="boolean">
+  Light mode (compact).
+</ParamField>
+
+<ParamField path="label" type="React.ReactNode">
+  Field label.
+</ParamField>
+
+<ParamField path="valueEnum" type="Record<string, any> | Map<string, any>">
+  Value enumeration.
+</ParamField>
+
+<ParamField path="proFieldKey" type="React.Key">
+  Unique key for the field.
+</ParamField>
+
+## ProSchemaValueEnumType
+
+Type for value enum items.
+
+```typescript
+type ProSchemaValueEnumType = {
+  text: React.ReactNode;
+  status?: string;
+  color?: string;
+  disabled?: boolean;
+}
+```
+
+<ParamField path="text" type="React.ReactNode" required>
+  Display text.
+</ParamField>
+
+<ParamField path="status" type="string">
+  Predefined status color.
+  
+  Options: `Success`, `Processing`, `Default`, `Error`, `Warning`
+</ParamField>
+
+<ParamField path="color" type="string">
+  Custom color (overrides status).
+</ParamField>
+
+<ParamField path="disabled" type="boolean">
+  Whether the option is disabled.
+</ParamField>
+
+## Usage Examples
+
+<Tabs>
+  <Tab title="Basic Setup">
+    ```tsx
+    import { ProConfigProvider } from '@ant-design/pro-components';
+    import { ConfigProvider } from 'antd';
+    import enUS from 'antd/es/locale/en_US';
+
+    export default () => (
+      <ConfigProvider locale={enUS}>
+        <ProConfigProvider>
+          <App />
+        </ProConfigProvider>
+      </ConfigProvider>
+    );
+    ```
+  </Tab>
+  <Tab title="Dark Mode">
+    ```tsx
+    import { ProConfigProvider } from '@ant-design/pro-components';
+    import { useState } from 'react';
+
+    export default () => {
+      const [dark, setDark] = useState(false);
+
+      return (
+        <ProConfigProvider dark={dark}>
+          <Switch
+            checked={dark}
+            onChange={setDark}
+            checkedChildren="Dark"
+            unCheckedChildren="Light"
+          />
+          <App />
+        </ProConfigProvider>
+      );
+    };
+    ```
+  </Tab>
+  <Tab title="Custom Theme">
+    ```tsx
+    <ProConfigProvider
+      token={{
+        colorPrimary: '#1890ff',
+        borderRadius: 4,
+        layout: {
+          sider: {
+            colorMenuBackground: '#001529',
+            colorTextMenu: 'rgba(255, 255, 255, 0.65)',
+            colorTextMenuSelected: '#fff',
+          },
+        },
+      }}
+    >
+      <App />
+    </ProConfigProvider>
+    ```
+  </Tab>
+  <Tab title="Custom Value Type">
+    ```tsx
+    import { ProConfigProvider } from '@ant-design/pro-components';
+    import { Tag } from 'antd';
+
+    <ProConfigProvider
+      valueTypeMap={{
+        // Custom 'tag' value type
+        tag: {
+          render: (text, props) => {
+            const { fieldProps } = props;
+            return (
+              <Tag color={fieldProps?.color}>
+                {text}
+              </Tag>
+            );
+          },
+          formItemRender: (text, props, dom) => dom,
+        },
+        // Custom 'link' value type
+        link: {
+          render: (text) => (
+            <a href={text} target="_blank" rel="noopener">
+              {text}
+            </a>
+          ),
+          formItemRender: (text, props, dom) => dom,
+        },
+      }}
+    >
+      {/* Now you can use these custom types */}
+      <ProTable
+        columns={[
+          {
+            title: 'Status',
+            dataIndex: 'status',
+            valueType: 'tag',
+            fieldProps: { color: 'blue' },
+          },
+          {
+            title: 'Website',
+            dataIndex: 'url',
+            valueType: 'link',
+          },
+        ]}
+      />
+    </ProConfigProvider>
+    ```
+  </Tab>
+  <Tab title="Internationalization">
+    ```tsx
+    import { ProConfigProvider, useIntl } from '@ant-design/pro-components';
+    import { ConfigProvider } from 'antd';
+    import zhCN from 'antd/es/locale/zh_CN';
+    import enUS from 'antd/es/locale/en_US';
+
+    const intlMap = {
+      'en-US': {
+        locale: 'en-US',
+        getMessage: (id, defaultMessage) => {
+          const messages = {
+            'app.welcome': 'Welcome',
+            'app.logout': 'Logout',
+          };
+          return messages[id] || defaultMessage;
+        },
+      },
+      'zh-CN': {
+        locale: 'zh-CN',
+        getMessage: (id, defaultMessage) => {
+          const messages = {
+            'app.welcome': '欢迎',
+            'app.logout': '退出',
+          };
+          return messages[id] || defaultMessage;
+        },
+      },
+    };
+
+    export default () => {
+      const [locale, setLocale] = useState('en-US');
+
+      return (
+        <ConfigProvider locale={locale === 'zh-CN' ? zhCN : enUS}>
+          <ProConfigProvider intl={intlMap[locale]}>
+            <App />
+          </ProConfigProvider>
+        </ConfigProvider>
+      );
+    };
+
+    // Inside components
+    const MyComponent = () => {
+      const intl = useIntl();
+      return <div>{intl.getMessage('app.welcome', 'Welcome')}</div>;
+    };
+    ```
+  </Tab>
+  <Tab title="Auto Clear Cache">
+    ```tsx
+    // Useful for multi-tenant applications
+    <ProConfigProvider autoClearCache>
+      <App />
+    </ProConfigProvider>
+    ```
+  </Tab>
+</Tabs>
+
+## Best Practices
+
+1. **Place at root**: Put ProConfigProvider at the root of your application, wrapping all Pro components.
+
+2. **Combine with ConfigProvider**: Use together with Ant Design's ConfigProvider for consistent theming.
+
+3. **Theme tokens**: Customize `token` prop to match your brand colors and spacing.
+
+4. **Dark mode**: Use the `dark` prop to toggle dark mode - it automatically applies the correct theme algorithm.
+
+5. **Custom value types**: Register custom value types via `valueTypeMap` to reuse across all Pro components.
+
+6. **Internationalization**: Provide `intl` configuration for multi-language support.
+
+7. **Performance**: Enable `autoClearCache` in multi-tenant apps to prevent data leakage between tenants.

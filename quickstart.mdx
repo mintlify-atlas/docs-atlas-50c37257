@@ -1,80 +1,548 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get started with ProComponents in minutes
+icon: rocket
 ---
 
-## Get started in three steps
+Get up and running with ProComponents by building your first data table and form in just a few minutes.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+Before you begin, make sure you have:
+
+- React 18+ installed
+- Ant Design 6+ installed
+- ProComponents installed (see [Installation](/installation))
+
+## Your first ProTable
+
+Let's build a data table that fetches GitHub issues and displays them with search and filtering capabilities.
+
+<Steps>
+  <Step title="Create the table component">
+    Create a new file `IssueTable.tsx` and import the required components:
+
+    ```tsx
+    import { ProTable } from '@ant-design/pro-components';
+    import type { ProColumns } from '@ant-design/pro-components';
+    import { Tag, Space } from 'antd';
+    ```
+  </Step>
+
+  <Step title="Define your data type">
+    Define the TypeScript interface for your data:
+
+    ```tsx
+    type GithubIssue = {
+      id: number;
+      number: number;
+      title: string;
+      state: string;
+      labels: {
+        name: string;
+        color: string;
+      }[];
+      created_at: string;
+      updated_at: string;
+    };
+    ```
+  </Step>
+
+  <Step title="Configure the columns">
+    Define your table columns with ProComponents' powerful column types:
+
+    ```tsx
+    const columns: ProColumns<GithubIssue>[] = [
+      {
+        dataIndex: 'index',
+        valueType: 'indexBorder',
+        width: 48,
+      },
+      {
+        title: 'Title',
+        dataIndex: 'title',
+        copyable: true,
+        ellipsis: true,
+        tooltip: 'The issue title',
+      },
+      {
+        title: 'State',
+        dataIndex: 'state',
+        valueType: 'select',
+        valueEnum: {
+          open: { text: 'Open', status: 'Error' },
+          closed: { text: 'Closed', status: 'Success' },
+        },
+      },
+      {
+        title: 'Labels',
+        dataIndex: 'labels',
+        search: false,
+        render: (_, record) => (
+          <Space>
+            {record.labels.map(({ name, color }) => (
+              <Tag color={color} key={name}>{name}</Tag>
+            ))}
+          </Space>
+        ),
+      },
+      {
+        title: 'Created',
+        dataIndex: 'created_at',
+        valueType: 'dateTime',
+        sorter: true,
+      },
+    ];
+    ```
+  </Step>
+
+  <Step title="Add the request function">
+    ProTable automatically handles pagination and fetching:
+
+    ```tsx
+    const IssueTable = () => {
+      return (
+        <ProTable<GithubIssue>
+          columns={columns}
+          request={async (params, sort, filter) => {
+            const response = await fetch(
+              `https://api.github.com/repos/ant-design/ant-design/issues?` +
+              new URLSearchParams({
+                page: String(params.current),
+                per_page: String(params.pageSize),
+                state: params.state || 'open',
+              })
+            );
+            const data = await response.json();
+            return {
+              data: data,
+              success: true,
+              total: 1000,
+            };
+          }}
+          rowKey="id"
+          pagination={{
+            defaultPageSize: 10,
+          }}
+          search={{
+            labelWidth: 'auto',
+          }}
+          dateFormatter="string"
+          headerTitle="GitHub Issues"
+        />
+      );
+    };
+
+    export default IssueTable;
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  ProTable automatically generates a search form based on your column definitions. Columns with `search: false` won't appear in the search form.
+</Note>
+
+## Your first ProForm
+
+Now let's create a form with validation and multiple field types.
+
+<Steps>
+  <Step title="Import form components">
+    ```tsx
+    import { ProForm, ProFormText, ProFormSelect, ProFormDatePicker } from '@ant-design/pro-components';
+    import { message } from 'antd';
+    ```
+  </Step>
+
+  <Step title="Create the form">
+    ```tsx
+    const UserForm = () => {
+      return (
+        <ProForm
+          onFinish={async (values) => {
+            console.log('Form values:', values);
+            message.success('Submitted successfully!');
+            return true;
+          }}
+          initialValues={{
+            role: 'user',
+          }}
+        >
+          <ProFormText
+            name="name"
+            label="Name"
+            placeholder="Please enter name"
+            rules={[{ required: true, message: 'Name is required' }]}
+          />
+          
+          <ProFormText
+            name="email"
+            label="Email"
+            placeholder="Please enter email"
+            rules={[
+              { required: true, message: 'Email is required' },
+              { type: 'email', message: 'Invalid email format' },
+            ]}
+          />
+          
+          <ProFormSelect
+            name="role"
+            label="Role"
+            options={[
+              { label: 'Admin', value: 'admin' },
+              { label: 'User', value: 'user' },
+              { label: 'Guest', value: 'guest' },
+            ]}
+            rules={[{ required: true }]}
+          />
+          
+          <ProFormDatePicker
+            name="birthday"
+            label="Birthday"
+          />
+        </ProForm>
+      );
+    };
+    ```
+  </Step>
+</Steps>
+
+## Form layouts
+
+ProComponents provides multiple form layouts for different use cases:
+
+<Tabs>
+  <Tab title="Modal Form">
+    Use `ModalForm` to open forms in a modal dialog:
+
+    ```tsx
+    import { ModalForm, ProFormText } from '@ant-design/pro-components';
+    import { Button } from 'antd';
+
+    <ModalForm
+      title="New User"
+      trigger={<Button type="primary">Add User</Button>}
+      onFinish={async (values) => {
+        console.log(values);
+        message.success('User created');
+        return true;
+      }}
+    >
+      <ProFormText name="name" label="Name" rules={[{ required: true }]} />
+      <ProFormText name="email" label="Email" rules={[{ required: true }]} />
+    </ModalForm>
+    ```
+  </Tab>
+
+  <Tab title="Drawer Form">
+    Use `DrawerForm` for side panel forms:
+
+    ```tsx
+    import { DrawerForm, ProFormText } from '@ant-design/pro-components';
+    import { Button } from 'antd';
+
+    <DrawerForm
+      title="Edit User"
+      trigger={<Button>Edit</Button>}
+      onFinish={async (values) => {
+        console.log(values);
+        return true;
+      }}
+    >
+      <ProFormText name="name" label="Name" />
+      <ProFormText name="email" label="Email" />
+    </DrawerForm>
+    ```
+  </Tab>
+
+  <Tab title="Steps Form">
+    Use `StepsForm` for multi-step wizards:
+
+    ```tsx
+    import { StepsForm, ProFormText } from '@ant-design/pro-components';
+
+    <StepsForm
+      onFinish={async (values) => {
+        console.log('All values:', values);
+        return true;
+      }}
+    >
+      <StepsForm.StepForm title="Basic Info">
+        <ProFormText name="name" label="Name" />
+      </StepsForm.StepForm>
+      
+      <StepsForm.StepForm title="Contact">
+        <ProFormText name="email" label="Email" />
+      </StepsForm.StepForm>
+      
+      <StepsForm.StepForm title="Confirm">
+        <p>Review and submit</p>
+      </StepsForm.StepForm>
+    </StepsForm>
+    ```
+  </Tab>
+</Tabs>
+
+## Complete example
+
+Here's a complete working example combining ProTable with form actions:
+
+```tsx
+import { ProTable, ModalForm, ProFormText } from '@ant-design/pro-components';
+import type { ProColumns, ActionType } from '@ant-design/pro-components';
+import { Button, message } from 'antd';
+import { useRef, useState } from 'react';
+
+type User = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+};
+
+export default function UserManagement() {
+  const actionRef = useRef<ActionType>();
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+
+  const columns: ProColumns<User>[] = [
+    { title: 'ID', dataIndex: 'id', width: 80 },
+    { title: 'Name', dataIndex: 'name', copyable: true },
+    { title: 'Email', dataIndex: 'email', copyable: true },
+    {
+      title: 'Role',
+      dataIndex: 'role',
+      valueType: 'select',
+      valueEnum: {
+        admin: { text: 'Admin', status: 'Success' },
+        user: { text: 'User', status: 'Default' },
+      },
+    },
+    {
+      title: 'Created',
+      dataIndex: 'createdAt',
+      valueType: 'dateTime',
+      search: false,
+    },
+    {
+      title: 'Actions',
+      valueType: 'option',
+      render: (_, record) => [
+        <a key="edit" onClick={() => setEditingUser(record)}>
+          Edit
+        </a>,
+        <a key="delete" onClick={() => handleDelete(record.id)}>
+          Delete
+        </a>,
+      ],
+    },
+  ];
+
+  const handleDelete = async (id: number) => {
+    message.success('Deleted successfully');
+    actionRef.current?.reload();
+  };
+
+  return (
+    <>
+      <ProTable<User>
+        columns={columns}
+        actionRef={actionRef}
+        request={async (params) => {
+          return {
+            data: [
+              {
+                id: 1,
+                name: 'John Doe',
+                email: 'john@example.com',
+                role: 'admin',
+                createdAt: new Date().toISOString(),
+              },
+            ],
+            success: true,
+            total: 1,
+          };
+        }}
+        rowKey="id"
+        search={{
+          labelWidth: 'auto',
+        }}
+        pagination={{
+          defaultPageSize: 10,
+        }}
+        dateFormatter="string"
+        headerTitle="Users"
+        toolBarRender={() => [
+          <ModalForm
+            key="create"
+            title="Create User"
+            trigger={<Button type="primary">Create User</Button>}
+            onFinish={async (values) => {
+              message.success('User created');
+              actionRef.current?.reload();
+              return true;
+            }}
+          >
+            <ProFormText
+              name="name"
+              label="Name"
+              rules={[{ required: true }]}
+            />
+            <ProFormText
+              name="email"
+              label="Email"
+              rules={[{ required: true, type: 'email' }]}
+            />
+          </ModalForm>,
+        ]}
+      />
+
+      <ModalForm
+        title="Edit User"
+        open={!!editingUser}
+        initialValues={editingUser || {}}
+        onOpenChange={(visible) => !visible && setEditingUser(null)}
+        onFinish={async (values) => {
+          message.success('User updated');
+          actionRef.current?.reload();
+          setEditingUser(null);
+          return true;
+        }}
+      >
+        <ProFormText name="name" label="Name" rules={[{ required: true }]} />
+        <ProFormText name="email" label="Email" rules={[{ required: true }]} />
+      </ModalForm>
+    </>
+  );
+}
+```
+
+## Key concepts
 
 <AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+  <Accordion title="Value Types" icon="code">
+    ProComponents automatically renders fields based on `valueType`:
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
+    - `text` - Plain text
+    - `date` / `dateTime` - Date formatting
+    - `select` - Dropdown with `valueEnum`
+    - `money` - Currency formatting
+    - `percent` - Percentage display
+    - `digit` - Number formatting
+    - `progress` - Progress bar
+    
+    [See all value types](/components/pro-field)
   </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+
+  <Accordion title="Request Handling" icon="arrow-down-to-line">
+    The `request` prop handles async data fetching:
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
+    ```tsx
+    request={async (params, sort, filter) => {
+      const data = await fetchData(params);
+      
+      return {
+        data: data.list,
+        success: true,
+        total: data.total,
+      };
+    }}
+    ```
+  </Accordion>
+
+  <Accordion title="Action Ref" icon="arrows-rotate">
+    Use `actionRef` to programmatically control the table:
+    
+    ```tsx
+    const actionRef = useRef<ActionType>();
+    
+    actionRef.current?.reload();
+    actionRef.current?.reloadAndRest();
+    actionRef.current?.clearSelected();
+    ```
+  </Accordion>
+
+  <Accordion title="Search Form" icon="magnifying-glass">
+    ProTable automatically generates a search form from columns:
+    
+    - Add `search: false` to hide from search
+    - Use `hideInTable: true` to show only in search
+    - Customize with `search.labelWidth`, `search.collapsed`
   </Accordion>
 </AccordionGroup>
 
-### Step 2: Deploy your changes
+## Common patterns
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+<Tabs>
+  <Tab title="Master-Detail">
+    ```tsx
+    const [selectedRow, setSelectedRow] = useState<User>();
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    <ProTable
+      onRow={(record) => ({
+        onClick: () => setSelectedRow(record),
+      })}
+    />
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    {selectedRow && (
+      <ProDescriptions
+        column={2}
+        dataSource={selectedRow}
+        columns={detailColumns}
+      />
+    )}
+    ```
+  </Tab>
 
-### Step 3: Go live
+  <Tab title="Search + Create">
+    ```tsx
+    <ProTable
+      search={{
+        labelWidth: 'auto',
+      }}
+      toolBarRender={() => [
+        <Button key="add" type="primary">
+          Create
+        </Button>,
+      ]}
+    />
+    ```
+  </Tab>
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+  <Tab title="Batch Operations">
+    ```tsx
+    const [selectedRows, setSelectedRows] = useState<User[]>([]);
+
+    <ProTable
+      rowSelection={{
+        onChange: (_, rows) => setSelectedRows(rows),
+      }}
+      tableAlertRender={({ selectedRowKeys }) => (
+        <span>Selected {selectedRowKeys.length} items</span>
+      )}
+      tableAlertOptionRender={() => (
+        <Button onClick={() => batchDelete(selectedRows)}>
+          Delete Selected
+        </Button>
+      )}
+    />
+    ```
+  </Tab>
+</Tabs>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Explore Components" icon="grid" href="/components/overview">
+    Learn about all available ProComponents
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/pro-table">
+    Dive into detailed API documentation
+  </Card>
+  <Card title="Form Layouts" icon="table-cells" href="/components/form/form-layouts">
+    Explore different form layout options
+  </Card>
+  <Card title="Best Practices" icon="lightbulb" href="/guides/best-practices">
+    Learn best practices and patterns
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

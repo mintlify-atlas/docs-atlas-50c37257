@@ -1,0 +1,592 @@
+---
+title: Upload Fields
+description: File upload components for ProForm
+---
+
+Upload field components provide file upload functionality with preview and management features.
+
+## ProFormUploadButton
+
+Button-style upload component for file uploads.
+
+### Import
+
+```tsx
+import { ProFormUploadButton } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormUploadButton
+      name="attachments"
+      label="Attachments"
+      title="Click to Upload"
+      action="/api/upload"
+      max={5}
+    />
+    ```
+  </Tab>
+  <Tab title="Image Upload">
+    ```tsx
+    <ProFormUploadButton
+      name="images"
+      label="Images"
+      title="Upload Image"
+      action="/api/upload/image"
+      accept="image/*"
+      listType="picture-card"
+      max={3}
+      fieldProps={{
+        maxCount: 3,
+        beforeUpload: (file) => {
+          const isImage = file.type.startsWith('image/');
+          if (!isImage) {
+            message.error('You can only upload image files!');
+          }
+          return isImage || Upload.LIST_IGNORE;
+        }
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Custom Upload">
+    ```tsx
+    <ProFormUploadButton
+      name="documents"
+      label="Documents"
+      title="Upload"
+      icon={<UploadOutlined />}
+      fieldProps={{
+        customRequest: async ({ file, onSuccess, onError }) => {
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          try {
+            const response = await fetch('/api/upload', {
+              method: 'POST',
+              body: formData,
+            });
+            const data = await response.json();
+            onSuccess?.(data);
+          } catch (error) {
+            onError?.(error);
+          }
+        }
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+Extends ProFormText props and Ant Design [Upload](https://ant.design/components/upload) props.
+
+<ParamField path="action" type="string">
+  Upload endpoint URL. Required unless using `customRequest`.
+</ParamField>
+
+<ParamField path="title" type="ReactNode" default="'Click to Upload'">
+  Text displayed on the upload button.
+</ParamField>
+
+<ParamField path="icon" type="ReactNode" default="<UploadOutlined />">
+  Icon displayed on the upload button.
+</ParamField>
+
+<ParamField path="max" type="number">
+  Maximum number of files allowed. When limit is reached, upload button becomes disabled.
+</ParamField>
+
+<ParamField path="accept" type="string">
+  Accepted file types. Uses HTML input accept attribute:
+  - `image/*`: All image types
+  - `image/png,image/jpeg`: Specific image types
+  - `.pdf,.doc,.docx`: File extensions
+  - `video/*,audio/*`: Multiple media types
+</ParamField>
+
+<ParamField path="listType" type="'text' | 'picture' | 'picture-card' | 'picture-circle'" default="'picture'">
+  Upload list display style:
+  - `text`: Show as text list with file icon
+  - `picture`: Show as list with thumbnail
+  - `picture-card`: Show as card grid with large thumbnail
+  - `picture-circle`: Show as circular thumbnails
+</ParamField>
+
+<ParamField path="buttonProps" type="ButtonProps">
+  Props passed to the upload button. Accepts all Ant Design Button props:
+  ```tsx
+  buttonProps={{
+    type: 'primary',
+    size: 'large',
+    danger: true
+  }}
+  ```
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  Whether the upload button is disabled.
+</ParamField>
+
+<ParamField path="imageProps" type="Omit<ImageProps, 'src'>">
+  Props for image preview component. Accepts Ant Design Image props:
+  ```tsx
+  imageProps={{
+    preview: {
+      toolbarRender: () => null,
+      maskClassName: 'custom-mask'
+    }
+  }}
+  ```
+</ParamField>
+
+<ParamField path="value" type="UploadFile[]">
+  Controlled file list value. File object structure:
+  ```typescript
+  interface UploadFile {
+    uid: string;
+    name: string;
+    status?: 'uploading' | 'done' | 'error' | 'removed';
+    url?: string;
+    thumbUrl?: string;
+    response?: any;
+  }
+  ```
+</ParamField>
+
+<ParamField path="fieldProps.name" type="string" default="'file'">
+  Field name for file parameter in upload request.
+</ParamField>
+
+<ParamField path="fieldProps.headers" type="Record<string, string>">
+  HTTP headers for upload request:
+  ```tsx
+  headers={{
+    Authorization: `Bearer ${token}`,
+    'X-Custom-Header': 'value'
+  }}
+  ```
+</ParamField>
+
+<ParamField path="fieldProps.data" type="object | ((file: UploadFile) => object)">
+  Additional data sent with upload request:
+  ```tsx
+  data={{ userId: '123', type: 'document' }}
+  // or
+  data={(file) => ({ fileName: file.name })}
+  ```
+</ParamField>
+
+<ParamField path="fieldProps.withCredentials" type="boolean" default="false">
+  Whether to send cookies with upload request.
+</ParamField>
+
+<ParamField path="fieldProps.multiple" type="boolean" default="false">
+  Whether to allow selecting multiple files at once.
+</ParamField>
+
+<ParamField path="fieldProps.maxCount" type="number">
+  Maximum number of files in the list. When limit is reached, new uploads replace old files.
+</ParamField>
+
+<ParamField path="fieldProps.directory" type="boolean" default="false">
+  Whether to support uploading entire directories.
+</ParamField>
+
+<ParamField path="fieldProps.beforeUpload" type="(file: File, fileList: File[]) => boolean | Promise<File> | Upload.LIST_IGNORE">
+  Hook before uploading. Return false or reject Promise to prevent upload:
+  ```tsx
+  beforeUpload={(file) => {
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('File must be smaller than 2MB!');
+    }
+    return isLt2M || Upload.LIST_IGNORE;
+  }}
+  ```
+</ParamField>
+
+<ParamField path="fieldProps.customRequest" type="(options: UploadRequestOption) => void">
+  Custom upload implementation. Override default upload behavior:
+  ```typescript
+  interface UploadRequestOption {
+    file: File;
+    onProgress?: (event: { percent: number }) => void;
+    onSuccess?: (body: any, xhr?: XMLHttpRequest) => void;
+    onError?: (error: Error) => void;
+  }
+  ```
+</ParamField>
+
+<ParamField path="fieldProps.onChange" type="(info: { file: UploadFile, fileList: UploadFile[] }) => void">
+  Callback when upload state changes. Triggered on start, progress, success, and error.
+</ParamField>
+
+<ParamField path="fieldProps.onRemove" type="(file: UploadFile) => boolean | Promise<boolean>">
+  Callback before removing file. Return false to prevent removal.
+</ParamField>
+
+<ParamField path="fieldProps.onPreview" type="(file: UploadFile) => void">
+  Callback when file preview is clicked. Default behavior shows image preview.
+</ParamField>
+
+<ParamField path="fieldProps.onDownload" type="(file: UploadFile) => void">
+  Callback when download button is clicked.
+</ParamField>
+
+<ParamField path="fieldProps.itemRender" type="(originNode: ReactNode, file: UploadFile, fileList: UploadFile[], actions: { download: Function, preview: Function, remove: Function }) => ReactNode">
+  Custom render function for each file item in the list.
+</ParamField>
+
+<ParamField path="fieldProps.showUploadList" type="boolean | ShowUploadListInterface">
+  Whether to show upload list. Can be boolean or detailed configuration:
+  ```tsx
+  showUploadList={{
+    showPreviewIcon: true,
+    showRemoveIcon: true,
+    showDownloadIcon: false,
+    removeIcon: <DeleteOutlined />,
+    downloadIcon: <DownloadOutlined />
+  }}
+  ```
+</ParamField>
+
+---
+
+## ProFormUploadDragger
+
+Drag-and-drop upload component with drop zone.
+
+### Import
+
+```tsx
+import { ProFormUploadDragger } from '@ant-design/pro-components';
+```
+
+### Usage
+
+<Tabs>
+  <Tab title="Basic">
+    ```tsx
+    <ProFormUploadDragger
+      name="files"
+      label="Files"
+      title="Click or drag files to this area to upload"
+      description="Support single or bulk upload"
+      action="/api/upload"
+    />
+    ```
+  </Tab>
+  <Tab title="Custom Content">
+    ```tsx
+    <ProFormUploadDragger
+      name="documents"
+      label="Documents"
+      icon={<InboxOutlined />}
+      title="Upload Documents"
+      description="Supports PDF, DOC, DOCX files up to 10MB"
+      action="/api/upload/documents"
+      accept=".pdf,.doc,.docx"
+      max={10}
+      fieldProps={{
+        beforeUpload: (file) => {
+          const isValidSize = file.size / 1024 / 1024 < 10;
+          if (!isValidSize) {
+            message.error('File must be smaller than 10MB!');
+          }
+          return isValidSize || Upload.LIST_IGNORE;
+        }
+      }}
+    >
+      <p>Additional instructions or help text</p>
+    </ProFormUploadDragger>
+    ```
+  </Tab>
+  <Tab title="Image Upload">
+    ```tsx
+    <ProFormUploadDragger
+      name="images"
+      label="Product Images"
+      icon={<CameraOutlined />}
+      title="Upload Images"
+      description="Click or drag images here"
+      action="/api/upload/images"
+      accept="image/*"
+      max={5}
+      fieldProps={{
+        multiple: true,
+        listType: 'picture',
+        onChange: (info) => {
+          const { status } = info.file;
+          if (status === 'done') {
+            message.success(`${info.file.name} uploaded successfully.`);
+          } else if (status === 'error') {
+            message.error(`${info.file.name} upload failed.`);
+          }
+        }
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### Props
+
+Extends ProFormUploadButton props and Ant Design [Upload.Dragger](https://ant.design/components/upload#uploaddagger) props.
+
+<ParamField path="title" type="ReactNode" default="'Click or drag file to this area to upload'">
+  Main text displayed in the upload area.
+</ParamField>
+
+<ParamField path="icon" type="ReactNode" default="<InboxOutlined />">
+  Large icon displayed at the top of the upload area.
+</ParamField>
+
+<ParamField path="description" type="ReactNode" default="'Support single or bulk upload'">
+  Description text displayed below the title.
+</ParamField>
+
+<ParamField path="children" type="ReactNode">
+  Additional content displayed at the bottom of the upload area. Can include help text or links.
+</ParamField>
+
+<ParamField path="max" type="number">
+  Maximum number of files allowed. When limit is reached, dragger area is hidden.
+</ParamField>
+
+<ParamField path="action" type="string">
+  Upload endpoint URL.
+</ParamField>
+
+<ParamField path="accept" type="string">
+  Accepted file types.
+</ParamField>
+
+<ParamField path="value" type="UploadFile[]">
+  Controlled file list value.
+</ParamField>
+
+<ParamField path="onChange" type="(info: { file: UploadFile, fileList: UploadFile[] }) => void">
+  Callback when upload state changes.
+</ParamField>
+
+<ParamField path="fieldProps" type="DraggerProps">
+  All props from Upload.Dragger are supported through fieldProps. Refer to ProFormUploadButton props for detailed fieldProps options.
+</ParamField>
+
+## Common Features
+
+<Expandable title="File Validation">
+  Validate files before uploading using `beforeUpload`:
+  
+  ```tsx
+  const validateFile = (file: File) => {
+    // Check file type
+    const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      message.error('Invalid file type!');
+      return Upload.LIST_IGNORE;
+    }
+    
+    // Check file size (5MB limit)
+    const isLt5M = file.size / 1024 / 1024 < 5;
+    if (!isLt5M) {
+      message.error('File must be smaller than 5MB!');
+      return Upload.LIST_IGNORE;
+    }
+    
+    return true;
+  };
+  
+  <ProFormUploadButton
+    fieldProps={{
+      beforeUpload: validateFile
+    }}
+  />
+  ```
+</Expandable>
+
+<Expandable title="Custom Upload Request">
+  Implement custom upload logic with full control:
+  
+  ```tsx
+  <ProFormUploadButton
+    fieldProps={{
+      customRequest: async (options) => {
+        const { file, onProgress, onSuccess, onError } = options;
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'documents');
+        
+        try {
+          const xhr = new XMLHttpRequest();
+          
+          // Track upload progress
+          xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+              const percent = (e.loaded / e.total) * 100;
+              onProgress?.({ percent });
+            }
+          });
+          
+          xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+              const response = JSON.parse(xhr.responseText);
+              onSuccess?.(response, xhr);
+            } else {
+              onError?.(new Error('Upload failed'));
+            }
+          });
+          
+          xhr.addEventListener('error', () => {
+            onError?.(new Error('Upload failed'));
+          });
+          
+          xhr.open('POST', '/api/upload');
+          xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+          xhr.send(formData);
+        } catch (error) {
+          onError?.(error as Error);
+        }
+      }
+    }}
+  />
+  ```
+</Expandable>
+
+<Expandable title="Controlled File List">
+  Manage file list with controlled state:
+  
+  ```tsx
+  const [fileList, setFileList] = useState<UploadFile[]>([
+    {
+      uid: '-1',
+      name: 'existing-file.png',
+      status: 'done',
+      url: 'https://example.com/file.png',
+    },
+  ]);
+  
+  <ProFormUploadButton
+    value={fileList}
+    fieldProps={{
+      onChange: (info) => {
+        let newFileList = [...info.fileList];
+        
+        // Limit to most recent 3 files
+        newFileList = newFileList.slice(-3);
+        
+        // Update file status
+        newFileList = newFileList.map((file) => {
+          if (file.response) {
+            // Set url from response
+            file.url = file.response.url;
+          }
+          return file;
+        });
+        
+        setFileList(newFileList);
+      },
+      onRemove: (file) => {
+        // Confirm before removing
+        return new Promise((resolve) => {
+          Modal.confirm({
+            title: 'Delete file?',
+            onOk: () => resolve(true),
+            onCancel: () => resolve(false),
+          });
+        });
+      }
+    }}
+  />
+  ```
+</Expandable>
+
+<Expandable title="Image Preview">
+  Customize image preview behavior:
+  
+  ```tsx
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj);
+    }
+    setPreviewImage(file.url || file.preview);
+    setPreviewOpen(true);
+  };
+  
+  <ProFormUploadButton
+    listType="picture-card"
+    imageProps={{
+      preview: {
+        visible: previewOpen,
+        onVisibleChange: setPreviewOpen,
+        toolbarRender: (originalNode, info) => (
+          <Space>
+            {originalNode}
+            <DownloadOutlined onClick={() => downloadImage(info.current)} />
+          </Space>
+        )
+      }
+    }}
+    fieldProps={{
+      onPreview: handlePreview
+    }}
+  />
+  ```
+</Expandable>
+
+<Expandable title="Transform Value for Submission">
+  Transform file list for form submission:
+  
+  ```tsx
+  <ProFormUploadButton
+    name="attachments"
+    // Transform for submission - extract URLs or IDs
+    transform={(value: UploadFile[]) => {
+      return value
+        ?.filter(file => file.status === 'done')
+        ?.map(file => ({
+          uid: file.uid,
+          name: file.name,
+          url: file.response?.url || file.url,
+          id: file.response?.id
+        }));
+    }}
+    // Convert stored data back to UploadFile format
+    convertValue={(value: any[]) => {
+      return value?.map(item => ({
+        uid: item.uid || item.id,
+        name: item.name,
+        status: 'done' as const,
+        url: item.url
+      }));
+    }}
+  />
+  ```
+</Expandable>
+
+<Expandable title="Read-only Mode">
+  In read-only mode, upload components display file list without upload controls:
+  
+  ```tsx
+  <ProFormUploadButton
+    readonly
+    name="documents"
+    label="Documents"
+  />
+  
+  <ProFormUploadDragger
+    proFieldProps={{ mode: 'read' }}
+    name="files"
+    label="Files"
+  />
+  ```
+</Expandable>

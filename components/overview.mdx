@@ -1,0 +1,232 @@
+---
+title: Components Overview
+description: Comprehensive overview of ProComponents - enterprise-grade React components
+---
+
+ProComponents is a professional component library designed for enterprise-level applications. Built on top of Ant Design, it provides powerful, feature-rich components for building complex business applications.
+
+## Component Suite
+
+<CardGroup cols={2}>
+  <Card title="ProTable" icon="table" href="/components/pro-table">
+    Advanced data table with built-in search, filtering, pagination, and CRUD operations
+  </Card>
+  
+  <Card title="ProForm" icon="file-lines" href="/components/pro-form">
+    Enhanced form system with multiple layouts, validation, and submission handling
+  </Card>
+  
+  <Card title="ProLayout" icon="layout" href="/components/pro-layout">
+    Complete page layout solution with navigation, header, footer, and breadcrumbs
+  </Card>
+  
+  <Card title="ProCard" icon="square" href="/components/pro-card">
+    Flexible card container with tabs, collapse, split layouts and statistics
+  </Card>
+  
+  <Card title="ProList" icon="list" href="/components/pro-list">
+    Structured list component for displaying collection data with rich interactions
+  </Card>
+  
+  <Card title="ProDescriptions" icon="align-left" href="/components/pro-descriptions">
+    Display key-value data in a structured, readable format with editing support
+  </Card>
+  
+  <Card title="ProField" icon="input-text" href="/components/pro-field">
+    Unified field component supporting 30+ value types for display and editing
+  </Card>
+  
+  <Card title="ProSkeleton" icon="spinner" href="/components/pro-skeleton">
+    Loading placeholder components for page, list, and descriptions layouts
+  </Card>
+  
+  <Card title="ProProvider" icon="gear" href="/components/pro-provider">
+    Global configuration provider for themes, internationalization, and tokens
+  </Card>
+</CardGroup>
+
+## Key Features
+
+### Enterprise-Ready
+
+All components are designed with enterprise requirements in mind:
+
+- **Production-tested**: Battle-tested in thousands of applications
+- **Performance optimized**: Efficient rendering and data handling
+- **Accessibility**: WCAG 2.1 compliance built-in
+- **Type safety**: Full TypeScript support with comprehensive type definitions
+
+### Advanced Data Handling
+
+Components provide sophisticated data management capabilities:
+
+- **Request integration**: Built-in support for async data fetching
+- **State management**: Automatic state handling with actions and refs
+- **Caching**: SWR-based data caching for optimal performance
+- **Pagination & filtering**: Server-side and client-side data operations
+
+### Rich Value Types
+
+ProComponents supports 30+ value types out of the box:
+
+<Tabs>
+  <Tab title="Basic Types">
+    - `text` - Plain text display
+    - `textarea` - Multi-line text
+    - `digit` - Numeric input with formatting
+    - `money` - Currency formatting
+    - `percent` - Percentage display
+    - `option` - Action buttons
+  </Tab>
+  
+  <Tab title="Date & Time">
+    - `date` - Date picker
+    - `dateTime` - Date and time picker
+    - `dateRange` - Date range picker
+    - `dateTimeRange` - DateTime range picker
+    - `time` - Time picker
+    - `fromNow` - Relative time display
+  </Tab>
+  
+  <Tab title="Selection">
+    - `select` - Dropdown selection
+    - `radio` - Radio button group
+    - `checkbox` - Checkbox group
+    - `switch` - Toggle switch
+    - `rate` - Star rating
+    - `slider` - Slider input
+  </Tab>
+  
+  <Tab title="Advanced">
+    - `code` - Syntax highlighted code
+    - `jsonCode` - JSON viewer
+    - `image` - Image display
+    - `avatar` - User avatar
+    - `progress` - Progress bar
+    - `color` - Color picker
+  </Tab>
+</Tabs>
+
+## Design Philosophy
+
+### Schema-Driven
+
+ProComponents uses a schema-based approach where component configuration is declarative:
+
+```tsx
+const columns = [
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    valueType: 'text',
+    search: true,
+  },
+  {
+    title: 'Amount',
+    dataIndex: 'amount',
+    valueType: 'money',
+    sorter: true,
+  },
+];
+```
+
+### Unified API
+
+Similar components share consistent APIs:
+
+- All data components accept `columns` prop
+- All support `request` for async data
+- All provide `actionRef` for imperative actions
+- All integrate with form validation
+
+### Composable
+
+Components are designed to work together:
+
+```tsx
+<ProLayout>
+  <PageContainer>
+    <ProCard>
+      <ProTable columns={columns} />
+    </ProCard>
+  </PageContainer>
+</ProLayout>
+```
+
+## Getting Started
+
+### Installation
+
+```bash
+pnpm install @ant-design/pro-components
+```
+
+### Basic Usage
+
+```tsx
+import { ProTable } from '@ant-design/pro-components';
+
+const Demo = () => {
+  return (
+    <ProTable
+      columns={[
+        { title: 'Name', dataIndex: 'name' },
+        { title: 'Age', dataIndex: 'age', valueType: 'digit' },
+      ]}
+      request={async () => {
+        const data = await fetchData();
+        return { data, success: true };
+      }}
+    />
+  );
+};
+```
+
+### With Provider
+
+Wrap your app with ProProvider for global configuration:
+
+```tsx
+import { ProProvider } from '@ant-design/pro-components';
+
+const App = () => {
+  return (
+    <ProProvider
+      token={{ colorPrimary: '#1890ff' }}
+      intl={enUSIntl}
+    >
+      <YourApp />
+    </ProProvider>
+  );
+};
+```
+
+## Browser Support
+
+- Modern browsers (Chrome, Firefox, Safari, Edge)
+- Electron applications
+- Last 2 versions of major browsers
+
+<Warning>
+  IE11 support was dropped in ProComponents 3.0. For legacy browser support, use version 2.x.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="ProTable Guide" href="/components/pro-table">
+    Learn about the most powerful data table component
+  </Card>
+  
+  <Card title="ProForm Guide" href="/components/pro-form">
+    Master form creation with ProForm layouts
+  </Card>
+  
+  <Card title="Examples" href="/examples">
+    Explore real-world usage examples
+  </Card>
+  
+  <Card title="API Reference" href="/api">
+    Complete API documentation for all components
+  </Card>
+</CardGroup>
