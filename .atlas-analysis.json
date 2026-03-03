@@ -1,0 +1,149 @@
+{
+  "projectType": "frontend",
+  "projectName": "ProComponents",
+  "projectDescription": "Enterprise-level UI component library built on top of Ant Design for React applications",
+  "theme": "mint",
+  "primaryColor": "#1677FF",
+  "lightColor": "#69b1ff",
+  "darkColor": "#0958d9",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/overview",
+              "concepts/theming",
+              "concepts/internationalization"
+            ]
+          },
+          {
+            "group": "Components",
+            "pages": [
+              "components/overview",
+              "components/pro-table",
+              "components/pro-form",
+              "components/pro-layout",
+              "components/pro-card",
+              "components/pro-list",
+              "components/pro-descriptions",
+              "components/pro-field",
+              "components/pro-skeleton",
+              "components/pro-provider"
+            ]
+          },
+          {
+            "group": "Form Components",
+            "pages": [
+              "components/form/form-layouts",
+              "components/form/form-fields",
+              "components/form/field-components"
+            ]
+          },
+          {
+            "group": "Table Components",
+            "pages": [
+              "components/table/basic-usage",
+              "components/table/editable-table",
+              "components/table/drag-sort-table"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/migration",
+              "guides/customization",
+              "guides/best-practices"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Components API",
+            "pages": [
+              "api/pro-table",
+              "api/pro-form",
+              "api/pro-layout",
+              "api/pro-card",
+              "api/pro-list",
+              "api/pro-descriptions",
+              "api/pro-field",
+              "api/pro-skeleton",
+              "api/pro-provider"
+            ]
+          },
+          {
+            "group": "Form Fields API",
+            "pages": [
+              "api/form/text-fields",
+              "api/form/select-fields",
+              "api/form/date-fields",
+              "api/form/upload-fields",
+              "api/form/advanced-fields"
+            ]
+          },
+          {
+            "group": "Utilities",
+            "pages": [
+              "api/utilities/hooks",
+              "api/utilities/helpers"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "ProTable - Advanced data table with search, filtering, and CRUD operations",
+    "ProForm - Enhanced form components with validation and layouts",
+    "ProLayout - Complete page layout solution with navigation and menus",
+    "ProCard - Card components with tabs, dividers, and statistics",
+    "ProList - Advanced list component with search and filtering",
+    "ProDescriptions - Responsive description list for displaying data",
+    "ProField - Unified field component supporting multiple value types",
+    "ProSkeleton - Skeleton screen components for loading states",
+    "Internationalization support with multiple languages",
+    "Comprehensive theming and styling system"
+  ],
+  "publicApiSurface": [
+    "ProTable",
+    "EditableProTable",
+    "DragSortTable",
+    "ProForm",
+    "ProFormText",
+    "ProFormDigit",
+    "ProFormDatePicker",
+    "ProFormSelect",
+    "ProFormCheckbox",
+    "ProFormRadio",
+    "ProFormSwitch",
+    "ProFormTextArea",
+    "ProFormUploadButton",
+    "ProFormUploadDragger",
+    "ProFormList",
+    "ProFormDependency",
+    "ProLayout",
+    "ProCard",
+    "StatisticCard",
+    "CheckCard",
+    "ProList",
+    "ProDescriptions",
+    "ProField",
+    "ProSkeleton",
+    "ProProvider",
+    "ProConfigProvider"
+  ]
+}
