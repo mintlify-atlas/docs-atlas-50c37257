@@ -486,3 +486,156 @@ Configuration for individual menu items.
     ```
   </Tab>
 </Tabs>
+
+## Layout Sub-Components
+
+ProLayout exports several sub-components for building custom layouts.
+
+### PageContainer
+
+Container for page content with breadcrumb and page header.
+
+```tsx
+import { PageContainer } from '@ant-design/pro-components';
+
+<PageContainer
+  title="Page Title"
+  subTitle="Page subtitle"
+  extra={[<Button key="1">Action</Button>]}
+  breadcrumb={{
+    items: [
+      { title: 'Home', path: '/' },
+      { title: 'Current' },
+    ],
+  }}
+>
+  {/* Page content */}
+</PageContainer>
+```
+
+**Props:**
+
+<ParamField path="title" type="string | React.ReactNode">
+  Page title
+</ParamField>
+
+<ParamField path="subTitle" type="string | React.ReactNode">
+  Page subtitle
+</ParamField>
+
+<ParamField path="extra" type="React.ReactNode">
+  Extra content in the page header (usually action buttons)
+</ParamField>
+
+<ParamField path="breadcrumb" type="BreadcrumbProps">
+  Breadcrumb configuration
+</ParamField>
+
+<ParamField path="loading" type="boolean">
+  Loading state for the page
+</ParamField>
+
+### FooterToolbar
+
+Fixed footer toolbar for form actions.
+
+```tsx
+import { FooterToolbar } from '@ant-design/pro-components';
+import { Button } from 'antd';
+
+<FooterToolbar
+  extra={<span>Extra info</span>}
+>
+  <Button>Cancel</Button>
+  <Button type="primary">Submit</Button>
+</FooterToolbar>
+```
+
+**Props:**
+
+<ParamField path="extra" type="React.ReactNode">
+  Extra content on the left side
+</ParamField>
+
+<ParamField path="renderContent" type="(props, dom) => React.ReactNode">
+  Custom render function for toolbar content
+</ParamField>
+
+### GridContent
+
+Responsive grid content container that respects layout contentWidth.
+
+```tsx
+import { GridContent } from '@ant-design/pro-components';
+
+<GridContent>
+  {/* Content auto-adjusts based on layout contentWidth */}
+</GridContent>
+```
+
+### PageLoading
+
+Loading component for page transitions.
+
+```tsx
+import { PageLoading } from '@ant-design/pro-components';
+
+<PageLoading />
+```
+
+### SettingDrawer
+
+Development-only drawer for testing different layout configurations.
+
+```tsx
+import { SettingDrawer } from '@ant-design/pro-components';
+
+const [settings, setSettings] = useState({});
+
+<SettingDrawer
+  settings={settings}
+  onSettingChange={(changeSetting) => {
+    setSettings(changeSetting);
+  }}
+/>
+```
+
+<Warning>
+  SettingDrawer should only be used in development. Do not include it in production builds.
+</Warning>
+
+### DefaultFooter
+
+Default footer component with links and copyright.
+
+```tsx
+import { DefaultFooter } from '@ant-design/pro-components';
+
+<DefaultFooter
+  copyright="2024 Ant Design"
+  links={[
+    {
+      key: 'github',
+      title: 'GitHub',
+      href: 'https://github.com/ant-design/pro-components',
+      blankTarget: true,
+    },
+  ]}
+/>
+```
+
+### ProBreadcrumb
+
+Breadcrumb component that integrates with routing.
+
+```tsx
+import { ProBreadcrumb } from '@ant-design/pro-components';
+
+<ProBreadcrumb />
+```
+
+## Related Components
+
+- [ProTable](/api/pro-table) - Data table component
+- [ProCard](/api/pro-card) - Card container
+- [ProForm](/api/pro-form) - Form layouts
